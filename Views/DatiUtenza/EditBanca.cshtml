@@ -1,0 +1,87 @@
+@model ConsultingGroup.Models.Banche
+@{
+    ViewData["Title"] = "Modifica Banca";
+}
+
+<div class="container-fluid">
+    <div class="d-sm-flex align-items-center justify-content-between mb-4">
+        <h1 class="h3 mb-0 text-gray-800">
+            <i class="fas fa-university me-2"></i>
+            Modifica Banca
+        </h1>
+        <a href="@Url.Action("Banche")" class="btn btn-secondary btn-sm">
+            <i class="fas fa-arrow-left me-1"></i>
+            Torna all'Elenco
+        </a>
+    </div>
+
+    <div class="card shadow">
+        <div class="card-header py-3">
+            <h6 class="m-0 font-weight-bold text-primary">
+                <i class="fas fa-edit me-2"></i>
+                Modifica Dati Banca: @Model.NomeBanca
+            </h6>
+        </div>
+        <div class="card-body">
+            <form asp-action="EditBanca" method="post">
+                <input asp-for="Id" type="hidden" />
+                <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+
+                <div class="mb-3">
+                    <label asp-for="NomeBanca" class="form-label">Nome Banca *</label>
+                    <input asp-for="NomeBanca" class="form-control" placeholder="Es: Intesa Sanpaolo, UniCredit, Banco di Sicilia..." />
+                    <span asp-validation-for="NomeBanca" class="text-danger"></span>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label asp-for="IBAN" class="form-label">IBAN *</label>
+                        <input asp-for="IBAN" class="form-control" placeholder="IT60 X054 2811 1010 0000 0123 456" />
+                        <span asp-validation-for="IBAN" class="text-danger"></span>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label asp-for="CodiceUtente" class="form-label">Codice Utente *</label>
+                        <input asp-for="CodiceUtente" class="form-control" placeholder="Il tuo codice utente online" />
+                        <span asp-validation-for="CodiceUtente" class="text-danger"></span>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label asp-for="Password" class="form-label">Password *</label>
+                        <input asp-for="Password" type="text" class="form-control" placeholder="Password online banking" />
+                        <span asp-validation-for="Password" class="text-danger"></span>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label asp-for="Indirizzo" class="form-label">Indirizzo Filiale</label>
+                        <input asp-for="Indirizzo" class="form-control" placeholder="Indirizzo della filiale di riferimento" />
+                        <span asp-validation-for="Indirizzo" class="text-danger"></span>
+                    </div>
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="Note" class="form-label">Note</label>
+                    <textarea asp-for="Note" class="form-control" rows="3" placeholder="Note aggiuntive..."></textarea>
+                    <span asp-validation-for="Note" class="text-danger"></span>
+                </div>
+
+                <div class="d-flex justify-content-between">
+                    <a href="@Url.Action("Banche")" class="btn btn-secondary">
+                        <i class="fas fa-times me-1"></i>
+                        Annulla
+                    </a>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-save me-1"></i>
+                        Salva Modifiche
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

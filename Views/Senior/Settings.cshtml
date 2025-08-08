@@ -1,0 +1,109 @@
+@{
+    ViewData["Title"] = "Impostazioni - Area Senior";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item"><a href="@Url.Action("Welcome", "Senior")">Area Senior</a></li>
+                    <li class="breadcrumb-item active" aria-current="page">Impostazioni</li>
+                </ol>
+            </nav>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header bg-warning text-dark">
+                    <h4 class="mb-0">
+                        <i class="fas fa-cogs me-2"></i>
+                        Impostazioni Sistema - Area Senior
+                    </h4>
+                </div>
+                <div class="card-body">
+                    <div class="alert alert-warning">
+                        <i class="fas fa-exclamation-triangle me-2"></i>
+                        @ViewBag.Message
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-8">
+                            <div class="card">
+                                <div class="card-header">
+                                    <h6 class="mb-0">Configurazioni Disponibili</h6>
+                                </div>
+                                <div class="card-body">
+                                    <form>
+                                        <div class="mb-3">
+                                            <label for="systemName" class="form-label">Nome Sistema</label>
+                                            <input type="text" class="form-control" id="systemName" value="Consulting Group SRL">
+                                        </div>
+                                        <div class="mb-3">
+                                            <label for="defaultLanguage" class="form-label">Lingua Predefinita</label>
+                                            <select class="form-select" id="defaultLanguage">
+                                                <option value="it" selected>Italiano</option>
+                                                <option value="en">English</option>
+                                            </select>
+                                        </div>
+                                        <div class="mb-3">
+                                            <label for="timezone" class="form-label">Fuso Orario</label>
+                                            <select class="form-select" id="timezone">
+                                                <option value="Europe/Rome" selected>Europa/Roma</option>
+                                                <option value="UTC">UTC</option>
+                                            </select>
+                                        </div>
+                                        <div class="form-check mb-3">
+                                            <input class="form-check-input" type="checkbox" id="notifications" checked>
+                                            <label class="form-check-label" for="notifications">
+                                                Abilita notifiche sistema
+                                            </label>
+                                        </div>
+                                        <button type="submit" class="btn btn-primary">
+                                            <i class="fas fa-save me-1"></i>
+                                            Salva Impostazioni
+                                        </button>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="card bg-light">
+                                <div class="card-header">
+                                    <h6 class="mb-0">Permessi Senior</h6>
+                                </div>
+                                <div class="card-body">
+                                    <ul class="list-unstyled">
+                                        <li class="mb-2">
+                                            <i class="fas fa-check text-success me-2"></i>
+                                            Configurazione Sistema
+                                        </li>
+                                        <li class="mb-2">
+                                            <i class="fas fa-check text-success me-2"></i>
+                                            Backup e Ripristino
+                                        </li>
+                                        <li class="mb-2">
+                                            <i class="fas fa-check text-success me-2"></i>
+                                            Log di Sistema
+                                        </li>
+                                        <li class="mb-2">
+                                            <i class="fas fa-times text-danger me-2"></i>
+                                            Gestione Utenti
+                                        </li>
+                                        <li class="mb-2">
+                                            <i class="fas fa-times text-danger me-2"></i>
+                                            Impostazioni Sicurezza
+                                        </li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

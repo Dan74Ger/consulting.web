@@ -1,0 +1,87 @@
+SCRIVIMI IN ITALIANO
+
+
+
+connessione al server per il database : 
+nome server locale su IT15\SQLEXPRESS
+- **Autenticazione:** windows Authentication
+database nome: Consulting
+
+
+progetto in c:\dev\PROVA
+BACKUPS SQL DATABASE IN c:\dev\PROVA\BACKUPS
+BACKUPS PROGRAMMA IN c:\dev\PROVA\GIT_BACKUPS
+
+progetto
+RIEPILOGO PROGETTO ASP.NET MVC - PROVA
+
+## 🎯 **OBIETTIVO PROGETTO**
+- **Tipo:** ASP.NET Core MVC Web Application
+- **URL Target:** `http://prova:8080`
+- **Database:** SQL Server Express con autenticazione Windows
+- **Autenticazione:** windows Authentication
+
+TITOLO PROGETTO : GESTIONE STUDIO - CONSULTING GROUP SRL
+
+Crea un progetto ASP.NET Core MVC completo con le seguenti specifiche:
+
+
+
+## Pagina di Login (Home)
+- Area per logo aziendale (placeholder con upload futuro)
+- Form di login con username/password
+- Design moderno e responsive con Bootstrap 5
+- Validazione client e server
+
+## Utente Amministratore Predefinito
+- Username: admin
+- Password: 123456
+- Ruolo: Administrator
+- Creazione automatica al primo avvio
+
+## Dashboard Amministratore
+Menu laterale con sezioni:
+1. **Gestione Utenti** (completa):
+   - Lista utenti in tabella
+   - Aggiungi utente (username, email, password, nome, cognome, ruolo)
+   - Modifica utente
+   - Elimina utente (con conferma)
+   - Reset password
+
+2. **Gestione Amministrativa** (placeholder vuoto)
+3. **Gestione Clienti** (placeholder vuoto)
+
+## Configurazione Database
+- Connection string: `Server=IT15\SQLEXPRESS;Database=Consulting;Trusted_Connection=true;TrustServerCertificate=true;`
+- Migrazioni automatiche al startup
+- Creazione database se non esiste
+- Seed automatico utente admin
+
+## Requisiti Tecnici
+- launchSettings.json configurato per http://prova:8080
+- Program.cs con setup completo Identity, migrazioni e seed
+- Controllers: Home, Account, Admin, UserManagement
+- Models: ApplicationUser (estende IdentityUser), ViewModels per login e CRUD utenti
+- Views responsive con layout admin
+- Sicurezza: hash password, CSRF protection, autorizzazione ruoli
+- CSS personalizzato e Font Awesome per icone
+
+## Funzionalità
+- Login/logout
+- Breadcrumb navigation
+- Messaggi success/error
+- Session management
+- Upload logo (preparazione)
+
+Il progetto deve funzionare immediatamente con `dotnet run` e essere accessibile su http://prova:8080 con login admin/123456.
+
+
+
+taskkill /f /im ConsultingGroup.exe
+
+dotnet clean
+
+
+
+
+taskkill /f /im ConsultingGroup.exe

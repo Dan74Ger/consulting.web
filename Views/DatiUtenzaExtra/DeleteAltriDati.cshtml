@@ -1,0 +1,97 @@
+@model ConsultingGroup.Models.AltriDati
+@{
+    ViewData["Title"] = "Elimina Altri Dati";
+}
+
+<div class="container-fluid">
+    <div class="d-sm-flex align-items-center justify-content-between mb-4">
+        <h1 class="h3 mb-0 text-gray-800">
+            <i class="fas fa-folder me-2 text-danger"></i>
+            Elimina Altri Dati
+        </h1>
+        <a href="@Url.Action("AltriDati")" class="btn btn-secondary btn-sm">
+            <i class="fas fa-arrow-left me-1"></i>
+            Torna all'Elenco
+        </a>
+    </div>
+
+    <div class="card shadow border-left-danger">
+        <div class="card-header py-3 bg-danger">
+            <h6 class="m-0 font-weight-bold text-white">
+                <i class="fas fa-exclamation-triangle me-2"></i>
+                Conferma Eliminazione
+            </h6>
+        </div>
+        <div class="card-body">
+            <div class="alert alert-warning">
+                <h5><i class="fas fa-exclamation-triangle me-2"></i>Attenzione!</h5>
+                Sei sicuro di voler eliminare definitivamente questi dati? 
+                <strong>Questa operazione non può essere annullata.</strong>
+            </div>
+
+            <div class="row">
+                <div class="col-md-6">
+                    <table class="table table-borderless">
+                        <tr>
+                            <td class="font-weight-bold">Nome:</td>
+                            <td>@Model.Nome</td>
+                        </tr>
+                        <tr>
+                            <td class="font-weight-bold">Sito Web:</td>
+                            <td>
+                                @if (!string.IsNullOrEmpty(Model.SitoWeb))
+                                {
+                                    <a href="@Model.SitoWeb" target="_blank">@Model.SitoWeb</a>
+                                }
+                                else
+                                {
+                                    <span class="text-muted">Non specificato</span>
+                                }
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="font-weight-bold">Utente:</td>
+                            <td>@Model.Utente</td>
+                        </tr>
+                        <tr>
+                            <td class="font-weight-bold">Password:</td>
+                            <td><span class="text-primary">@Model.Password</span></td>
+                        </tr>
+                    </table>
+                </div>
+                <div class="col-md-6">
+                    <table class="table table-borderless">
+                        <tr>
+                            <td class="font-weight-bold">Note:</td>
+                            <td>@(string.IsNullOrEmpty(Model.Note) ? "Nessuna nota" : Model.Note)</td>
+                        </tr>
+                        <tr>
+                            <td class="font-weight-bold">Creato il:</td>
+                            <td>@Model.CreatedAt.ToString("dd/MM/yyyy HH:mm")</td>
+                        </tr>
+                        <tr>
+                            <td class="font-weight-bold">Ultima modifica:</td>
+                            <td>@Model.UpdatedAt.ToString("dd/MM/yyyy HH:mm")</td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+
+            <hr />
+
+            <div class="d-flex justify-content-between">
+                <a href="@Url.Action("AltriDati")" class="btn btn-secondary">
+                    <i class="fas fa-arrow-left me-1"></i>
+                    Annulla
+                </a>
+                <form asp-action="DeleteAltriDati" method="post" class="d-inline">
+                    <input asp-for="Id" type="hidden" />
+                    <button type="submit" class="btn btn-danger">
+                        <i class="fas fa-trash me-1"></i>
+                        Conferma Eliminazione
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>

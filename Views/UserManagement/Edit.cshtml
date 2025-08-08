@@ -1,0 +1,255 @@
+@model ConsultingGroup.ViewModels.UserViewModel
+
+@{
+    ViewData["Title"] = "Modifica Utente";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item"><a href="@Url.Action("Index", "Admin")">Dashboard</a></li>
+                    <li class="breadcrumb-item"><a href="@Url.Action("Index", "UserManagement")">Gestione Utenti</a></li>
+                    <li class="breadcrumb-item active" aria-current="page">Modifica Utente</li>
+                </ol>
+            </nav>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header bg-warning text-dark">
+                    <h4 class="mb-0">
+                        <i class="fas fa-user-edit me-2"></i>
+                        Modifica Utente: @Model.FullName
+                    </h4>
+                </div>
+                <div class="card-body">
+                    <form asp-action="Edit" method="post">
+                        <input asp-for="Id" type="hidden" />
+                        
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label asp-for="FirstName" class="form-label">Nome</label>
+                                <input asp-for="FirstName" class="form-control" />
+                                <span asp-validation-for="FirstName" class="text-danger"></span>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label asp-for="LastName" class="form-label">Cognome</label>
+                                <input asp-for="LastName" class="form-control" />
+                                <span asp-validation-for="LastName" class="text-danger"></span>
+                            </div>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label asp-for="Email" class="form-label">Email</label>
+                            <input asp-for="Email" class="form-control" type="email" />
+                            <span asp-validation-for="Email" class="text-danger"></span>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label asp-for="UserName" class="form-label">Nome Utente</label>
+                            <input asp-for="UserName" class="form-control" readonly />
+                            <div class="form-text">Il nome utente non può essere modificato.</div>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="phoneNumber" class="form-label">Telefono</label>
+                            <input name="phoneNumber" id="phoneNumber" class="form-control" type="tel" placeholder="Inserisci numero di telefono" />
+                            <div class="form-text">Campo opzionale per contatto telefonico.</div>
+                        </div>
+                        
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label asp-for="Role" class="form-label">Ruolo</label>
+                                <select asp-for="Role" class="form-select">
+                                    <option value="">Seleziona ruolo</option>
+                                    <option value="User">User - Accesso Base</option>
+                                    <option value="UserSenior">UserSenior - Accesso Avanzato</option>
+                                    <option value="Administrator">Administrator - Accesso Completo</option>
+                                </select>
+                                <span asp-validation-for="Role" class="text-danger"></span>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <div class="form-check mt-4">
+                                    <input asp-for="IsActive" class="form-check-input" type="checkbox" />
+                                    <label asp-for="IsActive" class="form-check-label">
+                                        Utente Attivo
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="alert alert-info">
+                            <i class="fas fa-info-circle me-2"></i>
+                            <strong>Nota:</strong> La modifica del ruolo avrà effetto al prossimo login dell'utente.
+                        </div>
+                        
+                        <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                            <a href="@Url.Action("Index", "UserManagement")" class="btn btn-secondary me-md-2">
+                                <i class="fas fa-arrow-left me-1"></i>
+                                Annulla
+                            </a>
+                            <button type="submit" class="btn btn-warning">
+                                <i class="fas fa-save me-1"></i>
+                                Salva Modifiche
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-header">
+                    <h6 class="mb-0">Informazioni Utente</h6>
+                </div>
+                <div class="card-body">
+                    <div class="text-center mb-3">
+                        <i class="fas fa-user-circle fa-4x text-muted"></i>
+                        <p class="mt-2 mb-0">@Model.FullName</p>
+                        <small class="text-muted">@Model.Email</small>
+                    </div>
+                    <hr>
+                    <div class="row">
+                        <div class="col-6">
+                            <small class="text-muted">Stato:</small>
+                            <div>
+                                @if (Model.IsActive)
+                                {
+                                    <span class="badge bg-success">Attivo</span>
+                                }
+                                else
+                                {
+                                    <span class="badge bg-danger">Disattivato</span>
+                                }
+                            </div>
+                        </div>
+                        <div class="col-6">
+                            <small class="text-muted">Ruolo Attuale:</small>
+                            <div>
+                                @if (Model.Role == "Administrator")
+                                {
+                                    <span class="badge bg-danger">Administrator</span>
+                                }
+                                else if (Model.Role == "UserSenior")
+                                {
+                                    <span class="badge bg-primary">Senior User</span>
+                                }
+                                else
+                                {
+                                    <span class="badge bg-secondary">Basic User</span>
+                                }
+                            </div>
+                        </div>
+                    </div>
+                    <hr>
+                    <div class="row">
+                        <div class="col-12">
+                            <small class="text-muted">Data registrazione:</small>
+                            <div>@Model.CreatedAt.ToString("dd/MM/yyyy")</div>
+                        </div>
+                    </div>
+                    @if (Model.LastLoginAt.HasValue)
+                    {
+                        <hr>
+                        <div class="row">
+                            <div class="col-12">
+                                <small class="text-muted">Ultimo accesso:</small>
+                                <div>@Model.LastLoginAt.Value.ToString("dd/MM/yyyy HH:mm")</div>
+                            </div>
+                        </div>
+                    }
+                </div>
+            </div>
+            
+            <div class="card mt-3">
+                <div class="card-header">
+                    <h6 class="mb-0">Azioni Pericolose</h6>
+                </div>
+                <div class="card-body">
+                    <div class="d-grid gap-2">
+                        <button type="button" class="btn btn-outline-warning btn-sm" data-bs-toggle="modal" data-bs-target="#resetPasswordModal">
+                            <i class="fas fa-key me-1"></i>
+                            Reset Password
+                        </button>
+                        @if (Model.Role != "Administrator")
+                        {
+                            <button type="button" class="btn btn-outline-danger btn-sm" data-bs-toggle="modal" data-bs-target="#deleteUserModal">
+                                <i class="fas fa-trash me-1"></i>
+                                Elimina Utente
+                            </button>
+                        }
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Reset Password Modal -->
+<div class="modal fade" id="resetPasswordModal" tabindex="-1" aria-labelledby="resetPasswordModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="resetPasswordModalLabel">Reset Password</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p>Sei sicuro di voler resettare la password per l'utente <strong>@Model.FullName</strong>?</p>
+                <p>Verrà inviata una nuova password temporanea all'indirizzo email: <strong>@Model.Email</strong></p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annulla</button>
+                <form asp-action="ResetPassword" method="post" class="d-inline">
+                    <input name="userId" value="@Model.Id" type="hidden" />
+                    <button type="submit" class="btn btn-warning">
+                        <i class="fas fa-key me-1"></i>
+                        Reset Password
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Delete User Modal -->
+@if (Model.Role != "Administrator")
+{
+    <div class="modal fade" id="deleteUserModal" tabindex="-1" aria-labelledby="deleteUserModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="deleteUserModalLabel">Elimina Utente</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="alert alert-danger">
+                        <i class="fas fa-exclamation-triangle me-2"></i>
+                        <strong>Attenzione!</strong> Questa azione è irreversibile.
+                    </div>
+                    <p>Sei sicuro di voler eliminare l'utente <strong>@Model.FullName</strong>?</p>
+                    <p>Tutti i dati associati a questo utente verranno persi definitivamente.</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annulla</button>
+                    <form asp-action="Delete" method="post" class="d-inline">
+                        <input name="id" value="@Model.Id" type="hidden" />
+                        <button type="submit" class="btn btn-danger">
+                            <i class="fas fa-trash me-1"></i>
+                            Elimina Definitivamente
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

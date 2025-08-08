@@ -1,0 +1,77 @@
+@model ConsultingGroup.Models.Utenze
+@{
+    ViewData["Title"] = "Aggiungi Nuova Utenza";
+}
+
+<div class="container-fluid">
+    <div class="d-sm-flex align-items-center justify-content-between mb-4">
+        <h1 class="h3 mb-0 text-gray-800">
+            <i class="fas fa-bolt me-2"></i>
+            Aggiungi Nuova Utenza
+        </h1>
+        <a href="@Url.Action("Utenze")" class="btn btn-secondary btn-sm">
+            <i class="fas fa-arrow-left me-1"></i>
+            Torna all'Elenco
+        </a>
+    </div>
+
+    <div class="card shadow">
+        <div class="card-header py-3">
+            <h6 class="m-0 font-weight-bold text-info">
+                <i class="fas fa-plus-circle me-2"></i>
+                Dati Utenza
+            </h6>
+        </div>
+        <div class="card-body">
+            <form asp-action="CreateUtenza" method="post">
+                <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+
+                <div class="mb-3">
+                    <label asp-for="DenominazioneUtenza" class="form-label">Denominazione Utenza *</label>
+                    <input asp-for="DenominazioneUtenza" class="form-control" placeholder="Es: Enel Energia, Vodafone, Tim..." />
+                    <span asp-validation-for="DenominazioneUtenza" class="text-danger"></span>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label asp-for="SitoWeb" class="form-label">Sito Web</label>
+                        <input asp-for="SitoWeb" class="form-control" placeholder="https://www.esempio.com" />
+                        <span asp-validation-for="SitoWeb" class="text-danger"></span>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label asp-for="NomeUtente" class="form-label">Nome Utente *</label>
+                        <input asp-for="NomeUtente" class="form-control" placeholder="Il tuo nome utente" />
+                        <span asp-validation-for="NomeUtente" class="text-danger"></span>
+                    </div>
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="Password" class="form-label">Password *</label>
+                    <input asp-for="Password" type="text" class="form-control" placeholder="Password dell'utenza" />
+                    <span asp-validation-for="Password" class="text-danger"></span>
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="Note" class="form-label">Note</label>
+                    <textarea asp-for="Note" class="form-control" rows="3" placeholder="Note aggiuntive sull'utenza..."></textarea>
+                    <span asp-validation-for="Note" class="text-danger"></span>
+                </div>
+
+                <div class="d-flex justify-content-between">
+                    <a href="@Url.Action("Utenze")" class="btn btn-secondary">
+                        <i class="fas fa-times me-1"></i>
+                        Annulla
+                    </a>
+                    <button type="submit" class="btn btn-info">
+                        <i class="fas fa-save me-1"></i>
+                        Salva Utenza
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

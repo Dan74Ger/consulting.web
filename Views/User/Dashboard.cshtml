@@ -1,0 +1,132 @@
+@{
+    ViewData["Title"] = "Dashboard Utente";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <div class="card border-info">
+                <div class="card-header bg-info text-white">
+                    <h3 class="mb-0">
+                        <i class="fas fa-user me-2"></i>
+                        Dashboard Utente
+                    </h3>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-8">
+                            <h4 class="text-info">Benvenuto, @ViewBag.UserName!</h4>
+                            <p class="lead">Questa è la tua area personale. Le funzionalità disponibili dipendono dal tuo livello di autorizzazione.</p>
+                            
+                            <hr>
+                            
+                            <h5>Le tue funzionalità disponibili</h5>
+                            <div class="row mt-3">
+                                @if (ViewBag.CanAccessAdmin)
+                                {
+                                    <div class="col-md-6 mb-3">
+                                        <div class="card h-100">
+                                            <div class="card-body text-center">
+                                                <i class="fas fa-eye fa-3x text-success mb-3"></i>
+                                                <h6 class="card-title">Visualizza Dati</h6>
+                                                <p class="card-text">Accesso ai dati di base del sistema</p>
+                                                <a href="@Url.Action("ViewBasicData", "User")" class="btn btn-success">
+                                                    <i class="fas fa-arrow-right me-1"></i>
+                                                    Accedi
+                                                </a>
+                                            </div>
+                                        </div>
+                                    </div>
+                                }
+                                <div class="col-md-6 mb-3">
+                                    <div class="card h-100">
+                                        <div class="card-body text-center">
+                                            <i class="fas fa-info fa-3x text-info mb-3"></i>
+                                            <h6 class="card-title">Supporto</h6>
+                                            <p class="card-text">Per assistenza contatta l'amministratore</p>
+                                            <button type="button" class="btn btn-outline-info" title="infoservizi.cg@gmail.com">
+                                                <i class="fas fa-envelope me-1"></i>
+                                                Contatta Admin
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="alert alert-info mt-3">
+                                <i class="fas fa-info-circle me-2"></i>
+                                <strong>Benvenuto!</strong> Come utente base hai accesso alle funzionalità essenziali del sistema. 
+                                Per funzionalità avanzate, contatta l'amministratore per un upgrade del tuo account.
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="card bg-light">
+                                <div class="card-body text-center">
+                                    <h5 class="card-title">Informazioni Utente</h5>
+                                    <p class="card-text">
+                                        <strong>Ultimo accesso:</strong><br>
+                                        @ViewBag.LastLogin
+                                    </p>
+                                    <hr>
+                                    <p class="card-text">
+                                        <strong>Livello accesso:</strong><br>
+                                        @if (ViewBag.CanAccessAdmin)
+                                        {
+                                            <span class="badge bg-danger">Administrator</span>
+                                        }
+                                        else if (ViewBag.CanAccessSenior)
+                                        {
+                                            <span class="badge bg-primary">Senior User</span>
+                                        }
+                                        else
+                                        {
+                                            <span class="badge bg-secondary">Basic User</span>
+                                        }
+                                    </p>
+                                    
+                                    <hr>
+                                    <div class="d-grid gap-2">
+                                        <small class="text-muted">
+                                            <i class="fas fa-info-circle me-1"></i>
+                                            Per modifiche al profilo contatta l'amministratore
+                                        </small>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Legenda accessi -->
+                            <div class="card mt-3">
+                                <div class="card-header">
+                                    <h6 class="mb-0">Legenda Accessi</h6>
+                                </div>
+                                <div class="card-body">
+                                    <small>
+                                        <div class="mb-2">
+                                            <span class="badge bg-secondary">Basic User</span>
+                                            <br>Accesso limitato alle funzioni base
+                                        </div>
+                                        <div class="mb-2">
+                                            <span class="badge bg-primary">Senior User</span>
+                                            <br>Accesso completo eccetto gestione utenti
+                                        </div>
+                                        <div class="mb-2">
+                                            <span class="badge bg-danger">Administrator</span>
+                                            <br>Accesso completo a tutto il sistema
+                                        </div>
+                                    </small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function testAccess() {
+    alert('Accesso negato: questa sezione è riservata agli utenti Senior e Administrator.');
+}
+</script>

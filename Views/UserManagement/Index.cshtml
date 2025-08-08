@@ -1,0 +1,238 @@
+@model IEnumerable<UserViewModel>
+@{
+    ViewData["Title"] = "Gestione Utenti";
+}
+
+<div class="user-management">
+    <!-- Page Header -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h1 class="h2 mb-0">
+                <i class="fas fa-users me-2 text-primary"></i>
+                Gestione Utenti
+            </h1>
+            <p class="text-muted mb-0">Gestisci gli utenti del sistema</p>
+        </div>
+        <div>
+            <a asp-action="Create" class="btn btn-primary">
+                <i class="fas fa-user-plus me-2"></i>
+                Nuovo Utente
+            </a>
+        </div>
+    </div>
+
+    <!-- Statistics -->
+    <div class="row mb-4">
+        <div class="col-md-3">
+            <div class="card border-left-primary">
+                <div class="card-body">
+                    <div class="d-flex align-items-center">
+                        <div class="flex-grow-1">
+                            <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
+                                Totale
+                            </div>
+                            <div class="h5 mb-0 font-weight-bold">@Model.Count()</div>
+                        </div>
+                        <div class="text-primary">
+                            <i class="fas fa-users fa-2x"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card border-left-success">
+                <div class="card-body">
+                    <div class="d-flex align-items-center">
+                        <div class="flex-grow-1">
+                            <div class="text-xs font-weight-bold text-success text-uppercase mb-1">
+                                Attivi
+                            </div>
+                            <div class="h5 mb-0 font-weight-bold">@Model.Count(u => u.IsActive)</div>
+                        </div>
+                        <div class="text-success">
+                            <i class="fas fa-user-check fa-2x"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card border-left-info">
+                <div class="card-body">
+                    <div class="d-flex align-items-center">
+                        <div class="flex-grow-1">
+                            <div class="text-xs font-weight-bold text-info text-uppercase mb-1">
+                                Amministratori
+                            </div>
+                            <div class="h5 mb-0 font-weight-bold">@Model.Count(u => u.Role == "Administrator")</div>
+                        </div>
+                        <div class="text-info">
+                            <i class="fas fa-user-shield fa-2x"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card border-left-warning">
+                <div class="card-body">
+                    <div class="d-flex align-items-center">
+                        <div class="flex-grow-1">
+                            <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">
+                                Inattivi
+                            </div>
+                            <div class="h5 mb-0 font-weight-bold">@Model.Count(u => !u.IsActive)</div>
+                        </div>
+                        <div class="text-warning">
+                            <i class="fas fa-user-times fa-2x"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Users Table -->
+    <div class="card shadow">
+        <div class="card-header py-3">
+            <h6 class="m-0 font-weight-bold text-primary">
+                <i class="fas fa-table me-2"></i>
+                Lista Utenti
+            </h6>
+        </div>
+        <div class="card-body">
+            @if (Model.Any())
+            {
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>Nome Completo</th>
+                                <th>Username</th>
+                                <th>Email</th>
+                                <th>Ruolo</th>
+                                <th>Stato</th>
+                                <th>Creato</th>
+                                <th>Ultimo Accesso</th>
+                                <th class="text-center">Azioni</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var user in Model)
+                            {
+                                <tr>
+                                    <td>
+                                        <div class="d-flex align-items-center">
+                                            <div class="avatar-sm bg-primary text-white rounded-circle d-flex align-items-center justify-content-center me-2">
+                                                @(user.FirstName.FirstOrDefault())@(user.LastName.FirstOrDefault())
+                                            </div>
+                                            <div>
+                                                <div class="font-weight-bold">@user.FullName</div>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <span class="font-weight-bold">@user.UserName</span>
+                                    </td>
+                                    <td>@user.Email</td>
+                                    <td>
+                                        @if (user.Role == "Administrator")
+                                        {
+                                            <span class="badge bg-danger">
+                                                <i class="fas fa-user-shield me-1"></i>
+                                                Amministratore
+                                            </span>
+                                        }
+                                        else
+                                        {
+                                            <span class="badge bg-secondary">
+                                                <i class="fas fa-user me-1"></i>
+                                                Utente
+                                            </span>
+                                        }
+                                    </td>
+                                    <td>
+                                        @if (user.IsActive)
+                                        {
+                                            <span class="badge bg-success">
+                                                <i class="fas fa-check me-1"></i>
+                                                Attivo
+                                            </span>
+                                        }
+                                        else
+                                        {
+                                            <span class="badge bg-warning">
+                                                <i class="fas fa-pause me-1"></i>
+                                                Inattivo
+                                            </span>
+                                        }
+                                    </td>
+                                    <td>
+                                        <small class="text-muted">
+                                            @user.CreatedAt.ToString("dd/MM/yyyy")
+                                        </small>
+                                    </td>
+                                    <td>
+                                        <small class="text-muted">
+                                            @(user.LastLoginAt?.ToString("dd/MM/yyyy HH:mm") ?? "Mai")
+                                        </small>
+                                    </td>
+                                    <td class="text-center">
+                                        <div class="btn-group" role="group">
+                                            <a asp-action="Edit" asp-route-id="@user.Id" 
+                                               class="btn btn-sm btn-outline-primary" 
+                                               data-bs-toggle="tooltip" 
+                                               title="Modifica utente">
+                                                <i class="fas fa-edit"></i>
+                                            </a>
+                                            
+                                            <a asp-action="ResetPassword" asp-route-id="@user.Id" 
+                                               class="btn btn-sm btn-outline-warning"
+                                               data-bs-toggle="tooltip" 
+                                               title="Reset password">
+                                                <i class="fas fa-key"></i>
+                                            </a>
+                                            
+                                            @if (user.UserName != User.Identity!.Name)
+                                            {
+                                                <a asp-action="Delete" asp-route-id="@user.Id" 
+                                                   class="btn btn-sm btn-outline-danger"
+                                                   data-bs-toggle="tooltip" 
+                                                   title="Elimina utente"
+                                                   data-confirm-delete="Sei sicuro di voler eliminare l'utente '@user.UserName'?">
+                                                    <i class="fas fa-trash"></i>
+                                                </a>
+                                            }
+                                        </div>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            }
+            else
+            {
+                <div class="text-center py-5">
+                    <i class="fas fa-users fa-3x text-muted mb-3"></i>
+                    <h5 class="text-muted">Nessun utente trovato</h5>
+                    <p class="text-muted">Inizia creando il primo utente del sistema.</p>
+                    <a asp-action="Create" class="btn btn-primary">
+                        <i class="fas fa-user-plus me-2"></i>
+                        Crea Primo Utente
+                    </a>
+                </div>
+            }
+        </div>
+    </div>
+</div>
+
+<style>
+    .avatar-sm {
+        width: 32px;
+        height: 32px;
+        font-size: 12px;
+        font-weight: bold;
+    }
+</style>

@@ -1,0 +1,580 @@
+@model ConsultingGroup.ViewModels.DatiUtenzaExtraViewModel
+@{
+    ViewData["Title"] = "Dati Generali - Dashboard";
+}
+
+<div class="d-sm-flex align-items-center justify-content-between mb-4">
+    <h1 class="h3 mb-0 text-gray-800">
+        <i class="fas fa-folder-open text-info"></i> Dati Generali
+    </h1>
+    <div class="text-muted">
+        <small>
+            <i class="fas fa-user me-1"></i>
+            @Model.FullName (@Model.UserName)
+        </small>
+    </div>
+</div>
+
+<!-- Cards Row -->
+<div class="row">
+    <!-- Statistiche Generali -->
+    <div class="col-xl-3 col-md-6 mb-4">
+        <div class="card border-left-primary shadow h-100 py-2">
+            <div class="card-body">
+                <div class="row no-gutters align-items-center">
+                    <div class="col mr-2">
+                        <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">Totale Record</div>
+                        <div class="h5 mb-0 font-weight-bold text-gray-800">@Model.TotaleRecords</div>
+                    </div>
+                    <div class="col-auto">
+                        <i class="fas fa-clipboard-list fa-2x text-gray-300"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Sezioni Attive -->
+    <div class="col-xl-3 col-md-6 mb-4">
+        <div class="card border-left-success shadow h-100 py-2">
+            <div class="card-body">
+                <div class="row no-gutters align-items-center">
+                    <div class="col mr-2">
+                        <div class="text-xs font-weight-bold text-success text-uppercase mb-1">Sezioni Attive</div>
+                        <div class="h5 mb-0 font-weight-bold text-gray-800">
+                            @{
+                                int sezioniAttive = 0;
+                                if (Model.TotaleCancelleria > 0) sezioniAttive++;
+                                if (Model.TotaleUtentiPC > 0) sezioniAttive++;
+                                if (Model.TotaleAltriDati > 0) sezioniAttive++;
+                                if (Model.TotaleEntratel > 0) sezioniAttive++;
+                                if (Model.TotaleUtentiTS > 0) sezioniAttive++;
+                            }
+                            @sezioniAttive / 5
+                        </div>
+                    </div>
+                    <div class="col-auto">
+                        <i class="fas fa-layer-group fa-2x text-gray-300"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Cancelleria -->
+    <div class="col-xl-3 col-md-6 mb-4">
+        <div class="card border-left-info shadow h-100 py-2">
+            <div class="card-body">
+                <div class="row no-gutters align-items-center">
+                    <div class="col mr-2">
+                        <div class="text-xs font-weight-bold text-info text-uppercase mb-1">Cancelleria</div>
+                        <div class="h5 mb-0 font-weight-bold text-gray-800">@Model.TotaleCancelleria</div>
+                    </div>
+                    <div class="col-auto">
+                        <i class="fas fa-shopping-cart fa-2x text-gray-300"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Utenti PC -->
+    <div class="col-xl-3 col-md-6 mb-4">
+        <div class="card border-left-warning shadow h-100 py-2">
+            <div class="card-body">
+                <div class="row no-gutters align-items-center">
+                    <div class="col mr-2">
+                        <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">Utenti PC</div>
+                        <div class="h5 mb-0 font-weight-bold text-gray-800">@Model.TotaleUtentiPC</div>
+                    </div>
+                    <div class="col-auto">
+                        <i class="fas fa-desktop fa-2x text-gray-300"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Seconda riga di statistiche -->
+<div class="row">
+    <!-- Utenti TS -->
+    <div class="col-xl-3 col-md-6 mb-4">
+        <div class="card border-left-danger shadow h-100 py-2">
+            <div class="card-body">
+                <div class="row no-gutters align-items-center">
+                    <div class="col mr-2">
+                        <div class="text-xs font-weight-bold text-danger text-uppercase mb-1">Utenti TS</div>
+                        <div class="h5 mb-0 font-weight-bold text-gray-800">@Model.TotaleUtentiTS</div>
+                    </div>
+                    <div class="col-auto">
+                        <i class="fas fa-user-shield fa-2x text-gray-300"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Azioni Rapide -->
+<div class="card shadow mb-4">
+    <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+        <h6 class="m-0 font-weight-bold text-primary">
+            <i class="fas fa-plus-circle"></i> Azioni Rapide - Dati Generali
+        </h6>
+        <div class="dropdown no-arrow">
+            <a class="dropdown-toggle" href="#" role="button" id="dropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                <i class="fas fa-ellipsis-v fa-sm fa-fw text-gray-400"></i>
+            </a>
+        </div>
+    </div>
+    <div class="card-body">
+        <div class="row">
+            <div class="col-lg col-md-6 mb-3">
+                <a asp-action="CreateCancelleria" class="btn btn-outline-info btn-block shadow-sm border-left-info">
+                    <div class="d-flex align-items-center">
+                        <i class="fas fa-shopping-cart fa-2x text-info me-3"></i>
+                        <div>
+                            <div class="font-weight-bold">Cancelleria</div>
+                            <div class="text-xs">Aggiungi fornitore</div>
+                        </div>
+                    </div>
+                </a>
+            </div>
+
+            <div class="col-lg col-md-6 mb-3">
+                <a asp-action="CreateUtentiPC" class="btn btn-outline-primary btn-block shadow-sm border-left-primary">
+                    <div class="d-flex align-items-center">
+                        <i class="fas fa-desktop fa-2x text-primary me-3"></i>
+                        <div>
+                            <div class="font-weight-bold">Utenti PC</div>
+                            <div class="text-xs">Aggiungi credenziali</div>
+                        </div>
+                    </div>
+                </a>
+            </div>
+
+            <div class="col-lg col-md-6 mb-3">
+                <a asp-action="CreateAltriDati" class="btn btn-outline-success btn-block shadow-sm border-left-success">
+                    <div class="d-flex align-items-center">
+                        <i class="fas fa-folder fa-2x text-success me-3"></i>
+                        <div>
+                            <div class="font-weight-bold">Altri Dati</div>
+                            <div class="text-xs">Aggiungi generici</div>
+                        </div>
+                    </div>
+                </a>
+            </div>
+
+            <div class="col-lg col-md-6 mb-3">
+                <a asp-action="CreateEntratel" class="btn btn-outline-secondary btn-block shadow-sm border-left-secondary">
+                    <div class="d-flex align-items-center">
+                        <i class="fas fa-landmark fa-2x text-secondary me-3"></i>
+                        <div>
+                            <div class="font-weight-bold">ENTRATEL</div>
+                            <div class="text-xs">Aggiungi accesso</div>
+                        </div>
+                    </div>
+                </a>
+            </div>
+
+            <div class="col-lg col-md-6 mb-3">
+                <a asp-action="CreateUtentiTS" class="btn btn-outline-danger btn-block shadow-sm border-left-danger">
+                    <div class="d-flex align-items-center">
+                        <i class="fas fa-user-shield fa-2x text-danger me-3"></i>
+                        <div>
+                            <div class="font-weight-bold">Utenti TS</div>
+                            <div class="text-xs">Aggiungi credenziali</div>
+                        </div>
+                    </div>
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+@if (TempData["SuccessMessage"] != null)
+{
+    <div class="alert alert-success alert-dismissible fade show">
+        <i class="fas fa-check-circle me-2"></i>
+        @TempData["SuccessMessage"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+}
+
+<!-- Sezione Cancelleria -->
+<div class="card shadow mb-4">
+    <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+        <h6 class="m-0 font-weight-bold text-info">
+            <i class="fas fa-shopping-cart me-2"></i>
+            Cancelleria (@Model.TotaleCancelleria)
+        </h6>
+        <div class="d-flex">
+            <a asp-action="CreateCancelleria" class="btn btn-sm btn-outline-info me-2">
+                <i class="fas fa-plus"></i> Aggiungi
+            </a>
+            <a asp-action="Cancelleria" class="btn btn-sm btn-info">
+                <i class="fas fa-list"></i> Visualizza Tutti
+            </a>
+        </div>
+    </div>
+    <div class="card-body">
+        @if (Model.Cancelleria.Any())
+        {
+            <div class="table-responsive">
+                <table class="table table-bordered table-sm" width="100%">
+                    <thead>
+                        <tr>
+                            <th>Fornitore</th>
+                            <th>Sito Web</th>
+                            <th>Utente</th>
+                            <th>Password</th>
+                            <th>Note</th>
+                            <th width="100px">Azioni</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var item in Model.Cancelleria.Take(5))
+                        {
+                            <tr>
+                                <td>@item.DenominazioneFornitore</td>
+                                <td>
+                                    @if (!string.IsNullOrEmpty(item.SitoWeb))
+                                    {
+                                        <a href="@item.SitoWeb" target="_blank" class="text-decoration-none">
+                                            @item.SitoWeb <i class="fas fa-external-link-alt fa-xs"></i>
+                                        </a>
+                                    }
+                                    else
+                                    {
+                                        <span class="text-muted">-</span>
+                                    }
+                                </td>
+                                <td><span class="font-weight-bold">@item.NomeUtente</span></td>
+                                <td><span class="text-primary font-weight-bold">@item.Password</span></td>
+                                <td>@(string.IsNullOrEmpty(item.Note) ? "-" : item.Note)</td>
+                                <td>
+                                    <div class="btn-group btn-group-sm">
+                                        <a asp-action="EditCancelleria" asp-route-id="@item.Id" class="btn btn-outline-warning btn-sm">
+                                            <i class="fas fa-edit"></i>
+                                        </a>
+                                        <a asp-action="DeleteCancelleria" asp-route-id="@item.Id" class="btn btn-outline-danger btn-sm">
+                                            <i class="fas fa-trash"></i>
+                                        </a>
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        }
+        else
+        {
+            <div class="text-center py-4 text-muted">
+                <i class="fas fa-shopping-cart fa-3x mb-3"></i>
+                <p class="mb-0">Nessun fornitore di cancelleria registrato</p>
+                <small>Utilizza il pulsante "Aggiungi" per iniziare</small>
+            </div>
+        }
+    </div>
+</div>
+
+<!-- Sezione Utenti PC -->
+<div class="card shadow mb-4">
+    <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+        <h6 class="m-0 font-weight-bold text-primary">
+            <i class="fas fa-desktop me-2"></i>
+            Utenti PC (@Model.TotaleUtentiPC)
+        </h6>
+        <div class="d-flex">
+            <a asp-action="CreateUtentiPC" class="btn btn-sm btn-outline-primary me-2">
+                <i class="fas fa-plus"></i> Aggiungi
+            </a>
+            <a asp-action="UtentiPC" class="btn btn-sm btn-primary">
+                <i class="fas fa-list"></i> Visualizza Tutti
+            </a>
+        </div>
+    </div>
+    <div class="card-body">
+        @if (Model.UtentiPC.Any())
+        {
+            <div class="table-responsive">
+                <table class="table table-bordered table-sm" width="100%">
+                    <thead>
+                        <tr>
+                            <th>Nome PC</th>
+                            <th>Utente</th>
+                            <th>Password</th>
+                            <th>Indirizzo Rete</th>
+                            <th>Note</th>
+                            <th width="100px">Azioni</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var item in Model.UtentiPC.Take(5))
+                        {
+                            <tr>
+                                <td><span class="font-weight-bold">@item.NomePC</span></td>
+                                <td>@item.Utente</td>
+                                <td><span class="text-primary font-weight-bold">@item.Password</span></td>
+                                <td>@(string.IsNullOrEmpty(item.IndirizzoRete) ? "-" : item.IndirizzoRete)</td>
+                                <td>@(string.IsNullOrEmpty(item.Note) ? "-" : item.Note)</td>
+                                <td>
+                                    <div class="btn-group btn-group-sm">
+                                        <a asp-action="EditUtentiPC" asp-route-id="@item.Id" class="btn btn-outline-warning btn-sm">
+                                            <i class="fas fa-edit"></i>
+                                        </a>
+                                        <a asp-action="DeleteUtentiPC" asp-route-id="@item.Id" class="btn btn-outline-danger btn-sm">
+                                            <i class="fas fa-trash"></i>
+                                        </a>
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        }
+        else
+        {
+            <div class="text-center py-4 text-muted">
+                <i class="fas fa-desktop fa-3x mb-3"></i>
+                <p class="mb-0">Nessun utente PC registrato</p>
+                <small>Utilizza il pulsante "Aggiungi" per iniziare</small>
+            </div>
+        }
+    </div>
+</div>
+
+<!-- Sezione Altri Dati -->
+<div class="card shadow mb-4">
+    <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+        <h6 class="m-0 font-weight-bold text-success">
+            <i class="fas fa-folder me-2"></i>
+            Altri Dati (@Model.TotaleAltriDati)
+        </h6>
+        <div class="d-flex">
+            <a asp-action="CreateAltriDati" class="btn btn-sm btn-outline-success me-2">
+                <i class="fas fa-plus"></i> Aggiungi
+            </a>
+            <a asp-action="AltriDati" class="btn btn-sm btn-success">
+                <i class="fas fa-list"></i> Visualizza Tutti
+            </a>
+        </div>
+    </div>
+    <div class="card-body">
+        @if (Model.AltriDati.Any())
+        {
+            <div class="table-responsive">
+                <table class="table table-bordered table-sm" width="100%">
+                    <thead>
+                        <tr>
+                            <th>Nome</th>
+                            <th>Sito Web</th>
+                            <th>Utente</th>
+                            <th>Password</th>
+                            <th>Note</th>
+                            <th width="100px">Azioni</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var item in Model.AltriDati.Take(5))
+                        {
+                            <tr>
+                                <td><span class="font-weight-bold">@item.Nome</span></td>
+                                <td>
+                                    @if (!string.IsNullOrEmpty(item.SitoWeb))
+                                    {
+                                        <a href="@item.SitoWeb" target="_blank" class="text-decoration-none">
+                                            @item.SitoWeb <i class="fas fa-external-link-alt fa-xs"></i>
+                                        </a>
+                                    }
+                                    else
+                                    {
+                                        <span class="text-muted">-</span>
+                                    }
+                                </td>
+                                <td>@item.Utente</td>
+                                <td><span class="text-primary font-weight-bold">@item.Password</span></td>
+                                <td>@(string.IsNullOrEmpty(item.Note) ? "-" : item.Note)</td>
+                                <td>
+                                    <div class="btn-group btn-group-sm">
+                                        <a asp-action="EditAltriDati" asp-route-id="@item.Id" class="btn btn-outline-warning btn-sm">
+                                            <i class="fas fa-edit"></i>
+                                        </a>
+                                        <a asp-action="DeleteAltriDati" asp-route-id="@item.Id" class="btn btn-outline-danger btn-sm">
+                                            <i class="fas fa-trash"></i>
+                                        </a>
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        }
+        else
+        {
+            <div class="text-center py-4 text-muted">
+                <i class="fas fa-folder fa-3x mb-3"></i>
+                <p class="mb-0">Nessun altro dato registrato</p>
+                <small>Utilizza il pulsante "Aggiungi" per iniziare</small>
+            </div>
+        }
+    </div>
+</div>
+
+<!-- Sezione Entratel -->
+<div class="card shadow mb-4">
+    <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+        <h6 class="m-0 font-weight-bold text-secondary">
+            <i class="fas fa-landmark me-2"></i>
+            ENTRATEL (@Model.TotaleEntratel)
+        </h6>
+        <div class="d-flex">
+            <a asp-action="CreateEntratel" class="btn btn-sm btn-outline-secondary me-2">
+                <i class="fas fa-plus"></i> Aggiungi
+            </a>
+            <a asp-action="Entratel" class="btn btn-sm btn-secondary">
+                <i class="fas fa-list"></i> Visualizza Tutti
+            </a>
+        </div>
+    </div>
+    <div class="card-body">
+        @if (Model.Entratel.Any())
+        {
+            <div class="table-responsive">
+                <table class="table table-bordered table-sm" width="100%">
+                    <thead>
+                        <tr>
+                            <th>Sito</th>
+                            <th>Utente</th>
+                            <th>Password</th>
+                            <th>PIN Catastali</th>
+                            <th>PIN Cassetto</th>
+                            <th>Desktop Telematico</th>
+                            <th width="100px">Azioni</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var item in Model.Entratel.Take(5))
+                        {
+                            <tr>
+                                <td>
+                                    @if (!string.IsNullOrEmpty(item.Sito))
+                                    {
+                                        <a href="@item.Sito" target="_blank" class="text-decoration-none">
+                                            @item.Sito <i class="fas fa-external-link-alt fa-xs"></i>
+                                        </a>
+                                    }
+                                    else
+                                    {
+                                        <span class="text-muted">-</span>
+                                    }
+                                </td>
+                                <td><span class="font-weight-bold">@item.Utente</span></td>
+                                <td><span class="text-primary font-weight-bold">@item.Password</span></td>
+                                <td>@(string.IsNullOrEmpty(item.PinDatiCatastali) ? "-" : item.PinDatiCatastali)</td>
+                                <td>@(string.IsNullOrEmpty(item.PinDelegheCassettoFiscale) ? "-" : item.PinDelegheCassettoFiscale)</td>
+                                <td>
+                                    @if (!string.IsNullOrEmpty(item.DesktopTelematicoUtente))
+                                    {
+                                        <small>@item.DesktopTelematicoUtente / @item.DesktopTelematicoPassword</small>
+                                    }
+                                    else
+                                    {
+                                        <span class="text-muted">-</span>
+                                    }
+                                </td>
+                                <td>
+                                    <div class="btn-group btn-group-sm">
+                                        <a asp-action="EditEntratel" asp-route-id="@item.Id" class="btn btn-outline-warning btn-sm">
+                                            <i class="fas fa-edit"></i>
+                                        </a>
+                                        <a asp-action="DeleteEntratel" asp-route-id="@item.Id" class="btn btn-outline-danger btn-sm">
+                                            <i class="fas fa-trash"></i>
+                                        </a>
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        }
+        else
+        {
+            <div class="text-center py-4 text-muted">
+                <i class="fas fa-landmark fa-3x mb-3"></i>
+                <p class="mb-0">Nessun accesso Entratel registrato</p>
+                <small>Utilizza il pulsante "Aggiungi" per iniziare</small>
+            </div>
+        }
+    </div>
+</div>
+
+<!-- Sezione Utenti TS -->
+<div class="card shadow mb-4">
+    <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+        <h6 class="m-0 font-weight-bold text-danger">
+            <i class="fas fa-user-shield me-2"></i>
+            Utenti TS (@Model.TotaleUtentiTS)
+        </h6>
+        <div class="d-flex">
+            <a asp-action="CreateUtentiTS" class="btn btn-sm btn-outline-danger me-2">
+                <i class="fas fa-plus"></i> Aggiungi
+            </a>
+            <a asp-action="UtentiTS" class="btn btn-sm btn-danger">
+                <i class="fas fa-list"></i> Visualizza Tutti
+            </a>
+        </div>
+    </div>
+    <div class="card-body">
+        @if (Model.UtentiTS.Any())
+        {
+            <div class="table-responsive">
+                <table class="table table-bordered table-sm" width="100%">
+                    <thead>
+                        <tr>
+                            <th>Nome</th>
+                            <th>Utente</th>
+                            <th>Password</th>
+                            <th>Note</th>
+                            <th width="100px">Azioni</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var item in Model.UtentiTS.Take(5))
+                        {
+                            <tr>
+                                <td><span class="font-weight-bold">@item.Nome</span></td>
+                                <td>@item.Utente</td>
+                                <td><span class="text-primary font-weight-bold">@item.Password</span></td>
+                                <td>@(string.IsNullOrEmpty(item.Note) ? "-" : item.Note)</td>
+                                <td>
+                                    <div class="btn-group btn-group-sm">
+                                        <a asp-action="EditUtentiTS" asp-route-id="@item.Id" class="btn btn-outline-warning btn-sm">
+                                            <i class="fas fa-edit"></i>
+                                        </a>
+                                        <a asp-action="DeleteUtentiTS" asp-route-id="@item.Id" class="btn btn-outline-danger btn-sm">
+                                            <i class="fas fa-trash"></i>
+                                        </a>
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        }
+        else
+        {
+            <div class="text-center py-4 text-muted">
+                <i class="fas fa-user-shield fa-3x mb-3"></i>
+                <p class="mb-0">Nessun utente TS registrato</p>
+                <small>Utilizza il pulsante "Aggiungi" per iniziare</small>
+            </div>
+        }
+    </div>
+</div>

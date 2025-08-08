@@ -1,0 +1,142 @@
+@{
+    ViewData["Title"] = "Benvenuto - Area Senior";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <div class="card border-primary">
+                <div class="card-header bg-primary text-white">
+                    <h3 class="mb-0">
+                        <i class="fas fa-user-tie me-2"></i>
+                        Benvenuto nell'Area Senior
+                    </h3>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-8">
+                            <h4 class="text-primary">Ciao, @ViewBag.UserName!</h4>
+                            <p class="lead">Benvenuto nell'area riservata agli utenti Senior di Consulting Group SRL.</p>
+                            <p>Come utente Senior hai accesso completo a tutte le sezioni del sistema, ad eccezione della gestione utenti che è riservata agli Amministratori.</p>
+                            
+                            <hr>
+                            
+                            <h5>Le tue funzionalità disponibili:</h5>
+                            <div class="row mt-3">
+                                <div class="col-md-6">
+                                    <ul class="list-group list-group-flush">
+                                        <li class="list-group-item">
+                                            <i class="fas fa-users text-success me-2"></i>
+                                            Gestione Attività
+                                        </li>
+                                        <li class="list-group-item">
+                                            <i class="fas fa-database text-success me-2"></i>
+                                            Gestione Dati Utenza
+                                        </li>
+                                        <li class="list-group-item">
+                                            <i class="fas fa-chart-line text-success me-2"></i>
+                                            Report Avanzati
+                                        </li>
+                                    </ul>
+                                </div>
+                                <div class="col-md-6">
+                                    <ul class="list-group list-group-flush">
+                                        <li class="list-group-item">
+                                            <i class="fas fa-cogs text-success me-2"></i>
+                                            Impostazioni Sistema
+                                        </li>
+                                        <li class="list-group-item">
+                                            <i class="fas fa-file-alt text-success me-2"></i>
+                                            Documenti e Reports
+                                        </li>
+                                        <li class="list-group-item">
+                                            <i class="fas fa-user-times text-warning me-2"></i>
+                                            Gestione Utenti <small class="text-muted">(Solo Admin)</small>
+                                        </li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="card bg-light">
+                                <div class="card-body text-center">
+                                    <h5 class="card-title">Informazioni Accesso</h5>
+                                    <p class="card-text">
+                                        <strong>Ultimo accesso:</strong><br>
+                                        @ViewBag.LastLogin
+                                    </p>
+                                    <hr>
+                                    <p class="card-text">
+                                        <strong>Livello accesso:</strong><br>
+                                        <span class="badge bg-primary">Senior User</span>
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Menu di navigazione rapida -->
+    <div class="row mt-4">
+        <div class="col-12">
+            <h5>Accesso Rapido</h5>
+            <div class="row">
+                <div class="col-md-3 mb-3">
+                    <div class="card h-100">
+                        <div class="card-body text-center">
+                            <i class="fas fa-users fa-2x text-primary mb-2"></i>
+                            <h6 class="card-title">Gestione Attività</h6>
+                            <a href="@Url.Action("Index", "GestioneClienti")" class="btn btn-primary btn-sm">Accedi</a>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3 mb-3">
+                    <div class="card h-100">
+                        <div class="card-body text-center">
+                            <i class="fas fa-database fa-2x text-success mb-2"></i>
+                            <h6 class="card-title">Dati Utenza</h6>
+                            <a href="@Url.Action("Index", "DatiUtenza")" class="btn btn-success btn-sm">Accedi</a>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3 mb-3">
+                    <div class="card h-100">
+                        <div class="card-body text-center">
+                            <i class="fas fa-chart-line fa-2x text-info mb-2"></i>
+                            <h6 class="card-title">Reports</h6>
+                            <a href="@Url.Action("Reports", "Senior")" class="btn btn-info btn-sm">Accedi</a>
+                        </div>
+                    </div>
+                </div>
+                @if (User.IsInRole("Administrator"))
+                {
+                    <div class="col-md-3 mb-3">
+                        <div class="card h-100">
+                            <div class="card-body text-center">
+                                <i class="fas fa-cogs fa-2x text-warning mb-2"></i>
+                                <h6 class="card-title">Impostazioni</h6>
+                                <a href="@Url.Action("Settings", "Senior")" class="btn btn-warning btn-sm">Accedi</a>
+                            </div>
+                        </div>
+                    </div>
+                }
+                <div class="col-md-3 mb-3">
+                    <div class="card h-100">
+                        <div class="card-body text-center">
+                            <i class="fas fa-envelope fa-2x text-secondary mb-2"></i>
+                            <h6 class="card-title">Supporto</h6>
+                            <button type="button" class="btn btn-outline-secondary btn-sm" title="infoservizi.cg@gmail.com">
+                                <i class="fas fa-envelope me-1"></i>
+                                Contatta Admin
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

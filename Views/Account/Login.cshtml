@@ -1,0 +1,87 @@
+@model LoginViewModel
+@{
+    ViewData["Title"] = "Login";
+    Layout = "_Layout";
+}
+
+<div class="login-container">
+    <div class="container">
+        <div class="row justify-content-center align-items-center min-vh-100">
+            <div class="col-md-6 col-lg-4">
+                <div class="login-card card shadow-lg border-0">
+                    <div class="card-body p-5">
+                        <!-- Logo Area -->
+                        <div class="text-center mb-4">
+                            <div class="logo-container mb-3">
+                                <img src="~/images/logo.png" alt="Consulting Group SRL" class="login-logo img-fluid" />
+                            </div>
+                            <p class="text-muted text-center">Sistema di Gestione Studio</p>
+                        </div>
+
+                        <!-- Login Form -->
+                        <form asp-action="Login" method="post">
+                            <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+                            
+                            <input type="hidden" asp-for="ReturnUrl" />
+                            
+                            <div class="mb-3">
+                                <label asp-for="UserName" class="form-label">
+                                    <i class="fas fa-user me-1"></i> @Html.DisplayNameFor(m => m.UserName)
+                                </label>
+                                <input asp-for="UserName" class="form-control form-control-lg" placeholder="Inserisci il nome utente" />
+                                <span asp-validation-for="UserName" class="text-danger"></span>
+                            </div>
+
+                            <div class="mb-3">
+                                <label asp-for="Password" class="form-label">
+                                    <i class="fas fa-lock me-1"></i> @Html.DisplayNameFor(m => m.Password)
+                                </label>
+                                <input asp-for="Password" class="form-control form-control-lg" placeholder="Inserisci la password" />
+                                <span asp-validation-for="Password" class="text-danger"></span>
+                            </div>
+
+                            <div class="mb-3">
+                                <div class="form-check">
+                                    <input asp-for="RememberMe" class="form-check-input" />
+                                    <label asp-for="RememberMe" class="form-check-label">
+                                        @Html.DisplayNameFor(m => m.RememberMe)
+                                    </label>
+                                </div>
+                            </div>
+
+                            <div class="d-grid">
+                                <button type="submit" class="btn btn-primary btn-lg">
+                                    <i class="fas fa-sign-in-alt me-2"></i> Accedi
+                                </button>
+                            </div>
+                        </form>
+
+                        <!-- Footer Info -->
+                        <div class="text-center mt-4">
+                            <small class="text-muted">
+                                © @DateTime.Now.Year Consulting Group SRL<br>
+                                Sistema di Gestione Studio
+                            </small>
+                        </div>
+
+                        <!-- Default Credentials Info -->
+                        @if (ViewContext.HttpContext.Request.Query.ContainsKey("showHelp"))
+                        {
+                            <div class="alert alert-info mt-3">
+                                <small>
+                                    <strong>Credenziali predefinite:</strong><br>
+                                    Username: <code>admin</code><br>
+                                    Password: <code>123456</code>
+                                </small>
+                            </div>
+                        }
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

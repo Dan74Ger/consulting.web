@@ -1,0 +1,40 @@
+bin/
+obj/
+.vs/
+*.user
+*.log
+appsettings.Development.json
+
+# Build results
+bin/
+obj/
+Debug/
+Release/
+
+# Visual Studio files
+.vs/
+*.user
+*.userosscache
+*.sln.docstates
+
+# Logs
+*.log
+logs/
+
+# Configuration files (escludi quelli di sviluppo)
+appsettings.Development.json
+
+# Temporary files
+*.tmp
+*.temp
+
+# Database files
+*.mdf
+*.ldf
+
+# Publish files
+publish/
+publish_new/
+
+# PowerShell scripts (opzionale - se non vuoi versionare gli script di deploy)
+*.ps1

@@ -1,0 +1,77 @@
+@model ConsultingGroup.Models.Cancelleria
+@{
+    ViewData["Title"] = "Nuova Cancelleria";
+}
+
+<div class="container-fluid">
+    <div class="d-sm-flex align-items-center justify-content-between mb-4">
+        <h1 class="h3 mb-0 text-gray-800">
+            <i class="fas fa-plus me-2"></i>
+            Nuova Cancelleria
+        </h1>
+        <a href="@Url.Action("Cancelleria")" class="btn btn-secondary btn-sm">
+            <i class="fas fa-arrow-left me-1"></i>
+            Torna all'Elenco
+        </a>
+    </div>
+
+    <div class="card shadow">
+        <div class="card-header py-3">
+            <h6 class="m-0 font-weight-bold text-primary">
+                <i class="fas fa-plus-circle me-2"></i>
+                Aggiungi Nuovo Fornitore di Cancelleria
+            </h6>
+        </div>
+        <div class="card-body">
+            <form asp-action="CreateCancelleria" method="post">
+                <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+
+                <div class="mb-3">
+                    <label asp-for="DenominazioneFornitore" class="form-label">Denominazione Fornitore *</label>
+                    <input asp-for="DenominazioneFornitore" class="form-control" placeholder="Nome del fornitore di cancelleria" />
+                    <span asp-validation-for="DenominazioneFornitore" class="text-danger"></span>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label asp-for="SitoWeb" class="form-label">Sito Web</label>
+                        <input asp-for="SitoWeb" class="form-control" placeholder="https://www.esempio.it" />
+                        <span asp-validation-for="SitoWeb" class="text-danger"></span>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label asp-for="NomeUtente" class="form-label">Nome Utente *</label>
+                        <input asp-for="NomeUtente" class="form-control" placeholder="Username di accesso" />
+                        <span asp-validation-for="NomeUtente" class="text-danger"></span>
+                    </div>
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="Password" class="form-label">Password *</label>
+                    <input asp-for="Password" type="text" class="form-control" placeholder="Password di accesso" />
+                    <span asp-validation-for="Password" class="text-danger"></span>
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="Note" class="form-label">Note</label>
+                    <textarea asp-for="Note" class="form-control" rows="3" placeholder="Note aggiuntive sul fornitore..."></textarea>
+                    <span asp-validation-for="Note" class="text-danger"></span>
+                </div>
+
+                <div class="d-flex justify-content-between">
+                    <a href="@Url.Action("Cancelleria")" class="btn btn-secondary">
+                        <i class="fas fa-times me-1"></i>
+                        Annulla
+                    </a>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-save me-1"></i>
+                        Salva
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}
