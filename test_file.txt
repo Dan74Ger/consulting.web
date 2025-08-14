@@ -1,0 +1,3 @@
+Test file creato per verificare commit automatici
+Data: 14/08/2025 10:47
+Questo file sarà automaticamente committato dal sistema ogni 30 minuti.
