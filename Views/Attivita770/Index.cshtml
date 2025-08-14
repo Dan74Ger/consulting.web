@@ -76,7 +76,7 @@
     <div class="card-body p-0">
         @if (Model.Any())
         {
-            <form id="bulkUpdateForm" method="post" action="@Url.Action("BulkUpdate")">
+            <form id="bulkUpdateForm" method="post" action="@Url.Action("BulkUpdate", "Attivita770")">
                 @Html.AntiForgeryToken()
                 <input type="hidden" name="annoSelezionato" value="@annoSelezionato" />
                 
@@ -151,7 +151,7 @@
                             <button type="submit" class="btn btn-primary btn-sm">
                                 <i class="fas fa-save me-1"></i>Salva Tutto
                             </button>
-                            <a href="@Url.Action("ExportExcel", new { anno = annoSelezionato })" class="btn btn-warning btn-sm">
+                            <a href="@Url.Action("ExportExcel", "Attivita770", new { anno = annoSelezionato })" class="btn btn-warning btn-sm">
                                 <i class="fas fa-file-excel me-1"></i>Export Excel
                             </a>
                             <button type="button" class="btn btn-danger btn-sm" onclick="confermaEliminazioneAnno()">
@@ -200,11 +200,8 @@
                                 <th style="width: 100px; min-width: 100px;" class="text-center border-end bg-secondary">
                                     <i class="fas fa-coins me-1"></i>CU Utili<br/>Presenti
                                 </th>
-                                <th style="width: 200px; min-width: 200px;" class="border-end">
+                                <th style="width: 200px; min-width: 200px;">
                                     <i class="fas fa-sticky-note me-1"></i>Note
-                                </th>
-                                <th style="width: 50px; min-width: 50px;" class="text-center">
-                                    <i class="fas fa-trash me-1"></i>Azioni
                                 </th>
                             </tr>
                         </thead>
@@ -225,149 +222,172 @@
                                                 </span>
                                             }
                                             <div>
-                                                <strong>@Html.DisplayFor(modelItem => item.Cliente.NomeCliente)</strong>
+                                                <strong>@Html.DisplayFor(modelItem => item.Cliente!.NomeCliente)</strong>
                                                 @if (!string.IsNullOrEmpty(item.Cliente?.CodiceAteco))
                                                 {
                                                     <small class="text-muted d-block">@item.Cliente.CodiceAteco</small>
                                                 }
                                             </div>
                                         </div>
-                                        @Html.HiddenFor(m => Model.ElementAt(index).IdAttivita770, new { Name = $"attivita[{index}].IdAttivita770" })
-                                        @Html.HiddenFor(m => Model.ElementAt(index).IdAnno, new { Name = $"attivita[{index}].IdAnno" })
-                                        @Html.HiddenFor(m => Model.ElementAt(index).IdCliente, new { Name = $"attivita[{index}].IdCliente" })
-                                        @Html.HiddenFor(m => Model.ElementAt(index).CreatedAt, new { Name = $"attivita[{index}].CreatedAt" })
+                                        <input type="hidden" name="[@index].IdAttivita770" value="@item.IdAttivita770" />
+                                        <input type="hidden" name="[@index].IdAnno" value="@item.IdAnno" />
+                                        <input type="hidden" name="[@index].IdCliente" value="@item.IdCliente" />
+                                        <input type="hidden" name="[@index].CreatedAt" value="@item.CreatedAt" />
+                                        <input type="hidden" name="[@index].UpdatedAt" value="@item.UpdatedAt" />
                                     </td>
 
                                     <!-- ATECO -->
                                     <td class="text-center border-end">
-                                        <small class="text-muted">@Html.DisplayFor(modelItem => item.Cliente.CodiceAteco)</small>
+                                        <small class="text-muted">@Html.DisplayFor(modelItem => item.Cliente!.CodiceAteco)</small>
                                     </td>
 
                                     <!-- Professionista (Dropdown inline) -->
                                     <td class="text-center border-end">
-                                        @Html.DropDownListFor(m => Model.ElementAt(index).IdProfessionista, 
-                                            ViewBag.Professionisti as SelectList, 
-                                            "Seleziona...", 
-                                            new { 
-                                                @class = "form-select form-select-sm", 
-                                                Name = $"attivita[{index}].IdProfessionista" 
-                                            })
+                                        <select name="[@index].IdProfessionista" class="form-select form-select-sm">
+                                            <option value="">-- Nessuno --</option>
+                                            @{
+                                                var professionisti = ViewBag.Professionisti as IEnumerable<SelectListItem>;
+                                            }
+                                            @if (professionisti != null)
+                                            {
+                                                @foreach (var prof in professionisti)
+                                                {
+                                                    @if (prof.Value == item.IdProfessionista?.ToString())
+                                                    {
+                                                        <option value="@prof.Value" selected>@prof.Text</option>
+                                                    }
+                                                    else
+                                                    {
+                                                        <option value="@prof.Value">@prof.Text</option>
+                                                    }
+                                                }
+                                            }
+                                        </select>
                                     </td>
 
                                     <!-- MOD 770 Lav. Autonomo -->
                                     <td class="text-center border-end bg-light">
                                         <div class="form-check d-flex justify-content-center">
-                                            @Html.CheckBoxFor(m => Model.ElementAt(index).Mod770LavAutonomo, 
-                                                new { 
-                                                    @class = "form-check-input", 
-                                                    Name = $"attivita[{index}].Mod770LavAutonomo",
-                                                    @style = "accent-color: black; border: 2px solid black;"
-                                                })
+                                            @if (item.Mod770LavAutonomo)
+                                            {
+                                                <input type="checkbox" name="[@index].Mod770LavAutonomo" value="true" checked class="form-check-input" style="accent-color: black; border: 2px solid black;" />
+                                            }
+                                            else
+                                            {
+                                                <input type="checkbox" name="[@index].Mod770LavAutonomo" value="true" class="form-check-input" style="accent-color: black; border: 2px solid black;" />
+                                            }
+                                            <input type="hidden" name="[@index].Mod770LavAutonomo" value="false" />
                                         </div>
                                     </td>
 
                                     <!-- MOD 770 Ordinario -->
                                     <td class="text-center border-end bg-light">
                                         <div class="form-check d-flex justify-content-center">
-                                            @Html.CheckBoxFor(m => Model.ElementAt(index).Mod770Ordinario, 
-                                                new { 
-                                                    @class = "form-check-input", 
-                                                    Name = $"attivita[{index}].Mod770Ordinario",
-                                                    @style = "accent-color: black; border: 2px solid black;"
-                                                })
+                                            @if (item.Mod770Ordinario)
+                                            {
+                                                <input type="checkbox" name="[@index].Mod770Ordinario" value="true" checked class="form-check-input" style="accent-color: black; border: 2px solid black;" />
+                                            }
+                                            else
+                                            {
+                                                <input type="checkbox" name="[@index].Mod770Ordinario" value="true" class="form-check-input" style="accent-color: black; border: 2px solid black;" />
+                                            }
+                                            <input type="hidden" name="[@index].Mod770Ordinario" value="false" />
                                         </div>
                                     </td>
 
                                     <!-- Inserimento Dati DR -->
                                     <td class="text-center border-end bg-light">
                                         <div class="form-check d-flex justify-content-center">
-                                            @Html.CheckBoxFor(m => Model.ElementAt(index).InserimentoDatiDr, 
-                                                new { 
-                                                    @class = "form-check-input", 
-                                                    Name = $"attivita[{index}].InserimentoDatiDr",
-                                                    @style = "accent-color: black; border: 2px solid black;"
-                                                })
+                                            @if (item.InserimentoDatiDr)
+                                            {
+                                                <input type="checkbox" name="[@index].InserimentoDatiDr" value="true" checked class="form-check-input" style="accent-color: black; border: 2px solid black;" />
+                                            }
+                                            else
+                                            {
+                                                <input type="checkbox" name="[@index].InserimentoDatiDr" value="true" class="form-check-input" style="accent-color: black; border: 2px solid black;" />
+                                            }
+                                            <input type="hidden" name="[@index].InserimentoDatiDr" value="false" />
                                         </div>
                                     </td>
 
                                     <!-- DR Invio -->
                                     <td class="text-center border-end bg-light">
                                         <div class="form-check d-flex justify-content-center">
-                                            @Html.CheckBoxFor(m => Model.ElementAt(index).DrInvio, 
-                                                new { 
-                                                    @class = "form-check-input", 
-                                                    Name = $"attivita[{index}].DrInvio",
-                                                    @style = "accent-color: black; border: 2px solid black;"
-                                                })
+                                            @if (item.DrInvio)
+                                            {
+                                                <input type="checkbox" name="[@index].DrInvio" value="true" checked class="form-check-input" style="accent-color: black; border: 2px solid black;" />
+                                            }
+                                            else
+                                            {
+                                                <input type="checkbox" name="[@index].DrInvio" value="true" class="form-check-input" style="accent-color: black; border: 2px solid black;" />
+                                            }
+                                            <input type="hidden" name="[@index].DrInvio" value="false" />
                                         </div>
                                     </td>
 
                                     <!-- Ricevuta -->
                                     <td class="text-center border-end bg-light">
                                         <div class="form-check d-flex justify-content-center">
-                                            @Html.CheckBoxFor(m => Model.ElementAt(index).Ricevuta, 
-                                                new { 
-                                                    @class = "form-check-input", 
-                                                    Name = $"attivita[{index}].Ricevuta",
-                                                    @style = "accent-color: black; border: 2px solid black;"
-                                                })
+                                            @if (item.Ricevuta)
+                                            {
+                                                <input type="checkbox" name="[@index].Ricevuta" value="true" checked class="form-check-input" style="accent-color: black; border: 2px solid black;" />
+                                            }
+                                            else
+                                            {
+                                                <input type="checkbox" name="[@index].Ricevuta" value="true" class="form-check-input" style="accent-color: black; border: 2px solid black;" />
+                                            }
+                                            <input type="hidden" name="[@index].Ricevuta" value="false" />
                                         </div>
                                     </td>
 
                                     <!-- PEC Invio DR -->
                                     <td class="text-center border-end bg-light">
                                         <div class="form-check d-flex justify-content-center">
-                                            @Html.CheckBoxFor(m => Model.ElementAt(index).PecInvioDr, 
-                                                new { 
-                                                    @class = "form-check-input", 
-                                                    Name = $"attivita[{index}].PecInvioDr",
-                                                    @style = "accent-color: black; border: 2px solid black;"
-                                                })
+                                            @if (item.PecInvioDr)
+                                            {
+                                                <input type="checkbox" name="[@index].PecInvioDr" value="true" checked class="form-check-input" style="accent-color: black; border: 2px solid black;" />
+                                            }
+                                            else
+                                            {
+                                                <input type="checkbox" name="[@index].PecInvioDr" value="true" class="form-check-input" style="accent-color: black; border: 2px solid black;" />
+                                            }
+                                            <input type="hidden" name="[@index].PecInvioDr" value="false" />
                                         </div>
                                     </td>
 
                                     <!-- MOD CU Fatte -->
                                     <td class="text-center border-end bg-light">
                                         <div class="form-check d-flex justify-content-center">
-                                            @Html.CheckBoxFor(m => Model.ElementAt(index).ModCuFatte, 
-                                                new { 
-                                                    @class = "form-check-input", 
-                                                    Name = $"attivita[{index}].ModCuFatte",
-                                                    @style = "accent-color: black; border: 2px solid black;"
-                                                })
+                                            @if (item.ModCuFatte)
+                                            {
+                                                <input type="checkbox" name="[@index].ModCuFatte" value="true" checked class="form-check-input" style="accent-color: black; border: 2px solid black;" />
+                                            }
+                                            else
+                                            {
+                                                <input type="checkbox" name="[@index].ModCuFatte" value="true" class="form-check-input" style="accent-color: black; border: 2px solid black;" />
+                                            }
+                                            <input type="hidden" name="[@index].ModCuFatte" value="false" />
                                         </div>
                                     </td>
 
                                     <!-- CU Utili Presenti -->
                                     <td class="text-center border-end bg-light">
                                         <div class="form-check d-flex justify-content-center">
-                                            @Html.CheckBoxFor(m => Model.ElementAt(index).CuUtiliPresenti, 
-                                                new { 
-                                                    @class = "form-check-input", 
-                                                    Name = $"attivita[{index}].CuUtiliPresenti",
-                                                    @style = "accent-color: black; border: 2px solid black;"
-                                                })
+                                            @if (item.CuUtiliPresenti)
+                                            {
+                                                <input type="checkbox" name="[@index].CuUtiliPresenti" value="true" checked class="form-check-input" style="accent-color: black; border: 2px solid black;" />
+                                            }
+                                            else
+                                            {
+                                                <input type="checkbox" name="[@index].CuUtiliPresenti" value="true" class="form-check-input" style="accent-color: black; border: 2px solid black;" />
+                                            }
+                                            <input type="hidden" name="[@index].CuUtiliPresenti" value="false" />
                                         </div>
                                     </td>
 
                                     <!-- Note -->
-                                    <td class="border-end">
-                                        @Html.TextAreaFor(m => Model.ElementAt(index).Note, 
-                                            new { 
-                                                @class = "form-control form-control-sm", 
-                                                @rows = "2", 
-                                                @placeholder = "Note...",
-                                                Name = $"attivita[{index}].Note"
-                                            })
-                                    </td>
-
-                                    <!-- Azioni -->
-                                    <td class="text-center">
-                                        <button type="button" class="btn btn-outline-danger btn-sm" 
-                                                onclick="eliminaSingolaAttivita(@item.IdAttivita770, '@item.Cliente?.NomeCliente')" 
-                                                title="Elimina attività">
-                                            <i class="fas fa-trash"></i>
-                                        </button>
+                                    <td>
+                                        <textarea name="[@index].Note" class="form-control form-control-sm" rows="2" placeholder="Note...">@item.Note</textarea>
                                     </td>
                                 </tr>
                                 index++;
@@ -395,39 +415,7 @@
 
 <!-- Scripts per le funzionalità della tabella -->
 <script>
-// Auto-save functionality
-let autoSaveTimer;
-const AUTO_SAVE_DELAY = 3000; // 3 secondi
-
-$(document).ready(function() {
-    // Auto-save quando l'utente modifica i campi
-    $('#bulkUpdateForm input, #bulkUpdateForm select, #bulkUpdateForm textarea').on('change input', function() {
-        clearTimeout(autoSaveTimer);
-        autoSaveTimer = setTimeout(function() {
-            autoSave();
-        }, AUTO_SAVE_DELAY);
-    });
-});
-
-function autoSave() {
-    var formData = $('#bulkUpdateForm').serialize();
-    
-    $.ajax({
-        url: '@Url.Action("BulkUpdate")',
-        type: 'POST',
-        data: formData,
-        success: function(response) {
-            if (response.success) {
-                console.log('Auto-save completato: ' + response.message);
-                // Mostra notifica discreta
-                showNotification('success', 'Salvato automaticamente');
-            }
-        },
-        error: function() {
-            console.log('Errore durante auto-save');
-        }
-    });
-}
+// MOD 770 - Solo salvataggio manuale tramite tasto "Salva Tutto"
 
 function showNotification(type, message) {
     var alertClass = type === 'success' ? 'alert-success' : 'alert-danger';
@@ -466,26 +454,30 @@ function filterTable() {
         }
         
         // Filtro professionista
-        if (professionista && row.querySelector('select[name*="IdProfessionista"]').value !== professionista) {
+        if (professionista && row.querySelector('select[name*=".IdProfessionista"]').value !== professionista) {
             show = false;
         }
         
         // Filtro tipo MOD 770
         if (tipoMod770) {
-            var lavAutonomo = row.querySelector('input[name*="Mod770LavAutonomo"]').checked;
-            var ordinario = row.querySelector('input[name*="Mod770Ordinario"]').checked;
+            var lavAutonomo = row.querySelector('input[name*=".Mod770LavAutonomo"]').checked;
+            var ordinario = row.querySelector('input[name*=".Mod770Ordinario"]').checked;
             
             switch(tipoMod770) {
                 case 'lav_autonomo':
-                    if (!lavAutonomo || ordinario) show = false;
+                    // Mostra tutti i clienti che hanno Lav. Autonomo (anche se hanno pure Ordinario)
+                    if (!lavAutonomo) show = false;
                     break;
                 case 'ordinario':
-                    if (!ordinario || lavAutonomo) show = false;
+                    // Mostra tutti i clienti che hanno Ordinario (anche se hanno pure Lav. Autonomo)
+                    if (!ordinario) show = false;
                     break;
                 case 'entrambi':
+                    // Mostra solo chi ha entrambe le checkbox spuntate
                     if (!lavAutonomo || !ordinario) show = false;
                     break;
                 case 'nessuno':
+                    // Mostra solo chi non ha nessuna checkbox spuntata
                     if (lavAutonomo || ordinario) show = false;
                     break;
             }
@@ -493,8 +485,8 @@ function filterTable() {
         
         // Filtro stato
         if (stato) {
-            var drInvio = row.querySelector('input[name*="DrInvio"]').checked;
-            var ricevuta = row.querySelector('input[name*="Ricevuta"]').checked;
+            var drInvio = row.querySelector('input[name*=".DrInvio"]').checked;
+            var ricevuta = row.querySelector('input[name*=".Ricevuta"]').checked;
             
             switch(stato) {
                 case 'dr_invio':
@@ -534,57 +526,59 @@ function resetFilters() {
     filterTable();
 }
 
-// Eliminazione singola attività
-function eliminaSingolaAttivita(id, nomeCliente) {
-    if (confirm(`Sei sicuro di voler eliminare l'attività MOD 770 per il cliente "${nomeCliente}"?\n\nQuesta azione non può essere annullata.`)) {
-        $.ajax({
-            url: '@Url.Action("DeleteSingle")',
-            type: 'POST',
-            data: {
-                id: id,
-                __RequestVerificationToken: $('input[name="__RequestVerificationToken"]').val()
-            },
-            success: function(response) {
-                if (response.success) {
-                    showNotification('success', response.message);
-                    location.reload();
-                } else {
-                    alert('Errore: ' + response.message);
-                }
-            },
-            error: function() {
-                alert('Errore durante l\'eliminazione');
-            }
-        });
+
+// Funzione globale per eliminazione (deve essere fuori dal document.ready)
+function confermaEliminazioneAnno() {
+    console.log("Funzione confermaEliminazioneAnno chiamata");
+    const anno = @annoSelezionato;
+    const totalRows = $('tbody tr').length;
+    console.log(`Anno: ${anno}, Righe: ${totalRows}`);
+    
+    // Prima conferma
+    if (!confirm(`⚠️ ATTENZIONE!\n\nStai per eliminare TUTTI i ${totalRows} inserimenti del modello 770 dell'anno ${anno}.\n\nQuesta operazione è IRREVERSIBILE!\n\nVuoi continuare?`)) {
+        return;
     }
+    
+    // Seconda conferma con richiesta di digitare ELIMINA
+    const confermaParola = prompt(`🚨 ULTIMA CONFERMA!\n\nPer eliminare DEFINITIVAMENTE tutti i ${totalRows} inserimenti Mod. 770 dell'anno ${anno},\n\nScrivi esattamente: ELIMINA\n\ne poi premi OK:`);
+    
+    if (confermaParola !== "ELIMINA") {
+        alert("❌ Operazione annullata!\n\nDevi scrivere esattamente 'ELIMINA' per confermare.");
+        return;
+    }
+    
+    // Esegui eliminazione
+    eliminaTuttiInserimenti(anno);
 }
 
-// Eliminazione di massa
-function confermaEliminazioneAnno() {
-    var anno = @(annoSelezionato ?? 0);
-    if (confirm(`ATTENZIONE!\n\nStai per eliminare TUTTI gli inserimenti MOD 770 dell'anno ${anno}.\n\nQuesta operazione è IRREVERSIBILE.\n\nSei sicuro di voler continuare?`)) {
-        if (confirm(`CONFERMA FINALE:\n\nElimina definitivamente tutti i dati MOD 770 dell'anno ${anno}?`)) {
-            $.ajax({
-                url: '@Url.Action("DeleteAllForYear")',
-                type: 'POST',
-                data: {
-                    anno: anno,
-                    __RequestVerificationToken: $('input[name="__RequestVerificationToken"]').val()
-                },
-                success: function(response) {
-                    if (response.success) {
-                        alert(response.message);
-                        location.reload();
-                    } else {
-                        alert('Errore: ' + response.message);
-                    }
-                },
-                error: function() {
-                    alert('Errore durante l\'eliminazione');
-                }
-            });
+function eliminaTuttiInserimenti(anno) {
+    // Mostra loading
+    const $button = $('button[onclick="confermaEliminazioneAnno()"]');
+    const originalText = $button.html();
+    $button.prop('disabled', true).html('<i class="fas fa-spinner fa-spin me-1"></i>Eliminazione...');
+    
+    $.ajax({
+        url: '@Url.Action("DeleteAllForYear", "Attivita770")',
+        type: 'POST',
+        data: {
+            anno: anno,
+            __RequestVerificationToken: $('input[name="__RequestVerificationToken"]').val()
+        },
+        success: function(result) {
+            if (result.success) {
+                alert(`✅ Successo!\n\nEliminati ${result.deletedCount} inserimenti dell'anno ${anno}.`);
+                // Ricarica la pagina per aggiornare la tabella
+                window.location.reload();
+            } else {
+                alert(`❌ Errore!\n\n${result.message}`);
+                $button.prop('disabled', false).html(originalText);
+            }
+        },
+        error: function() {
+            alert('❌ Errore di comunicazione con il server!');
+            $button.prop('disabled', false).html(originalText);
         }
-    }
+    });
 }
 </script>
 

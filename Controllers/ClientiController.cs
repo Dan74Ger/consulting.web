@@ -367,6 +367,77 @@ namespace ConsultingGroup.Controllers
                         }
                     }
 
+                    // CONTROLLO RIMOZIONI CHECKBOX (per eliminazione dalle liste)
+                    var checkboxRimosse = new List<(string Modulo, string Tabella, int Clienti)>();
+                    var annoCorrente = await _context.AnniFiscali.OrderByDescending(a => a.Anno).FirstOrDefaultAsync();
+                    
+                    if (annoCorrente != null)
+                    {
+                        // Verifica per ogni checkbox che è stata deselezionata
+                        if (cliente.Mod730 && !viewModel.Mod730)
+                        {
+                            var count = await _context.Attivita730.CountAsync(a => a.IdCliente == cliente.IdCliente && a.IdAnno == annoCorrente.IdAnno);
+                            if (count > 0) checkboxRimosse.Add(("MOD 730", "attivita_730", count));
+                        }
+                        if (cliente.Mod740 && !viewModel.Mod740)
+                        {
+                            var count = await _context.Attivita740.CountAsync(a => a.IdCliente == cliente.IdCliente && a.IdAnno == annoCorrente.IdAnno);
+                            if (count > 0) checkboxRimosse.Add(("MOD 740", "attivita_740", count));
+                        }
+                        if (cliente.Mod750 && !viewModel.Mod750)
+                        {
+                            var count = await _context.Attivita750.CountAsync(a => a.IdCliente == cliente.IdCliente && a.IdAnno == annoCorrente.IdAnno);
+                            if (count > 0) checkboxRimosse.Add(("MOD 750", "attivita_750", count));
+                        }
+                        if (cliente.Mod760 && !viewModel.Mod760)
+                        {
+                            var count = await _context.Attivita760.CountAsync(a => a.IdCliente == cliente.IdCliente && a.IdAnno == annoCorrente.IdAnno);
+                            if (count > 0) checkboxRimosse.Add(("MOD 760", "attivita_760", count));
+                        }
+                        if (cliente.Mod770 && !viewModel.Mod770)
+                        {
+                            var count = await _context.Attivita770.CountAsync(a => a.IdCliente == cliente.IdCliente && a.IdAnno == annoCorrente.IdAnno);
+                            if (count > 0) checkboxRimosse.Add(("MOD 770", "attivita_770", count));
+                        }
+                        if (cliente.ModEnc && !viewModel.ModEnc)
+                        {
+                            var count = await _context.AttivitaEnc.CountAsync(a => a.IdCliente == cliente.IdCliente && a.IdAnno == annoCorrente.IdAnno);
+                            if (count > 0) checkboxRimosse.Add(("MOD ENC", "attivita_enc", count));
+                        }
+                    }
+
+                    // Se ci sono checkbox rimosse, richiedi conferma
+                    if (checkboxRimosse.Count > 0)
+                    {
+                        // Verifica se l'utente ha confermato la rimozione
+                        var confermaRimozione = Request.Form["ConfermaRimozione"].ToString();
+                        if (confermaRimozione != "true")
+                        {
+                            // Prepara messaggio di conferma
+                            var messaggiRimozione = checkboxRimosse.Select(cr => 
+                                $"• {cr.Modulo}: {cr.Clienti} record nell'anno {annoCorrente?.Anno}").ToList();
+                            
+                            TempData["WarningMessage"] = $"ATTENZIONE! Hai deselezionato delle checkbox. Questo rimuoverà '{cliente.NomeCliente}' dalle seguenti liste attività:\n\n" +
+                                string.Join("\n", messaggiRimozione) + 
+                                "\n\nVuoi procedere con la rimozione? I dati verranno ELIMINATI definitivamente.";
+                            
+                            // Memorizza temporaneamente le checkbox rimosse
+                            TempData["CheckboxRimosse"] = System.Text.Json.JsonSerializer.Serialize(checkboxRimosse);
+                            TempData["RichiestaConfermaRimozione"] = "true";
+                            
+                            await PopulateDropdowns(viewModel);
+                            return View(viewModel);
+                        }
+                        else
+                        {
+                            // Utente ha confermato, procedi con l'eliminazione
+                            await RimuoviDalleListeAttivita(cliente.IdCliente, annoCorrente!.IdAnno, checkboxRimosse);
+                            
+                            var moduliRimossi = string.Join(", ", checkboxRimosse.Select(cr => cr.Modulo));
+                            TempData["SuccessMessage"] = $"Cliente '{cliente.NomeCliente}' rimosso dalle liste: {moduliRimossi}";
+                        }
+                    }
+
                     // CONTROLLO CAMBIAMENTI ATTIVITÀ REDDITI
                     var cambiamentiAttivita = new List<string>();
                     
@@ -1824,6 +1895,64 @@ namespace ConsultingGroup.Controllers
             
             // Salva i cambiamenti della migrazione
             await _context.SaveChangesAsync();
+        }
+
+        // Metodo per rimuovere cliente dalle liste attività quando checkbox deselezionate
+        private async Task RimuoviDalleListeAttivita(int idCliente, int idAnno, List<(string Modulo, string Tabella, int Clienti)> checkboxRimosse)
+        {
+            foreach (var checkbox in checkboxRimosse)
+            {
+                switch (checkbox.Tabella)
+                {
+                    case "attivita_730":
+                        var attivita730 = await _context.Attivita730
+                            .Where(a => a.IdCliente == idCliente && a.IdAnno == idAnno)
+                            .ToListAsync();
+                        _context.Attivita730.RemoveRange(attivita730);
+                        break;
+
+                    case "attivita_740":
+                        var attivita740 = await _context.Attivita740
+                            .Where(a => a.IdCliente == idCliente && a.IdAnno == idAnno)
+                            .ToListAsync();
+                        _context.Attivita740.RemoveRange(attivita740);
+                        break;
+
+                    case "attivita_750":
+                        var attivita750 = await _context.Attivita750
+                            .Where(a => a.IdCliente == idCliente && a.IdAnno == idAnno)
+                            .ToListAsync();
+                        _context.Attivita750.RemoveRange(attivita750);
+                        break;
+
+                    case "attivita_760":
+                        var attivita760 = await _context.Attivita760
+                            .Where(a => a.IdCliente == idCliente && a.IdAnno == idAnno)
+                            .ToListAsync();
+                        _context.Attivita760.RemoveRange(attivita760);
+                        break;
+
+                    case "attivita_770":
+                        var attivita770 = await _context.Attivita770
+                            .Where(a => a.IdCliente == idCliente && a.IdAnno == idAnno)
+                            .ToListAsync();
+                        _context.Attivita770.RemoveRange(attivita770);
+                        break;
+
+                    case "attivita_enc":
+                        var attivitaEnc = await _context.AttivitaEnc
+                            .Where(a => a.IdCliente == idCliente && a.IdAnno == idAnno)
+                            .ToListAsync();
+                        _context.AttivitaEnc.RemoveRange(attivitaEnc);
+                        break;
+                }
+            }
+
+            // Salva tutte le rimozioni
+            if (checkboxRimosse.Count > 0)
+            {
+                await _context.SaveChangesAsync();
+            }
         }
     }
 }

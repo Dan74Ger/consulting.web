@@ -384,10 +384,22 @@ namespace ConsultingGroup.Controllers
         // POST: Attivita770/BulkUpdate
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> BulkUpdate(List<Attivita770> attivita, int? annoSelezionato, IFormCollection form)
+        public async Task<IActionResult> BulkUpdate([FromForm] List<Attivita770> attivita, int? annoSelezionato, IFormCollection form)
         {
+            Console.WriteLine($"DEBUG BulkUpdate 770: attivita count = {attivita?.Count ?? 0}");
+            Console.WriteLine($"DEBUG BulkUpdate 770: form keys = {string.Join(", ", form.Keys.Take(10))}...");
+            
+            // Usa IFormCollection per parsing manuale se il binding automatico fallisce
             if (attivita == null || !attivita.Any())
             {
+                Console.WriteLine("DEBUG BulkUpdate 770: Binding automatico fallito, provo parsing manuale...");
+                attivita = ParseAttivitaFromForm(form);
+                Console.WriteLine($"DEBUG BulkUpdate 770: Dopo parsing manuale: {attivita?.Count ?? 0} attività");
+            }
+            
+            if (attivita == null || !attivita.Any())
+            {
+                Console.WriteLine("DEBUG BulkUpdate 770: Nessuna attività da aggiornare anche dopo parsing manuale");
                 // Auto-save senza modifiche - ritorna OK senza fare nulla
                 if (Request.Headers["X-Requested-With"] == "XMLHttpRequest")
                 {
@@ -405,9 +417,11 @@ namespace ConsultingGroup.Controllers
             {
                 try
                 {
+                    Console.WriteLine($"DEBUG: Aggiornamento item ID={item.IdAttivita770}, Cliente={item.IdCliente}");
                     var esistente = await _context.Attivita770.FindAsync(item.IdAttivita770);
                     if (esistente != null)
                     {
+                        Console.WriteLine($"DEBUG: Trovato esistente, aggiornamento campi...");
                         // Aggiorna solo i campi modificabili
                         esistente.IdProfessionista = item.IdProfessionista;
                         esistente.Mod770LavAutonomo = item.Mod770LavAutonomo;
@@ -423,16 +437,23 @@ namespace ConsultingGroup.Controllers
 
                         aggiornamenti++;
                     }
+                    else
+                    {
+                        Console.WriteLine($"DEBUG: Attività ID={item.IdAttivita770} non trovata nel database!");
+                    }
                 }
-                catch (Exception)
+                catch (Exception ex)
                 {
+                    Console.WriteLine($"DEBUG: Errore aggiornamento item ID={item.IdAttivita770}: {ex.Message}");
                     errori++;
                 }
             }
 
             try
             {
+                Console.WriteLine($"DEBUG: Chiamata SaveChangesAsync con {aggiornamenti} aggiornamenti e {errori} errori");
                 await _context.SaveChangesAsync();
+                Console.WriteLine($"DEBUG: SaveChangesAsync completato con successo");
 
                 // Per richieste AJAX (auto-save), ritorna JSON
                 if (Request.Headers["X-Requested-With"] == "XMLHttpRequest")
@@ -469,57 +490,7 @@ namespace ConsultingGroup.Controllers
             return RedirectToAction(nameof(Index), new { annoSelezionato });
         }
 
-        // POST: Attivita770/DeleteSingle
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> DeleteSingle(int id)
-        {
-            try
-            {
-                // Trova l'attività da eliminare con relazioni
-                var attivita = await _context.Attivita770
-                    .Include(a => a.Cliente)
-                    .Include(a => a.AnnoFiscale)
-                    .FirstOrDefaultAsync(a => a.IdAttivita770 == id);
 
-                if (attivita == null)
-                {
-                    return Json(new { success = false, message = "Attività non trovata." });
-                }
-
-                // Verifica il vincolo: controllo se il cliente è attivo
-                if (attivita.Cliente?.Attivo == true)
-                {
-                    return Json(new { 
-                        success = false, 
-                        message = $"Impossibile eliminare l'attività per il cliente \"{attivita.Cliente.NomeCliente}\" perché risulta ancora attivo. Disattivare prima il cliente dalla gestione clienti." 
-                    });
-                }
-
-                var nomeCliente = attivita.Cliente?.NomeCliente ?? "Cliente sconosciuto";
-                var anno = attivita.AnnoFiscale?.Anno ?? 0;
-
-                // Elimina l'attività
-                _context.Attivita770.Remove(attivita);
-                await _context.SaveChangesAsync();
-
-                // Log dell'operazione
-                Console.WriteLine($"Eliminata attività Mod. 770 per cliente: {nomeCliente} (Anno: {anno})");
-
-                return Json(new { 
-                    success = true, 
-                    message = $"Attività Mod. 770 per il cliente \"{nomeCliente}\" eliminata con successo."
-                });
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"Errore durante eliminazione singola attività: {ex.Message}");
-                return Json(new { 
-                    success = false, 
-                    message = $"Errore durante l'eliminazione: {ex.Message}" 
-                });
-            }
-        }
 
         // POST: Attivita770/DeleteAllForYear
         [HttpPost]
@@ -676,6 +647,85 @@ namespace ConsultingGroup.Controllers
             cell.Style.Font.Size = isCompleted ? 14 : 10;
             cell.Style.Font.Bold = isCompleted;
             cell.Style.Font.Color.SetColor(isCompleted ? System.Drawing.Color.Green : System.Drawing.Color.Red);
+        }
+
+        // Metodo per parsing manuale dei dati dal form
+        private List<Attivita770> ParseAttivitaFromForm(IFormCollection form)
+        {
+            var attivita = new List<Attivita770>();
+            var indices = new HashSet<int>();
+
+            // Trova tutti gli indici delle attività dal form (formato [@index])
+            foreach (var key in form.Keys)
+            {
+                if (key.StartsWith("[") && key.Contains("]."))
+                {
+                    var startIndex = key.IndexOf('[') + 1;
+                    var endIndex = key.IndexOf(']');
+                    if (int.TryParse(key.Substring(startIndex, endIndex - startIndex), out int index))
+                    {
+                        indices.Add(index);
+                    }
+                }
+            }
+
+            Console.WriteLine($"DEBUG ParseForm: Trovati {indices.Count} indici attività");
+
+            // Per ogni indice, crea un oggetto Attivita770
+            foreach (var index in indices.OrderBy(i => i))
+            {
+                try
+                {
+                    var attivita770 = new Attivita770();
+                    
+                    // Campi obbligatori
+                    if (int.TryParse(form[$"[{index}].IdAttivita770"], out int idAttivita))
+                        attivita770.IdAttivita770 = idAttivita;
+                    
+                    if (int.TryParse(form[$"[{index}].IdAnno"], out int idAnno))
+                        attivita770.IdAnno = idAnno;
+                    
+                    if (int.TryParse(form[$"[{index}].IdCliente"], out int idCliente))
+                        attivita770.IdCliente = idCliente;
+                    
+                    // Professionista (opzionale)
+                    if (int.TryParse(form[$"[{index}].IdProfessionista"], out int idProf))
+                        attivita770.IdProfessionista = idProf;
+                    
+                    // Checkbox (ASP.NET invia "true,false" per le checkbox)
+                    attivita770.Mod770LavAutonomo = form[$"[{index}].Mod770LavAutonomo"].ToString().Contains("true");
+                    attivita770.Mod770Ordinario = form[$"[{index}].Mod770Ordinario"].ToString().Contains("true");
+                    attivita770.InserimentoDatiDr = form[$"[{index}].InserimentoDatiDr"].ToString().Contains("true");
+                    attivita770.DrInvio = form[$"[{index}].DrInvio"].ToString().Contains("true");
+                    attivita770.Ricevuta = form[$"[{index}].Ricevuta"].ToString().Contains("true");
+                    attivita770.PecInvioDr = form[$"[{index}].PecInvioDr"].ToString().Contains("true");
+                    attivita770.ModCuFatte = form[$"[{index}].ModCuFatte"].ToString().Contains("true");
+                    attivita770.CuUtiliPresenti = form[$"[{index}].CuUtiliPresenti"].ToString().Contains("true");
+                    
+                    // Note
+                    attivita770.Note = form[$"[{index}].Note"];
+                    
+                    // Date
+                    if (DateTime.TryParse(form[$"[{index}].CreatedAt"], out DateTime createdAt))
+                        attivita770.CreatedAt = createdAt;
+                    
+                    if (DateTime.TryParse(form[$"[{index}].UpdatedAt"], out DateTime updatedAt))
+                        attivita770.UpdatedAt = updatedAt;
+                    
+                    Console.WriteLine($"DEBUG ParseForm: Parsed attività {index} - ID={attivita770.IdAttivita770}, Cliente={attivita770.IdCliente}");
+                    
+                    if (attivita770.IdAttivita770 > 0)
+                    {
+                        attivita.Add(attivita770);
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"DEBUG ParseForm: Errore parsing indice {index}: {ex.Message}");
+                }
+            }
+
+            return attivita;
         }
     }
 }

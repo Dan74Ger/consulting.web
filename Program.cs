@@ -77,7 +77,12 @@ else
 // Middleware per hosting esterno
 app.UseForwardedHeaders();
 
-app.UseHttpsRedirection();
+// HTTPS redirection solo in produzione
+if (!app.Environment.IsDevelopment())
+{
+    app.UseHttpsRedirection();
+}
+
 app.UseStaticFiles();
 
 app.UseRouting();

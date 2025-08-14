@@ -775,6 +775,83 @@ namespace ConsultingGroup.Migrations
                     b.ToTable("attivita_760");
                 });
 
+            modelBuilder.Entity("ConsultingGroup.Models.Attivita770", b =>
+                {
+                    b.Property<int>("IdAttivita770")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .HasColumnName("id_attivita_770");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("IdAttivita770"));
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2")
+                        .HasColumnName("created_at");
+
+                    b.Property<bool>("CuUtiliPresenti")
+                        .HasColumnType("bit")
+                        .HasColumnName("cu_utili_presenti");
+
+                    b.Property<bool>("DrInvio")
+                        .HasColumnType("bit")
+                        .HasColumnName("dr_invio");
+
+                    b.Property<int>("IdAnno")
+                        .HasColumnType("int")
+                        .HasColumnName("id_anno");
+
+                    b.Property<int>("IdCliente")
+                        .HasColumnType("int")
+                        .HasColumnName("id_cliente");
+
+                    b.Property<int?>("IdProfessionista")
+                        .HasColumnType("int")
+                        .HasColumnName("id_professionista");
+
+                    b.Property<bool>("InserimentoDatiDr")
+                        .HasColumnType("bit")
+                        .HasColumnName("inserimento_dati_dr");
+
+                    b.Property<bool>("Mod770LavAutonomo")
+                        .HasColumnType("bit")
+                        .HasColumnName("mod_770_lav_autonomo");
+
+                    b.Property<bool>("Mod770Ordinario")
+                        .HasColumnType("bit")
+                        .HasColumnName("mod_770_ordinario");
+
+                    b.Property<bool>("ModCuFatte")
+                        .HasColumnType("bit")
+                        .HasColumnName("mod_cu_fatte");
+
+                    b.Property<string>("Note")
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)")
+                        .HasColumnName("note");
+
+                    b.Property<bool>("PecInvioDr")
+                        .HasColumnType("bit")
+                        .HasColumnName("pec_invio_dr");
+
+                    b.Property<bool>("Ricevuta")
+                        .HasColumnType("bit")
+                        .HasColumnName("ricevuta");
+
+                    b.Property<DateTime>("UpdatedAt")
+                        .HasColumnType("datetime2")
+                        .HasColumnName("updated_at");
+
+                    b.HasKey("IdAttivita770");
+
+                    b.HasIndex("IdAnno");
+
+                    b.HasIndex("IdCliente");
+
+                    b.HasIndex("IdProfessionista");
+
+                    b.ToTable("attivita_770");
+                });
+
             modelBuilder.Entity("ConsultingGroup.Models.AttivitaEnc", b =>
                 {
                     b.Property<int>("IdAttivitaEnc")
@@ -2048,6 +2125,31 @@ namespace ConsultingGroup.Migrations
                 });
 
             modelBuilder.Entity("ConsultingGroup.Models.Attivita760", b =>
+                {
+                    b.HasOne("ConsultingGroup.Models.AnnoFiscale", "AnnoFiscale")
+                        .WithMany()
+                        .HasForeignKey("IdAnno")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("ConsultingGroup.Models.Cliente", "Cliente")
+                        .WithMany()
+                        .HasForeignKey("IdCliente")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("ConsultingGroup.Models.Professionista", "Professionista")
+                        .WithMany()
+                        .HasForeignKey("IdProfessionista");
+
+                    b.Navigation("AnnoFiscale");
+
+                    b.Navigation("Cliente");
+
+                    b.Navigation("Professionista");
+                });
+
+            modelBuilder.Entity("ConsultingGroup.Models.Attivita770", b =>
                 {
                     b.HasOne("ConsultingGroup.Models.AnnoFiscale", "AnnoFiscale")
                         .WithMany()
