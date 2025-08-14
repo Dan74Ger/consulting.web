@@ -1,0 +1,271 @@
+@model ConsultingGroup.Models.Attivita730
+
+@{
+    ViewData["Title"] = "Modifica Attività 730";
+}
+
+<div class="row">
+    <div class="col-md-8 mx-auto">
+        <div class="card">
+            <div class="card-header bg-primary text-white">
+                <h4 class="mb-0">
+                    <i class="fas fa-edit me-2"></i>@ViewData["Title"]
+                </h4>
+            </div>
+            
+            <div class="card-body">
+                <form asp-action="Edit" method="post">
+                    <div asp-validation-summary="ModelOnly" class="alert alert-danger"></div>
+                    
+                    <!-- Hidden fields -->
+                    <input type="hidden" asp-for="IdAttivita730" />
+                    <input type="hidden" asp-for="CreatedAt" />
+                    
+                    <!-- Info Cliente (read-only) -->
+                    <div class="alert alert-info mb-4">
+                        <div class="row align-items-center">
+                            <div class="col-md-4">
+                                <strong>Cliente:</strong> @Model.Cliente?.NomeCliente
+                            </div>
+                            <div class="col-md-4">
+                                <strong>Anno:</strong> @Model.AnnoFiscale?.AnnoDescrizione
+                            </div>
+                            <div class="col-md-4">
+                                <strong>ATECO:</strong> @(Model.Cliente?.CodiceAteco ?? "Non specificato")
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Hidden fields per i dati che non devono cambiare -->
+                    <input type="hidden" asp-for="IdAnno" />
+                    <input type="hidden" asp-for="IdCliente" />
+                    
+                    <!-- Dati Modificabili -->
+                    <div class="row mb-4">
+                        <div class="col-md-6">
+                            <div class="form-group mb-3">
+                                <label asp-for="IdProfessionista" class="form-label">Professionista</label>
+                                <select asp-for="IdProfessionista" class="form-select" asp-items="ViewBag.IdProfessionista">
+                                    <option value="">-- Nessun Professionista --</option>
+                                </select>
+                                <span asp-validation-for="IdProfessionista" class="text-danger"></span>
+                            </div>
+                        </div>
+                        
+                        <div class="col-md-6">
+                            <div class="form-group mb-3">
+                                <label asp-for="CodiceDr" class="form-label">Codice DR</label>
+                                <input asp-for="CodiceDr" class="form-control" placeholder="Es: DR123456" />
+                                <span asp-validation-for="CodiceDr" class="text-danger"></span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Raccolta Documenti -->
+                    <div class="form-group mb-4">
+                        <label asp-for="RaccoltaDocumenti" class="form-label">Stato Raccolta Documenti</label>
+                        <select asp-for="RaccoltaDocumenti" class="form-select">
+                            <option value="da_richiedere">Da Richiedere</option>
+                            <option value="richiesti">Richiesti</option>
+                            <option value="ricevuti">Ricevuti</option>
+                        </select>
+                        <span asp-validation-for="RaccoltaDocumenti" class="text-danger"></span>
+                    </div>
+                    
+                    <!-- Stati DR -->
+                    <h5 class="border-bottom pb-2 mb-3">
+                        <i class="fas fa-tasks me-2 text-primary"></i>Stati Dichiarazione
+                    </h5>
+                    
+                    <div class="row">
+                        <div class="col-md-4">
+                            <div class="card border-light bg-light">
+                                <div class="card-body p-3">
+                                    <div class="form-check mb-2">
+                                        <input asp-for="DrInserita" class="form-check-input" id="DrInserita" />
+                                        <label asp-for="DrInserita" class="form-check-label">
+                                            <i class="fas fa-edit me-1 text-info"></i>DR Inserita
+                                        </label>
+                                    </div>
+                                    <div class="form-group">
+                                        <label asp-for="DrInseritaData" class="form-label small">Data</label>
+                                        <input asp-for="DrInseritaData" class="form-control form-control-sm" type="date" />
+                                        <span asp-validation-for="DrInseritaData" class="text-danger"></span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="col-md-4">
+                            <div class="card border-light bg-light">
+                                <div class="card-body p-3">
+                                    <div class="form-check mb-2">
+                                        <input asp-for="DrControllata" class="form-check-input" id="DrControllata" />
+                                        <label asp-for="DrControllata" class="form-check-label">
+                                            <i class="fas fa-eye me-1 text-warning"></i>DR Controllata
+                                        </label>
+                                    </div>
+                                    <div class="form-group">
+                                        <label asp-for="DrControllataData" class="form-label small">Data</label>
+                                        <input asp-for="DrControllataData" class="form-control form-control-sm" type="date" />
+                                        <span asp-validation-for="DrControllataData" class="text-danger"></span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="col-md-4">
+                            <div class="card border-light bg-light">
+                                <div class="card-body p-3">
+                                    <div class="form-check mb-2">
+                                        <input asp-for="DrSpedita" class="form-check-input" id="DrSpedita" />
+                                        <label asp-for="DrSpedita" class="form-check-label">
+                                            <i class="fas fa-check-circle me-1 text-success"></i>DR Spedita
+                                        </label>
+                                    </div>
+                                    <div class="form-group">
+                                        <label asp-for="DrSpeditaData" class="form-label small">Data</label>
+                                        <input asp-for="DrSpeditaData" class="form-control form-control-sm" type="date" />
+                                        <span asp-validation-for="DrSpeditaData" class="text-danger"></span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Altri Stati -->
+                    <h5 class="border-bottom pb-2 mb-3 mt-4">
+                        <i class="fas fa-clipboard-check me-2 text-primary"></i>Stati Aggiuntivi
+                    </h5>
+                    
+                    <div class="row">
+                        <div class="col-md-4">
+                            <div class="form-check mb-3">
+                                <input asp-for="RicevutaDr730" class="form-check-input" />
+                                <label asp-for="RicevutaDr730" class="form-check-label">
+                                    <i class="fas fa-receipt me-1"></i>Ricevuta DR 730
+                                </label>
+                            </div>
+                        </div>
+                        
+                        <div class="col-md-4">
+                            <div class="form-check mb-3">
+                                <input asp-for="PecInvioDr" class="form-check-input" />
+                                <label asp-for="PecInvioDr" class="form-check-label">
+                                    <i class="fas fa-envelope me-1"></i>PEC Invio DR
+                                </label>
+                            </div>
+                        </div>
+                        
+                        <div class="col-md-4">
+                            <div class="form-check mb-3">
+                                <input asp-for="DrFirmata" class="form-check-input" />
+                                <label asp-for="DrFirmata" class="form-check-label">
+                                    <i class="fas fa-signature me-1"></i>DR Firmata
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Note -->
+                    <div class="form-group mb-4">
+                        <label asp-for="Note" class="form-label">Note</label>
+                        <textarea asp-for="Note" class="form-control" rows="3" placeholder="Note aggiuntive..."></textarea>
+                        <span asp-validation-for="Note" class="text-danger"></span>
+                    </div>
+                    
+                    <!-- Info aggiornamento -->
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <small class="text-muted">
+                                <i class="fas fa-calendar me-1"></i>Creato: @Model.CreatedAt.ToString("dd/MM/yyyy HH:mm")
+                            </small>
+                        </div>
+                        <div class="col-md-6 text-end">
+                            <small class="text-muted">
+                                <i class="fas fa-edit me-1"></i>Ultimo aggiornamento: @Model.UpdatedAt.ToString("dd/MM/yyyy HH:mm")
+                            </small>
+                        </div>
+                    </div>
+                    
+                    <!-- Pulsanti -->
+                    <div class="d-flex justify-content-between">
+                        <a href="@Url.Action("Index", new { annoSelezionato = Model.AnnoFiscale?.Anno })" class="btn btn-secondary">
+                            <i class="fas fa-arrow-left me-1"></i>Indietro
+                        </a>
+                        
+                        <div class="d-flex gap-2">
+                            <a href="@Url.Action("Details", new { id = Model.IdAttivita730 })" class="btn btn-info">
+                                <i class="fas fa-eye me-1"></i>Dettagli
+                            </a>
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-save me-1"></i>Salva Modifiche
+                            </button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Script per gestione automatica delle date -->
+<script>
+$(document).ready(function() {
+    // Auto-imposta la data quando si spunta una checkbox (solo se non già impostata)
+    $('#DrInserita').change(function() {
+        if ($(this).is(':checked') && !$('#DrInseritaData').val()) {
+            $('#DrInseritaData').val(new Date().toISOString().slice(0, 10));
+        }
+    });
+    
+    $('#DrControllata').change(function() {
+        if ($(this).is(':checked') && !$('#DrControllataData').val()) {
+            $('#DrControllataData').val(new Date().toISOString().slice(0, 10));
+        }
+    });
+    
+    $('#DrSpedita').change(function() {
+        if ($(this).is(':checked') && !$('#DrSpeditaData').val()) {
+            $('#DrSpeditaData').val(new Date().toISOString().slice(0, 10));
+        }
+    });
+    
+    // Logica per step sequenziali (opzionale)
+    $('#DrControllata').change(function() {
+        if ($(this).is(':checked') && !$('#DrInserita').is(':checked')) {
+            if (confirm('Vuoi anche contrassegnare la DR come "Inserita"?')) {
+                $('#DrInserita').prop('checked', true);
+                if (!$('#DrInseritaData').val()) {
+                    $('#DrInseritaData').val(new Date().toISOString().slice(0, 10));
+                }
+            }
+        }
+    });
+    
+    $('#DrSpedita').change(function() {
+        if ($(this).is(':checked')) {
+            if (!$('#DrInserita').is(':checked')) {
+                if (confirm('Vuoi anche contrassegnare la DR come "Inserita"?')) {
+                    $('#DrInserita').prop('checked', true);
+                    if (!$('#DrInseritaData').val()) {
+                        $('#DrInseritaData').val(new Date().toISOString().slice(0, 10));
+                    }
+                }
+            }
+            if (!$('#DrControllata').is(':checked')) {
+                if (confirm('Vuoi anche contrassegnare la DR come "Controllata"?')) {
+                    $('#DrControllata').prop('checked', true);
+                    if (!$('#DrControllataData').val()) {
+                        $('#DrControllataData').val(new Date().toISOString().slice(0, 10));
+                    }
+                }
+            }
+        }
+    });
+});
+</script>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

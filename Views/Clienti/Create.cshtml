@@ -1,0 +1,432 @@
+@model ConsultingGroup.ViewModels.ClientiViewModel
+
+@{
+    ViewData["Title"] = "Crea Cliente";
+}
+
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <div>
+                    <h2><i class="fas fa-user-plus me-2 text-success"></i>Crea Nuovo Cliente</h2>
+                    <p class="text-muted mb-0">Inserisci i dati del nuovo cliente e configura le attività associate</p>
+                </div>
+                <div>
+                    <a asp-action="Index" class="btn btn-secondary">
+                        <i class="fas fa-arrow-left me-1"></i>Torna all'Elenco
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <form asp-action="Create" method="post">
+        <div asp-validation-summary="ModelOnly" class="alert alert-danger" role="alert"></div>
+
+        <!-- Sezione Anagrafica -->
+        <div class="row mb-4">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-header bg-secondary text-white">
+                        <h5 class="card-title mb-0">
+                            <i class="fas fa-id-card me-2"></i>Informazioni Anagrafiche
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label asp-for="NomeCliente" class="form-label fw-bold">
+                                    <i class="fas fa-user me-1"></i>@Html.DisplayNameFor(model => model.NomeCliente)
+                                    <span class="text-danger">*</span>
+                                </label>
+                                <input asp-for="NomeCliente" class="form-control" placeholder="Inserisci nome o ragione sociale">
+                                <span asp-validation-for="NomeCliente" class="text-danger"></span>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label asp-for="MailCliente" class="form-label">
+                                    <i class="fas fa-envelope me-1"></i>@Html.DisplayNameFor(model => model.MailCliente)
+                                </label>
+                                <input asp-for="MailCliente" class="form-control" placeholder="cliente@email.com">
+                                <span asp-validation-for="MailCliente" class="text-danger"></span>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label asp-for="CodiceAteco" class="form-label fw-bold">
+                                    <i class="fas fa-industry me-1"></i>@Html.DisplayNameFor(model => model.CodiceAteco)
+                                    <span class="badge bg-primary ms-1">MASTER</span>
+                                </label>
+                                <input asp-for="CodiceAteco" class="form-control" placeholder="Es: 62.01.00">
+                                <span asp-validation-for="CodiceAteco" class="text-danger"></span>
+                                <div class="form-text">
+                                    <i class="fas fa-info-circle me-1"></i>
+                                    Campo master per la classificazione dell'attività
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Sezione Relazioni -->
+        <div class="row mb-4">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-header bg-info text-white">
+                        <h5 class="card-title mb-0">
+                            <i class="fas fa-link me-2"></i>Relazioni e Assegnazioni
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label asp-for="IdProgramma" class="form-label">
+                                    <i class="fas fa-cogs me-1"></i>@Html.DisplayNameFor(model => model.IdProgramma)
+                                </label>
+                                <select asp-for="IdProgramma" class="form-select" asp-items="@Model.ProgrammiDisponibili">
+                                    <option value="">-- Seleziona Programma (opzionale) --</option>
+                                </select>
+                                <span asp-validation-for="IdProgramma" class="text-danger"></span>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label asp-for="IdProfessionista" class="form-label">
+                                    <i class="fas fa-user-tie me-1"></i>@Html.DisplayNameFor(model => model.IdProfessionista)
+                                </label>
+                                <select asp-for="IdProfessionista" class="form-select" asp-items="@Model.ProfessionistiDisponibili">
+                                    <option value="">-- Seleziona Professionista (opzionale) --</option>
+                                </select>
+                                <span asp-validation-for="IdProfessionista" class="text-danger"></span>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label asp-for="IdRegimeContabile" class="form-label">
+                                    <i class="fas fa-balance-scale me-1"></i>@Html.DisplayNameFor(model => model.IdRegimeContabile)
+                                </label>
+                                <select asp-for="IdRegimeContabile" class="form-select" asp-items="@Model.RegimiContabiliDisponibili">
+                                    <option value="">-- Seleziona Regime Contabile (opzionale) --</option>
+                                </select>
+                                <span asp-validation-for="IdRegimeContabile" class="text-danger"></span>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label asp-for="IdTipologiaInps" class="form-label">
+                                    <i class="fas fa-id-card me-1"></i>@Html.DisplayNameFor(model => model.IdTipologiaInps)
+                                </label>
+                                <select asp-for="IdTipologiaInps" class="form-select" asp-items="@Model.TipologieInpsDisponibili">
+                                    <option value="">-- Seleziona Tipologia INPS (opzionale) --</option>
+                                </select>
+                                <span asp-validation-for="IdTipologiaInps" class="text-danger"></span>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label asp-for="RiattivatoPerAnno" class="form-label">
+                                    <i class="fas fa-calendar-alt me-1"></i>@Html.DisplayNameFor(model => model.RiattivatoPerAnno)
+                                </label>
+                                <select asp-for="RiattivatoPerAnno" class="form-select" asp-items="@Model.AnniFiscaliDisponibili">
+                                    <option value="">-- Seleziona Anno Fiscale (opzionale) --</option>
+                                </select>
+                                <span asp-validation-for="RiattivatoPerAnno" class="text-danger"></span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Sezione Configurazione -->
+        <div class="row mb-4">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-header bg-warning text-dark">
+                        <h5 class="card-title mb-0">
+                            <i class="fas fa-cog me-2"></i>Configurazione Operativa
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label fw-bold">
+                                    <i class="fas fa-calculator me-1"></i>Gestione Contabilità
+                                </label>
+                                <div class="form-check">
+                                    <input asp-for="Contabilita" class="form-check-input" type="checkbox">
+                                    <label asp-for="Contabilita" class="form-check-label">
+                                        Contabilità Interna (se deselezionato: Esterna)
+                                    </label>
+                                </div>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label fw-bold">
+                                    <i class="fas fa-calendar me-1"></i>Periodicità
+                                </label>
+                                <div class="form-check">
+                                    <input asp-for="PeriodoContabilita" class="form-check-input" type="checkbox">
+                                    <label asp-for="PeriodoContabilita" class="form-check-label">
+                                        Periodo Mensile (se deselezionato: Trimestrale)
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- SEZIONI ATTIVITÀ -->
+        <div class="row mb-4">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-header bg-primary text-white">
+                        <h5 class="card-title mb-0">
+                            <i class="fas fa-tasks me-2"></i>Attività e Servizi
+                            <small class="ms-2">
+                                <i class="fas fa-info-circle"></i>
+                                Seleziona le attività per includere il cliente nelle relative gestioni
+                            </small>
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        
+                        <!-- ATTIVITÀ REDDITI -->
+                        <div class="row mb-4">
+                            <div class="col-12">
+                                <h6 class="text-danger fw-bold border-bottom border-danger pb-2 mb-3">
+                                    <i class="fas fa-file-invoice-dollar me-2"></i>ATTIVITÀ REDDITI
+                                </h6>
+                                <div class="row">
+                                    <div class="col-md-3 mb-2">
+                                        <div class="form-check">
+                                            <input asp-for="Mod730" class="form-check-input" type="checkbox">
+                                            <label asp-for="Mod730" class="form-check-label">@Html.DisplayNameFor(model => model.Mod730)</label>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-3 mb-2">
+                                        <div class="form-check">
+                                            <input asp-for="Mod740" class="form-check-input" type="checkbox">
+                                            <label asp-for="Mod740" class="form-check-label">@Html.DisplayNameFor(model => model.Mod740)</label>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-3 mb-2">
+                                        <div class="form-check">
+                                            <input asp-for="Mod750" class="form-check-input" type="checkbox">
+                                            <label asp-for="Mod750" class="form-check-label">@Html.DisplayNameFor(model => model.Mod750)</label>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-3 mb-2">
+                                        <div class="form-check">
+                                            <input asp-for="Mod760" class="form-check-input" type="checkbox">
+                                            <label asp-for="Mod760" class="form-check-label">@Html.DisplayNameFor(model => model.Mod760)</label>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-3 mb-2">
+                                        <div class="form-check">
+                                            <input asp-for="Mod770" class="form-check-input" type="checkbox">
+                                            <label asp-for="Mod770" class="form-check-label">@Html.DisplayNameFor(model => model.Mod770)</label>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-3 mb-2">
+                                        <div class="form-check">
+                                            <input asp-for="ModCu" class="form-check-input" type="checkbox">
+                                            <label asp-for="ModCu" class="form-check-label">@Html.DisplayNameFor(model => model.ModCu)</label>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-3 mb-2">
+                                        <div class="form-check">
+                                            <input asp-for="ModEnc" class="form-check-input" type="checkbox">
+                                            <label asp-for="ModEnc" class="form-check-label">@Html.DisplayNameFor(model => model.ModEnc)</label>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-3 mb-2">
+                                        <div class="form-check">
+                                            <input asp-for="ModIrap" class="form-check-input" type="checkbox">
+                                            <label asp-for="ModIrap" class="form-check-label">@Html.DisplayNameFor(model => model.ModIrap)</label>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- ATTIVITÀ IVA -->
+                        <div class="row mb-4">
+                            <div class="col-12">
+                                <h6 class="text-warning fw-bold border-bottom border-warning pb-2 mb-3">
+                                    <i class="fas fa-percent me-2"></i>ATTIVITÀ IVA
+                                </h6>
+                                <div class="row">
+                                    <div class="col-md-4 mb-2">
+                                        <div class="form-check">
+                                            <input asp-for="Driva" class="form-check-input" type="checkbox">
+                                            <label asp-for="Driva" class="form-check-label">@Html.DisplayNameFor(model => model.Driva)</label>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4 mb-2">
+                                        <div class="form-check">
+                                            <input asp-for="Lipe" class="form-check-input" type="checkbox">
+                                            <label asp-for="Lipe" class="form-check-label">@Html.DisplayNameFor(model => model.Lipe)</label>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4 mb-2">
+                                        <div class="form-check">
+                                            <input asp-for="ModTrIva" class="form-check-input" type="checkbox">
+                                            <label asp-for="ModTrIva" class="form-check-label">@Html.DisplayNameFor(model => model.ModTrIva)</label>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- ATTIVITÀ CONTABILE -->
+                        <div class="row mb-3">
+                            <div class="col-12">
+                                <h6 class="text-success fw-bold border-bottom border-success pb-2 mb-3">
+                                    <i class="fas fa-book me-2"></i>ATTIVITÀ CONTABILE
+                                </h6>
+                                <div class="row">
+                                    <div class="col-md-3 mb-2">
+                                        <div class="form-check">
+                                            <input asp-for="Inail" class="form-check-input" type="checkbox">
+                                            <label asp-for="Inail" class="form-check-label">@Html.DisplayNameFor(model => model.Inail)</label>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-3 mb-2">
+                                        <div class="form-check">
+                                            <input asp-for="CassettoFiscale" class="form-check-input" type="checkbox">
+                                            <label asp-for="CassettoFiscale" class="form-check-label">@Html.DisplayNameFor(model => model.CassettoFiscale)</label>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-3 mb-2">
+                                        <div class="form-check">
+                                            <input asp-for="FatturazioneElettronicaTs" class="form-check-input" type="checkbox">
+                                            <label asp-for="FatturazioneElettronicaTs" class="form-check-label">@Html.DisplayNameFor(model => model.FatturazioneElettronicaTs)</label>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-3 mb-2">
+                                        <div class="form-check">
+                                            <input asp-for="Conservazione" class="form-check-input" type="checkbox">
+                                            <label asp-for="Conservazione" class="form-check-label">@Html.DisplayNameFor(model => model.Conservazione)</label>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-3 mb-2">
+                                        <div class="form-check">
+                                            <input asp-for="Imu" class="form-check-input" type="checkbox">
+                                            <label asp-for="Imu" class="form-check-label">@Html.DisplayNameFor(model => model.Imu)</label>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-3 mb-2">
+                                        <div class="form-check">
+                                            <input asp-for="RegIva" class="form-check-input" type="checkbox">
+                                            <label asp-for="RegIva" class="form-check-label">@Html.DisplayNameFor(model => model.RegIva)</label>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-3 mb-2">
+                                        <div class="form-check">
+                                            <input asp-for="RegCespiti" class="form-check-input" type="checkbox">
+                                            <label asp-for="RegCespiti" class="form-check-label">@Html.DisplayNameFor(model => model.RegCespiti)</label>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-3 mb-2">
+                                        <div class="form-check">
+                                            <input asp-for="Inventari" class="form-check-input" type="checkbox">
+                                            <label asp-for="Inventari" class="form-check-label">@Html.DisplayNameFor(model => model.Inventari)</label>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-3 mb-2">
+                                        <div class="form-check">
+                                            <input asp-for="LibroGiornale" class="form-check-input" type="checkbox">
+                                            <label asp-for="LibroGiornale" class="form-check-label">@Html.DisplayNameFor(model => model.LibroGiornale)</label>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-3 mb-2">
+                                        <div class="form-check">
+                                            <input asp-for="LettereIntento" class="form-check-input" type="checkbox">
+                                            <label asp-for="LettereIntento" class="form-check-label">@Html.DisplayNameFor(model => model.LettereIntento)</label>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-3 mb-2">
+                                        <div class="form-check">
+                                            <input asp-for="ModIntrastat" class="form-check-input" type="checkbox">
+                                            <label asp-for="ModIntrastat" class="form-check-label">@Html.DisplayNameFor(model => model.ModIntrastat)</label>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-3 mb-2">
+                                        <div class="form-check">
+                                            <input asp-for="FirmaDigitale" class="form-check-input" type="checkbox">
+                                            <label asp-for="FirmaDigitale" class="form-check-label">@Html.DisplayNameFor(model => model.FirmaDigitale)</label>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-3 mb-2">
+                                        <div class="form-check">
+                                            <input asp-for="TitolareEffettivo" class="form-check-input" type="checkbox">
+                                            <label asp-for="TitolareEffettivo" class="form-check-label">@Html.DisplayNameFor(model => model.TitolareEffettivo)</label>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Bottoni Azione -->
+        <div class="row">
+            <div class="col-12">
+                <div class="d-flex justify-content-between">
+                    <a asp-action="Index" class="btn btn-outline-secondary">
+                        <i class="fas fa-times me-1"></i>Annulla
+                    </a>
+                    <button type="submit" class="btn btn-success">
+                        <i class="fas fa-save me-1"></i>Salva Cliente
+                    </button>
+                </div>
+            </div>
+        </div>
+    </form>
+</div>
+
+@section Styles {
+    <style>
+        /* Stili personalizzati per checkbox nere più visibili */
+        .form-check-input {
+            background-color: transparent !important;
+            border: 2px solid #000 !important;
+            border-radius: 4px !important;
+            width: 18px !important;
+            height: 18px !important;
+        }
+        
+        .form-check-input:checked {
+            background-color: #000 !important;
+            border-color: #000 !important;
+        }
+        
+        .form-check-input:focus {
+            border-color: #333 !important;
+            box-shadow: 0 0 0 0.2rem rgba(0, 0, 0, 0.25) !important;
+        }
+        
+        .form-check-input:hover {
+            border-color: #333 !important;
+        }
+        
+        /* Stile per il checkmark */
+        .form-check-input:checked::before {
+            content: '✓';
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            font-size: 12px;
+            width: 100%;
+            height: 100%;
+        }
+    </style>
+}
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

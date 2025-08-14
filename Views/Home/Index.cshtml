@@ -1,0 +1,142 @@
+@{
+    ViewData["Title"] = "Dashboard - GESTIONE STUDIO";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <div class="card shadow mb-4">
+                <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+                    <h6 class="m-0 font-weight-bold text-primary">
+                        <i class="fas fa-home"></i> Dashboard Principale
+                    </h6>
+                </div>
+                <div class="card-body">
+                    <div class="text-center">
+                        <img src="~/images/logo.png" alt="Consulting Group Logo" class="img-fluid mb-4" style="max-height: 100px;" />
+                        <h2 class="text-primary">Benvenuto nel Sistema di Gestione Studio</h2>
+                        <h3 class="text-secondary">CONSULTING GROUP SRL</h3>
+                        <p class="lead mt-4">Sistema completo per la gestione dei dati aziendali e delle informazioni riservate.</p>
+                    </div>
+
+                    @if (User.Identity?.IsAuthenticated == true)
+                    {
+                        <div class="row mt-5">
+                            <div class="col-md-4">
+                                <div class="card border-left-primary shadow h-100 py-2">
+                                    <div class="card-body">
+                                        <div class="row no-gutters align-items-center">
+                                            <div class="col mr-2">
+                                                <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
+                                                    Dati Riservati
+                                                </div>
+                                                <div class="h5 mb-0 font-weight-bold text-gray-800">
+                                                    Gestione Completa
+                                                </div>
+                                            </div>
+                                            <div class="col-auto">
+                                                <i class="fas fa-lock fa-2x text-gray-300"></i>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="col-md-4">
+                                <div class="card border-left-success shadow h-100 py-2">
+                                    <div class="card-body">
+                                        <div class="row no-gutters align-items-center">
+                                            <div class="col mr-2">
+                                                <div class="text-xs font-weight-bold text-success text-uppercase mb-1">
+                                                    Dati Generali
+                                                </div>
+                                                <div class="h5 mb-0 font-weight-bold text-gray-800">
+                                                    Accesso Condiviso
+                                                </div>
+                                            </div>
+                                            <div class="col-auto">
+                                                <i class="fas fa-users fa-2x text-gray-300"></i>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="col-md-4">
+                                <div class="card border-left-info shadow h-100 py-2">
+                                    <div class="card-body">
+                                        <div class="row no-gutters align-items-center">
+                                            <div class="col mr-2">
+                                                <div class="text-xs font-weight-bold text-info text-uppercase mb-1">
+                                                    Gestione Clienti
+                                                </div>
+                                                <div class="h5 mb-0 font-weight-bold text-gray-800">
+                                                    Sistema CRM
+                                                </div>
+                                            </div>
+                                            <div class="col-auto">
+                                                <i class="fas fa-handshake fa-2x text-gray-300"></i>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row mt-4">
+                            <div class="col-12">
+                                <div class="card shadow">
+                                    <div class="card-header py-3">
+                                        <h6 class="m-0 font-weight-bold text-primary">Accesso Rapido</h6>
+                                    </div>
+                                    <div class="card-body">
+                                        <div class="row">
+                                            @if (User.IsInRole("Administrator") || User.IsInRole("UserSenior"))
+                                            {
+                                                <div class="col-md-6 mb-3">
+                                                    <a href="@Url.Action("Index", "DatiUtenza")" class="btn btn-primary btn-lg btn-block">
+                                                        <i class="fas fa-shield-alt"></i> Dati Riservati
+                                                    </a>
+                                                </div>
+                                            }
+                                            
+                                            <div class="col-md-6 mb-3">
+                                                <a href="@Url.Action("Index", "DatiUtenzaExtra")" class="btn btn-success btn-lg btn-block">
+                                                    <i class="fas fa-share-alt"></i> Dati Generali
+                                                </a>
+                                            </div>
+
+                                            <div class="col-md-6 mb-3">
+                                                <a href="@Url.Action("Index", "GestioneClienti")" class="btn btn-info btn-lg btn-block">
+                                                    <i class="fas fa-users"></i> Gestione Clienti
+                                                </a>
+                                            </div>
+
+                                            @if (User.IsInRole("Administrator"))
+                                            {
+                                                <div class="col-md-6 mb-3">
+                                                    <a href="@Url.Action("Index", "Admin")" class="btn btn-warning btn-lg btn-block">
+                                                        <i class="fas fa-cogs"></i> Amministrazione
+                                                    </a>
+                                                </div>
+                                            }
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="text-center mt-5">
+                            <a href="@Url.Action("Login", "Account")" class="btn btn-primary btn-lg">
+                                <i class="fas fa-sign-in-alt"></i> Accedi al Sistema
+                            </a>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

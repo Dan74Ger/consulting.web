@@ -1,0 +1,510 @@
+@model ConsultingGroup.ViewModels.AnniFiscaliIndexViewModel
+
+@{
+    ViewData["Title"] = "Gestione Anni Fiscali";
+}
+
+<div class="container-fluid">
+    <!-- Header della pagina -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h2><i class="fas fa-calendar-alt text-warning me-2"></i>Gestione Anni Fiscali</h2>
+            <p class="text-muted mb-0">Gestisci gli anni fiscali e le relative scadenze</p>
+        </div>
+        <a asp-action="Create" class="btn btn-warning text-dark">
+            <i class="fas fa-plus me-1"></i>Nuovo Anno Fiscale
+        </a>
+    </div>
+
+    <!-- Statistiche -->
+    <div class="row mb-4">
+        <div class="col-md-4">
+            <div class="card bg-primary text-white">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <h5 class="card-title">Anno Corrente</h5>
+                            <h3>@(Model.AnnoCorrente?.ToString() ?? "N/A")</h3>
+                        </div>
+                        <div class="align-self-center">
+                            <i class="fas fa-star fa-2x"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card bg-info text-white">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <h5 class="card-title">Totale Anni</h5>
+                            <h3>@Model.AnniFiscali.Count</h3>
+                        </div>
+                        <div class="align-self-center">
+                            <i class="fas fa-calendar-alt fa-2x"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card bg-success text-white">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <h5 class="card-title">Scadenze Totali</h5>
+                            <h3>@Model.AnniFiscali.Sum(a => a.NumeroScadenzeImpostate)</h3>
+                        </div>
+                        <div class="align-self-center">
+                            <i class="fas fa-clock fa-2x"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Filtri e Ricerca -->
+    <div class="card mb-4">
+        <div class="card-body">
+            <form method="get" class="row g-3">
+                <div class="col-md-4">
+                    <label class="form-label">Filtra Anni</label>
+                    <select name="filtroStato" class="form-select" onchange="this.form.submit()">
+                        <option value="tutti" selected="@(Model.FiltroStato == "tutti")">Tutti gli Anni</option>
+                        <option value="corrente" selected="@(Model.FiltroStato == "corrente")">Solo Anno Corrente</option>
+                        <option value="con_scadenze" selected="@(Model.FiltroStato == "con_scadenze")">Con Scadenze Impostate</option>
+                        <option value="senza_scadenze" selected="@(Model.FiltroStato == "senza_scadenze")">Senza Scadenze</option>
+                    </select>
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label">Ricerca per Anno o Descrizione</label>
+                    <input name="ricerca" type="text" class="form-control" placeholder="Cerca anno fiscale..." value="@Model.Ricerca">
+                </div>
+                <div class="col-md-2">
+                    <label class="form-label">&nbsp;</label>
+                    <button type="submit" class="btn btn-outline-primary d-block w-100">
+                        <i class="fas fa-search me-1"></i>Cerca
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Tabella Anni Fiscali -->
+    <div class="card">
+        <div class="card-body">
+            @if (Model.AnniFiscali.Any())
+            {
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead class="table-dark">
+                            <tr>
+                                <th style="width: 80px;">Anno</th>
+                                <th style="width: 150px;">Descrizione</th>
+                                <th style="width: 60%;">Scadenze Fiscali</th>
+                                <th style="width: 100px;" class="text-center">Azioni</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var anno in Model.AnniFiscali)
+                            {
+                                <tr class="@(anno.AnnoCorrente ? "table-primary" : "")">
+                                    <td>
+                                        <strong class="fs-4">@anno.Anno</strong>
+                                        @if (anno.AnnoCorrente)
+                                        {
+                                            <br><i class="fas fa-star text-warning" title="Anno Corrente"></i>
+                                        }
+                                        <!-- Stato nascosto ma mantenuto per logica -->
+                                        <span class="d-none">@anno.StatoDescrizione</span>
+                                    </td>
+                                    <td>
+                                        @if (!string.IsNullOrEmpty(anno.Descrizione))
+                                        {
+                                            <strong>@anno.Descrizione</strong>
+                                        }
+                                        else
+                                        {
+                                            <span class="text-muted"><em>Nessuna descrizione</em></span>
+                                        }
+                                    </td>
+                                    <td>
+                                        <div>
+                                            <!-- Intestazioni -->
+                                            <div class="row mb-2">
+                                                <div class="col-7">
+                                                    <h6 class="text-primary mb-0"><i class="fas fa-file-alt me-1"></i>Dichiarazioni</h6>
+                                                </div>
+                                                <div class="col-2 text-center">
+                                                    <h6 class="text-dark mb-0"><i class="fas fa-chart-bar me-1"></i>Lipe Trimestrali</h6>
+                                                </div>
+                                                <div class="col-2 text-center">
+                                                    <h6 class="text-dark mb-0"><i class="fas fa-file-invoice me-1"></i>Mod TR IVA</h6>
+                                                </div>
+                                                <div class="col-1"></div> <!-- Spaziatore -->
+                                            </div>
+                                            
+                                            <!-- Prima riga: 730, 740, 750, ENC, IRAP, CU, DRIVA + 1°T, 2°T -->
+                                            <div class="row g-1 mb-1">
+                                                <div class="col-1">
+                                                    <div class="badge @(anno.Scadenza730.HasValue ? "bg-success" : "bg-light text-dark") w-100" title="@(anno.Scadenza730.HasValue ? anno.Scadenza730.Value.ToString("dd/MM/yyyy") : "Non impostata")">
+                                                        730
+                                                        @if (anno.Scadenza730.HasValue)
+                                                        {
+                                                            <br><span class="date-large">@anno.Scadenza730.Value.ToString("dd/MM")</span>
+                                                        }
+                                                    </div>
+                                                </div>
+                                                <div class="col-1">
+                                                    <div class="badge @(anno.Scadenza740.HasValue ? "bg-success" : "bg-light text-dark") w-100" title="@(anno.Scadenza740.HasValue ? anno.Scadenza740.Value.ToString("dd/MM/yyyy") : "Non impostata")">
+                                                        740
+                                                        @if (anno.Scadenza740.HasValue)
+                                                        {
+                                                            <br><span class="date-large">@anno.Scadenza740.Value.ToString("dd/MM")</span>
+                                                        }
+                                                    </div>
+                                                </div>
+                                                <div class="col-1">
+                                                    <div class="badge @(anno.Scadenza750.HasValue ? "bg-success" : "bg-light text-dark") w-100" title="@(anno.Scadenza750.HasValue ? anno.Scadenza750.Value.ToString("dd/MM/yyyy") : "Non impostata")">
+                                                        750
+                                                        @if (anno.Scadenza750.HasValue)
+                                                        {
+                                                            <br><span class="date-large">@anno.Scadenza750.Value.ToString("dd/MM")</span>
+                                                        }
+                                                    </div>
+                                                </div>
+                                                <div class="col-1">
+                                                    <div class="badge @(anno.ScadenzaENC.HasValue ? "bg-success" : "bg-light text-dark") w-100" title="@(anno.ScadenzaENC.HasValue ? anno.ScadenzaENC.Value.ToString("dd/MM/yyyy") : "Non impostata")">
+                                                        ENC
+                                                        @if (anno.ScadenzaENC.HasValue)
+                                                        {
+                                                            <br><span class="date-large">@anno.ScadenzaENC.Value.ToString("dd/MM")</span>
+                                                        }
+                                                    </div>
+                                                </div>
+                                                <div class="col-1">
+                                                    <div class="badge @(anno.ScadenzaIRAP.HasValue ? "bg-success" : "bg-light text-dark") w-100" title="@(anno.ScadenzaIRAP.HasValue ? anno.ScadenzaIRAP.Value.ToString("dd/MM/yyyy") : "Non impostata")">
+                                                        IRAP
+                                                        @if (anno.ScadenzaIRAP.HasValue)
+                                                        {
+                                                            <br><span class="date-large">@anno.ScadenzaIRAP.Value.ToString("dd/MM")</span>
+                                                        }
+                                                    </div>
+                                                </div>
+                                                <div class="col-1">
+                                                    <div class="badge @(anno.ScadenzaCU.HasValue ? "bg-success" : "bg-light text-dark") w-100" title="@(anno.ScadenzaCU.HasValue ? anno.ScadenzaCU.Value.ToString("dd/MM/yyyy") : "Non impostata")">
+                                                        CU
+                                                        @if (anno.ScadenzaCU.HasValue)
+                                                        {
+                                                            <br><span class="date-large">@anno.ScadenzaCU.Value.ToString("dd/MM")</span>
+                                                        }
+                                                    </div>
+                                                </div>
+                                                <div class="col-1">
+                                                    <div class="badge @(anno.ScadenzaDIVA.HasValue ? "bg-success" : "bg-light text-dark") w-100" title="@(anno.ScadenzaDIVA.HasValue ? anno.ScadenzaDIVA.Value.ToString("dd/MM/yyyy") : "Non impostata")">
+                                                        DRIVA
+                                                        @if (anno.ScadenzaDIVA.HasValue)
+                                                        {
+                                                            <br><span class="date-large">@anno.ScadenzaDIVA.Value.ToString("dd/MM")</span>
+                                                        }
+                                                    </div>
+                                                </div>
+                                                <div class="col-1">
+                                                    <div class="badge @(anno.ScadenzaLipe1t.HasValue ? "bg-dark text-white" : "bg-light text-dark") w-100" title="@(anno.ScadenzaLipe1t.HasValue ? anno.ScadenzaLipe1t.Value.ToString("dd/MM/yyyy") : "Non impostata")">
+                                                        1°T
+                                                        @if (anno.ScadenzaLipe1t.HasValue)
+                                                        {
+                                                            <br><span class="date-large">@anno.ScadenzaLipe1t.Value.ToString("dd/MM")</span>
+                                                        }
+                                                    </div>
+                                                </div>
+                                                <div class="col-1">
+                                                    <div class="badge @(anno.ScadenzaLipe2t.HasValue ? "bg-dark text-white" : "bg-light text-dark") w-100" title="@(anno.ScadenzaLipe2t.HasValue ? anno.ScadenzaLipe2t.Value.ToString("dd/MM/yyyy") : "Non impostata")">
+                                                        2°T
+                                                        @if (anno.ScadenzaLipe2t.HasValue)
+                                                        {
+                                                            <br><span class="date-large">@anno.ScadenzaLipe2t.Value.ToString("dd/MM")</span>
+                                                        }
+                                                    </div>
+                                                </div>
+                                                <div class="col-1">
+                                                    <div class="badge @(anno.ScadenzaModTRIva1t.HasValue ? "bg-dark text-white" : "bg-light text-dark") w-100" title="@(anno.ScadenzaModTRIva1t.HasValue ? anno.ScadenzaModTRIva1t.Value.ToString("dd/MM/yyyy") : "Non impostata")">
+                                                        1°T
+                                                        @if (anno.ScadenzaModTRIva1t.HasValue)
+                                                        {
+                                                            <br><span class="date-large">@anno.ScadenzaModTRIva1t.Value.ToString("dd/MM")</span>
+                                                        }
+                                                    </div>
+                                                </div>
+                                                <div class="col-1">
+                                                    <div class="badge @(anno.ScadenzaModTRIva2t.HasValue ? "bg-dark text-white" : "bg-light text-dark") w-100" title="@(anno.ScadenzaModTRIva2t.HasValue ? anno.ScadenzaModTRIva2t.Value.ToString("dd/MM/yyyy") : "Non impostata")">
+                                                        2°T
+                                                        @if (anno.ScadenzaModTRIva2t.HasValue)
+                                                        {
+                                                            <br><span class="date-large">@anno.ScadenzaModTRIva2t.Value.ToString("dd/MM")</span>
+                                                        }
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            
+                                            <!-- Seconda riga: 760, 770 + 3°T, 4°T -->
+                                            <div class="row g-1">
+                                                <div class="col-1">
+                                                    <div class="badge @(anno.Scadenza760.HasValue ? "bg-success" : "bg-light text-dark") w-100" title="@(anno.Scadenza760.HasValue ? anno.Scadenza760.Value.ToString("dd/MM/yyyy") : "Non impostata")">
+                                                        760
+                                                        @if (anno.Scadenza760.HasValue)
+                                                        {
+                                                            <br><span class="date-large">@anno.Scadenza760.Value.ToString("dd/MM")</span>
+                                                        }
+                                                    </div>
+                                                </div>
+                                                <div class="col-1">
+                                                    <div class="badge @(anno.Scadenza770.HasValue ? "bg-success" : "bg-light text-dark") w-100" title="@(anno.Scadenza770.HasValue ? anno.Scadenza770.Value.ToString("dd/MM/yyyy") : "Non impostata")">
+                                                        770
+                                                        @if (anno.Scadenza770.HasValue)
+                                                        {
+                                                            <br><span class="date-large">@anno.Scadenza770.Value.ToString("dd/MM")</span>
+                                                        }
+                                                    </div>
+                                                </div>
+                                                <div class="col-5"></div> <!-- Spaziatore -->
+                                                <div class="col-1">
+                                                    <div class="badge @(anno.ScadenzaLipe3t.HasValue ? "bg-dark text-white" : "bg-light text-dark") w-100" title="@(anno.ScadenzaLipe3t.HasValue ? anno.ScadenzaLipe3t.Value.ToString("dd/MM/yyyy") : "Non impostata")">
+                                                        3°T
+                                                        @if (anno.ScadenzaLipe3t.HasValue)
+                                                        {
+                                                            <br><span class="date-large">@anno.ScadenzaLipe3t.Value.ToString("dd/MM")</span>
+                                                        }
+                                                    </div>
+                                                </div>
+                                                <div class="col-1">
+                                                    <div class="badge @(anno.ScadenzaLipe4t.HasValue ? "bg-dark text-white" : "bg-light text-dark") w-100" title="@(anno.ScadenzaLipe4t.HasValue ? anno.ScadenzaLipe4t.Value.ToString("dd/MM/yyyy") : "Non impostata")">
+                                                        4°T
+                                                        @if (anno.ScadenzaLipe4t.HasValue)
+                                                        {
+                                                            <br><span class="date-large">@anno.ScadenzaLipe4t.Value.ToString("dd/MM")</span>
+                                                        }
+                                                    </div>
+                                                </div>
+                                                <div class="col-1">
+                                                    <div class="badge @(anno.ScadenzaModTRIva3t.HasValue ? "bg-dark text-white" : "bg-light text-dark") w-100" title="@(anno.ScadenzaModTRIva3t.HasValue ? anno.ScadenzaModTRIva3t.Value.ToString("dd/MM/yyyy") : "Non impostata")">
+                                                        3°T
+                                                        @if (anno.ScadenzaModTRIva3t.HasValue)
+                                                        {
+                                                            <br><span class="date-large">@anno.ScadenzaModTRIva3t.Value.ToString("dd/MM")</span>
+                                                        }
+                                                    </div>
+                                                </div>
+                                                <div class="col-1">
+                                                    <div class="badge @(anno.ScadenzaModTRIva4t.HasValue ? "bg-dark text-white" : "bg-light text-dark") w-100" title="@(anno.ScadenzaModTRIva4t.HasValue ? anno.ScadenzaModTRIva4t.Value.ToString("dd/MM/yyyy") : "Non impostata")">
+                                                        4°T
+                                                        @if (anno.ScadenzaModTRIva4t.HasValue)
+                                                        {
+                                                            <br><span class="date-large">@anno.ScadenzaModTRIva4t.Value.ToString("dd/MM")</span>
+                                                        }
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        
+                                        <!-- Barra progresso complessiva -->
+                                        <div class="mt-2">
+                                            <div class="progress" style="height: 6px;">
+                                                <div class="progress-bar bg-info" role="progressbar" 
+                                                     style="width: @((anno.NumeroScadenzeImpostate * 100) / anno.TotaleScadenzePossibili)%" 
+                                                     title="@anno.NumeroScadenzeImpostate/@anno.TotaleScadenzePossibili scadenze configurate"></div>
+                                            </div>
+                                            <small class="text-muted">@anno.NumeroScadenzeImpostate/@anno.TotaleScadenzePossibili scadenze configurate (@Math.Round((double)(anno.NumeroScadenzeImpostate * 100) / anno.TotaleScadenzePossibili, 1)%)</small>
+                                        </div>
+                                    </td>
+                                    <td class="text-center">
+                                        <div class="btn-group-vertical" role="group">
+                                            <a asp-action="Edit" asp-route-id="@anno.Id" 
+                                               class="btn btn-sm btn-warning text-dark mb-1" title="Modifica Scadenze">
+                                                <i class="fas fa-edit"></i>
+                                            </a>
+                                            @if (!anno.AnnoCorrente)
+                                            {
+                                                <button type="button" class="btn btn-sm btn-primary mb-1" 
+                                                        data-bs-toggle="modal" data-bs-target="#setCorrenteModal" 
+                                                        data-id="@anno.Id" data-anno="@anno.Anno"
+                                                        title="Imposta come Anno Corrente">
+                                                    <i class="fas fa-star"></i>
+                                                </button>
+                                            }
+                                            <div class="dropdown">
+                                                <button class="btn btn-sm btn-outline-secondary dropdown-toggle" type="button" 
+                                                        data-bs-toggle="dropdown" title="Altre azioni">
+                                                    <i class="fas fa-ellipsis-v"></i>
+                                                </button>
+                                                <ul class="dropdown-menu">
+                                                    <li><a class="dropdown-item" asp-action="Details" asp-route-id="@anno.Id">
+                                                        <i class="fas fa-eye me-2"></i>Visualizza Dettagli
+                                                    </a></li>
+                                                    <li><hr class="dropdown-divider"></li>
+                                                    <li><a class="dropdown-item text-danger" href="#" 
+                                                           data-bs-toggle="modal" data-bs-target="#deleteModal" 
+                                                           data-id="@anno.Id" data-anno="@anno.Anno">
+                                                        <i class="fas fa-trash me-2"></i>Elimina
+                                                    </a></li>
+                                                </ul>
+                                            </div>
+                                        </div>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            }
+            else
+            {
+                <div class="text-center py-4">
+                    <i class="fas fa-calendar-alt fa-3x text-muted mb-3"></i>
+                    <h5 class="text-muted">Nessun anno fiscale trovato</h5>
+                    <p class="text-muted">Non ci sono anni fiscali che corrispondono ai criteri di ricerca.</p>
+                    <a asp-action="Create" class="btn btn-warning text-dark">
+                        <i class="fas fa-plus me-1"></i>Crea il primo anno fiscale
+                    </a>
+                </div>
+            }
+        </div>
+    </div>
+</div>
+
+<!-- Modal per Toggle Status -->
+<div class="modal fade" id="toggleModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Conferma Azione</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <p>Sei sicuro di voler <span id="azioneText"></span> l'anno fiscale "<span id="annoText"></span>"?</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annulla</button>
+                <form method="post" style="display: inline;">
+                    @Html.AntiForgeryToken()
+                    <input type="hidden" id="toggleId" name="id" />
+                    <button type="submit" class="btn btn-primary" formaction="@Url.Action("ToggleStatus")">Conferma</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal per Impostare Anno Corrente -->
+<div class="modal fade" id="setCorrenteModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Imposta Anno Corrente</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <p><strong>Attenzione!</strong> Stai per impostare l'anno "<span id="setCorrenteAnnoText"></span>" come anno fiscale corrente.</p>
+                <p class="text-warning">Questa azione rimuoverà il flag di "anno corrente" da tutti gli altri anni.</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annulla</button>
+                <form method="post" style="display: inline;">
+                    @Html.AntiForgeryToken()
+                    <input type="hidden" id="setCorrenteId" name="id" />
+                    <button type="submit" class="btn btn-primary" formaction="@Url.Action("SetCorrente")">Imposta come Corrente</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal per Eliminazione -->
+<div class="modal fade" id="deleteModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Conferma Eliminazione</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <p><strong>Attenzione!</strong> Stai per eliminare definitivamente l'anno fiscale "<span id="deleteAnnoText"></span>".</p>
+                <p class="text-danger">Questa azione non può essere annullata e potrebbe influenzare studio e programmi collegati.</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annulla</button>
+                <form method="post" style="display: inline;">
+                    @Html.AntiForgeryToken()
+                    <input type="hidden" id="deleteId" name="id" />
+                    <button type="submit" class="btn btn-danger" formaction="@Url.Action("Delete")">Elimina Definitivamente</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        // Toggle Modal
+        $('#toggleModal').on('show.bs.modal', function (event) {
+            var button = $(event.relatedTarget);
+            var id = button.data('id');
+            var anno = button.data('anno');
+            var azione = button.data('azione');
+            
+            $('#toggleId').val(id);
+            $('#annoText').text(anno);
+            $('#azioneText').text(azione);
+        });
+
+        // Set Corrente Modal
+        $('#setCorrenteModal').on('show.bs.modal', function (event) {
+            var button = $(event.relatedTarget);
+            var id = button.data('id');
+            var anno = button.data('anno');
+            
+            $('#setCorrenteId').val(id);
+            $('#setCorrenteAnnoText').text(anno);
+        });
+
+        // Delete Modal
+        $('#deleteModal').on('show.bs.modal', function (event) {
+            var button = $(event.relatedTarget);
+            var id = button.data('id');
+            var anno = button.data('anno');
+            
+            $('#deleteId').val(id);
+            $('#deleteAnnoText').text(anno);
+        });
+    </script>
+}
+
+@section Styles {
+    <style>
+        /* Date e scritte più grandi nelle scadenze fiscali */
+        .date-large {
+            font-size: 1.1em !important;
+            font-weight: 700 !important;
+            line-height: 1.3;
+        }
+        
+        /* Badge scadenze con testo più grande */
+        .badge {
+            font-size: 1em !important;
+            font-weight: 600 !important;
+            padding: 0.6em 0.5em !important;
+        }
+        
+        /* Badge specifici per le scadenze */
+        .col-1 .badge {
+            min-height: 60px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+    </style>
+}

@@ -1,0 +1,123 @@
+@model List<ConsultingGroup.Models.UtentiTS>
+@{
+    ViewData["Title"] = "Gestione Utenti TS";
+}
+
+<div class="container-fluid">
+    <div class="d-sm-flex align-items-center justify-content-between mb-4">
+        <h1 class="h3 mb-0 text-gray-800">
+            <i class="fas fa-user-shield me-2"></i>
+            Gestione Utenti TS
+        </h1>
+        <a href="@Url.Action("CreateUtentiTS")" class="btn btn-danger btn-sm">
+            <i class="fas fa-plus me-1"></i>
+            Aggiungi Nuovo Utente TS
+        </a>
+    </div>
+
+    @if (TempData["SuccessMessage"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show">
+            <i class="fas fa-check-circle me-2"></i>
+            @TempData["SuccessMessage"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    }
+
+    @if (Model.Any())
+    {
+        <div class="card shadow mb-4">
+            <div class="card-header py-3">
+                <h6 class="m-0 font-weight-bold text-danger">
+                    Elenco Utenti TS (@Model.Count)
+                </h6>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-bordered" width="100%" cellspacing="0">
+                        <thead>
+                            <tr>
+                                <th>Nome</th>
+                                <th>Utente</th>
+                                <th>Password</th>
+                                <th>Note</th>
+                                <th>Inserito da</th>
+                                <th>Data Creazione</th>
+                                <th width="150px">Azioni</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var utenteTS in Model)
+                            {
+                                <tr>
+                                    <td>
+                                        <div class="d-flex align-items-center">
+                                            <div class="mr-3">
+                                                <i class="fas fa-user-shield text-danger"></i>
+                                            </div>
+                                            <div>
+                                                <div class="font-weight-bold text-gray-900">@utenteTS.Nome</div>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <span class="font-weight-bold">@utenteTS.Utente</span>
+                                    </td>
+                                    <td>
+                                        <span class="text-primary font-weight-bold">@utenteTS.Password</span>
+                                    </td>
+                                    <td>
+                                        @if (!string.IsNullOrEmpty(utenteTS.Note))
+                                        {
+                                            <span data-bs-toggle="tooltip" title="@utenteTS.Note">
+                                                @(utenteTS.Note.Length > 50 ? utenteTS.Note.Substring(0, 50) + "..." : utenteTS.Note)
+                                            </span>
+                                        }
+                                        else
+                                        {
+                                            <span class="text-muted">-</span>
+                                        }
+                                    </td>
+                                    <td>
+                                        <span class="badge bg-danger">
+                                            <i class="fas fa-user me-1"></i>
+                                            @(utenteTS.User?.FullName ?? "Sconosciuto")
+                                        </span>
+                                    </td>
+                                    <td>@utenteTS.CreatedAt.ToString("dd/MM/yyyy")</td>
+                                    <td>
+                                        <div class="btn-group btn-group-sm">
+                                            <a href="@Url.Action("EditUtentiTS", new { id = utenteTS.Id })" class="btn btn-outline-danger" title="Modifica">
+                                                <i class="fas fa-edit"></i>
+                                            </a>
+                                            <a href="@Url.Action("DeleteUtentiTS", new { id = utenteTS.Id })" 
+                                               class="btn btn-outline-danger" 
+                                               title="Elimina"
+                                               onclick="return confirm('Sei sicuro di voler eliminare questo utente TS?')">
+                                                <i class="fas fa-trash"></i>
+                                            </a>
+                                        </div>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    }
+    else
+    {
+        <div class="card shadow">
+            <div class="card-body text-center py-5">
+                <i class="fas fa-user-shield fa-3x text-gray-300 mb-4"></i>
+                <h4 class="text-gray-500">Nessun utente TS configurato</h4>
+                <p class="text-gray-400 mb-4">Non hai ancora aggiunto nessun utente TS al sistema.</p>
+                <a href="@Url.Action("CreateUtentiTS")" class="btn btn-danger">
+                    <i class="fas fa-plus me-1"></i>
+                    Aggiungi Primo Utente TS
+                </a>
+            </div>
+        </div>
+    }
+</div>

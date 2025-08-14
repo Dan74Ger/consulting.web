@@ -1,0 +1,349 @@
+@model ConsultingGroup.ViewModels.AnniFiscaliCreateEditViewModel
+
+@{
+    ViewData["Title"] = Model.PageTitle;
+}
+
+<div class="container-fluid">
+    <!-- Header della pagina -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h2><i class="fas fa-@(Model.IsEdit ? "edit" : "plus") text-warning me-2"></i>@Model.PageTitle</h2>
+            <p class="text-muted mb-0">@(Model.IsEdit ? "Modifica le informazioni dell'anno fiscale" : "Inserisci le informazioni del nuovo anno fiscale")</p>
+        </div>
+        <a asp-action="Index" class="btn btn-outline-secondary">
+            <i class="fas fa-arrow-left me-1"></i>Torna alla Lista
+        </a>
+    </div>
+
+    <div class="row">
+        <div class="col-lg-8">
+            <!-- Form Principale -->
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">
+                        <i class="fas fa-info-circle me-2"></i>Informazioni Generali
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <form asp-action="@(Model.IsEdit ? "Edit" : "Create")" method="post">
+                        @Html.AntiForgeryToken()
+                        @if (Model.IsEdit)
+                        {
+                            <input asp-for="Id" type="hidden" />
+                        }
+
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label asp-for="Anno" class="form-label">
+                                        <i class="fas fa-calendar me-1"></i>Anno <span class="text-danger">*</span>
+                                    </label>
+                                    <input asp-for="Anno" class="form-control" type="number" min="1900" max="2100" />
+                                    <span asp-validation-for="Anno" class="text-danger"></span>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label asp-for="Descrizione" class="form-label">
+                                        <i class="fas fa-tag me-1"></i>Descrizione
+                                    </label>
+                                    <input asp-for="Descrizione" class="form-control" placeholder="Es: Anno Fiscale Corrente" />
+                                    <span asp-validation-for="Descrizione" class="text-danger"></span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <div class="form-check form-switch">
+                                        <input asp-for="Attivo" class="form-check-input" type="checkbox" id="attivoSwitch">
+                                        <label asp-for="Attivo" class="form-check-label" for="attivoSwitch">
+                                            <i class="fas fa-power-off me-1"></i>Anno Attivo
+                                        </label>
+                                    </div>
+                                    <small class="form-text text-muted">
+                                        Indica se l'anno fiscale è utilizzabile
+                                    </small>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <div class="form-check form-switch">
+                                        <input asp-for="AnnoCorrente" class="form-check-input" type="checkbox" id="correnteSwitch">
+                                        <label asp-for="AnnoCorrente" class="form-check-label" for="correnteSwitch">
+                                            <i class="fas fa-star me-1"></i>Anno Corrente
+                                        </label>
+                                    </div>
+                                    <small class="form-text text-muted">
+                                        Imposta questo come l'anno fiscale corrente
+                                    </small>
+                                </div>
+                            </div>
+                        </div>
+
+                        @if (!Model.IsEdit)
+                        {
+                            <div class="row">
+                                <div class="col-md-12">
+                                    <div class="mb-3">
+                                        <div class="form-check form-switch">
+                                            <input asp-for="DuplicaScadenzeAnnoPrecedente" class="form-check-input" type="checkbox" id="duplicaSwitch">
+                                            <label asp-for="DuplicaScadenzeAnnoPrecedente" class="form-check-label" for="duplicaSwitch">
+                                                <i class="fas fa-copy me-1"></i>Duplica scadenze dall'anno precedente
+                                            </label>
+                                        </div>
+                                        <small class="form-text text-muted">
+                                            Copia automaticamente tutte le scadenze dall'anno precedente, aggiornando l'anno (+1)
+                                        </small>
+                                    </div>
+                                </div>
+                            </div>
+                        }
+
+                        <!-- Scadenze Fiscali -->
+                        <div class="card mt-4">
+                            <div class="card-header">
+                                <h6 class="card-title mb-0">
+                                    <i class="fas fa-clock me-2"></i>Scadenze Fiscali
+                                </h6>
+                            </div>
+                            <div class="card-body">
+                                <!-- Gruppo 1: Dichiarazioni -->
+                                <h6 class="text-primary mb-3">
+                                    <i class="fas fa-file-alt me-1"></i>Dichiarazioni
+                                </h6>
+                                <div class="row">
+                                    <div class="col-md-6 mb-3">
+                                        <label asp-for="Scadenza730" class="form-label">Scadenza 730</label>
+                                        <input asp-for="Scadenza730" class="form-control" type="date" />
+                                        <span asp-validation-for="Scadenza730" class="text-danger"></span>
+                                    </div>
+                                    <div class="col-md-6 mb-3">
+                                        <label asp-for="Scadenza740" class="form-label">Scadenza 740</label>
+                                        <input asp-for="Scadenza740" class="form-control" type="date" />
+                                        <span asp-validation-for="Scadenza740" class="text-danger"></span>
+                                    </div>
+                                    <div class="col-md-6 mb-3">
+                                        <label asp-for="Scadenza750" class="form-label">Scadenza 750</label>
+                                        <input asp-for="Scadenza750" class="form-control" type="date" />
+                                        <span asp-validation-for="Scadenza750" class="text-danger"></span>
+                                    </div>
+                                    <div class="col-md-6 mb-3">
+                                        <label asp-for="Scadenza760" class="form-label">Scadenza 760</label>
+                                        <input asp-for="Scadenza760" class="form-control" type="date" />
+                                        <span asp-validation-for="Scadenza760" class="text-danger"></span>
+                                    </div>
+                                    <div class="col-md-6 mb-3">
+                                        <label asp-for="Scadenza770" class="form-label">Scadenza 770</label>
+                                        <input asp-for="Scadenza770" class="form-control" type="date" />
+                                        <span asp-validation-for="Scadenza770" class="text-danger"></span>
+                                    </div>
+                                </div>
+
+                                <!-- Gruppo 2: ENC e IRAP -->
+                                <div class="row">
+                                    <div class="col-md-6 mb-3">
+                                        <label asp-for="ScadenzaENC" class="form-label">Scadenza ENC</label>
+                                        <input asp-for="ScadenzaENC" class="form-control" type="date" />
+                                        <span asp-validation-for="ScadenzaENC" class="text-danger"></span>
+                                    </div>
+                                    <div class="col-md-6 mb-3">
+                                        <label asp-for="ScadenzaIRAP" class="form-label">Scadenza IRAP</label>
+                                        <input asp-for="ScadenzaIRAP" class="form-control" type="date" />
+                                        <span asp-validation-for="ScadenzaIRAP" class="text-danger"></span>
+                                    </div>
+                                </div>
+
+                                <!-- Gruppo 3: CU e DRIVA -->
+                                <h6 class="text-info mb-3 mt-4">
+                                    <i class="fas fa-file-alt me-1"></i>CU e DRIVA
+                                </h6>
+                                <div class="row">
+                                    <div class="col-md-6 mb-3">
+                                        <label asp-for="ScadenzaCU" class="form-label">Scadenza CU</label>
+                                        <input asp-for="ScadenzaCU" class="form-control" type="date" />
+                                        <span asp-validation-for="ScadenzaCU" class="text-danger"></span>
+                                    </div>
+                                    <div class="col-md-6 mb-3">
+                                        <label asp-for="ScadenzaDIVA" class="form-label">Scadenza DRIVA</label>
+                                        <input asp-for="ScadenzaDIVA" class="form-control" type="date" />
+                                        <span asp-validation-for="ScadenzaDIVA" class="text-danger"></span>
+                                    </div>
+                                </div>
+
+                                <!-- Gruppo 4: Lipe Trimestrali -->
+                                <h6 class="text-warning mb-3 mt-4">
+                                    <i class="fas fa-chart-bar me-1"></i>Lipe Trimestrali
+                                </h6>
+                                <div class="row">
+                                    <div class="col-md-6 mb-3">
+                                        <label asp-for="ScadenzaLipe1t" class="form-label">Scadenza Lipe 1° Trimestre</label>
+                                        <input asp-for="ScadenzaLipe1t" class="form-control" type="date" />
+                                        <span asp-validation-for="ScadenzaLipe1t" class="text-danger"></span>
+                                    </div>
+                                    <div class="col-md-6 mb-3">
+                                        <label asp-for="ScadenzaLipe2t" class="form-label">Scadenza Lipe 2° Trimestre</label>
+                                        <input asp-for="ScadenzaLipe2t" class="form-control" type="date" />
+                                        <span asp-validation-for="ScadenzaLipe2t" class="text-danger"></span>
+                                    </div>
+                                    <div class="col-md-6 mb-3">
+                                        <label asp-for="ScadenzaLipe3t" class="form-label">Scadenza Lipe 3° Trimestre</label>
+                                        <input asp-for="ScadenzaLipe3t" class="form-control" type="date" />
+                                        <span asp-validation-for="ScadenzaLipe3t" class="text-danger"></span>
+                                    </div>
+                                    <div class="col-md-6 mb-3">
+                                        <label asp-for="ScadenzaLipe4t" class="form-label">Scadenza Lipe 4° Trimestre</label>
+                                        <input asp-for="ScadenzaLipe4t" class="form-control" type="date" />
+                                        <span asp-validation-for="ScadenzaLipe4t" class="text-danger"></span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Mod TR IVA Trimestrali -->
+                        <div class="row mt-4">
+                            <div class="col-md-12">
+                                <h6 class="text-warning mb-3">
+                                    <i class="fas fa-file-invoice me-1"></i>Mod TR IVA Trimestrali
+                                </h6>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <label asp-for="ScadenzaModTRIva1t" class="form-label">Scadenza Mod TR IVA 1° Trimestre</label>
+                                        <input asp-for="ScadenzaModTRIva1t" class="form-control" type="date" />
+                                        <span asp-validation-for="ScadenzaModTRIva1t" class="text-danger"></span>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label asp-for="ScadenzaModTRIva2t" class="form-label">Scadenza Mod TR IVA 2° Trimestre</label>
+                                        <input asp-for="ScadenzaModTRIva2t" class="form-control" type="date" />
+                                        <span asp-validation-for="ScadenzaModTRIva2t" class="text-danger"></span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <label asp-for="ScadenzaModTRIva3t" class="form-label">Scadenza Mod TR IVA 3° Trimestre</label>
+                                        <input asp-for="ScadenzaModTRIva3t" class="form-control" type="date" />
+                                        <span asp-validation-for="ScadenzaModTRIva3t" class="text-danger"></span>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label asp-for="ScadenzaModTRIva4t" class="form-label">Scadenza Mod TR IVA 4° Trimestre</label>
+                                        <input asp-for="ScadenzaModTRIva4t" class="form-control" type="date" />
+                                        <span asp-validation-for="ScadenzaModTRIva4t" class="text-danger"></span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Note -->
+                        <div class="mb-3 mt-4">
+                            <label asp-for="Note" class="form-label">
+                                <i class="fas fa-sticky-note me-1"></i>Note
+                            </label>
+                            <textarea asp-for="Note" class="form-control" rows="3" placeholder="Inserisci eventuali note per questo anno fiscale..."></textarea>
+                            <span asp-validation-for="Note" class="text-danger"></span>
+                        </div>
+
+                        <div class="d-flex gap-2 mt-4">
+                            <button type="submit" class="btn btn-warning text-dark">
+                                <i class="fas fa-save me-1"></i>@Model.SubmitButtonText
+                            </button>
+                            <a asp-action="Index" class="btn btn-outline-secondary">
+                                <i class="fas fa-times me-1"></i>Annulla
+                            </a>
+                            @if (Model.IsEdit)
+                            {
+                                <a asp-action="Details" asp-route-id="@Model.Id" class="btn btn-outline-info ms-auto">
+                                    <i class="fas fa-eye me-1"></i>Visualizza Dettagli
+                                </a>
+                            }
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-4">
+            <!-- Pannello Informativo -->
+            <div class="card">
+                <div class="card-header">
+                    <h6 class="card-title mb-0">
+                        <i class="fas fa-lightbulb me-2"></i>Suggerimenti
+                    </h6>
+                </div>
+                <div class="card-body">
+                    <div class="mb-3">
+                        <h6><i class="fas fa-calendar text-warning me-1"></i>Anno Fiscale</h6>
+                        <small class="text-muted">
+                            Inserisci l'anno di riferimento per le dichiarazioni fiscali.
+                        </small>
+                    </div>
+
+                    <div class="mb-3">
+                        <h6><i class="fas fa-star text-primary me-1"></i>Anno Corrente</h6>
+                        <small class="text-muted">
+                            Solo un anno alla volta può essere marcato come "corrente". Questo sarà usato come default nelle altre sezioni.
+                        </small>
+                    </div>
+
+                    <div class="mb-3">
+                        <h6><i class="fas fa-clock text-info me-1"></i>Scadenze</h6>
+                        <small class="text-muted">
+                            Le scadenze sono opzionali ma utili per tenere traccia delle date importanti dell'anno fiscale.
+                        </small>
+                    </div>
+                </div>
+            </div>
+
+
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    
+    <script>
+        function setDefaultDates(anno) {
+            // Imposta le date standard per l'anno fiscale
+            document.getElementById('Scadenza730').value = anno + '-07-31';
+            document.getElementById('Scadenza740').value = anno + '-11-30';
+            document.getElementById('Scadenza750').value = anno + '-07-31';
+            document.getElementById('Scadenza760').value = anno + '-07-31';
+            document.getElementById('Scadenza770').value = anno + '-09-30';
+            
+            document.getElementById('ScadenzaENC').value = anno + '-02-28';
+            document.getElementById('ScadenzaIRAP').value = anno + '-06-30';
+            
+            document.getElementById('ScadenzaCU').value = anno + '-03-31';
+            document.getElementById('ScadenzaDIVA').value = anno + '-02-28';
+            
+            document.getElementById('ScadenzaLipe1t').value = anno + '-04-16';
+            document.getElementById('ScadenzaLipe2t').value = anno + '-07-16';
+            document.getElementById('ScadenzaLipe3t').value = anno + '-10-16';
+            document.getElementById('ScadenzaLipe4t').value = (anno + 1) + '-01-16';
+            
+            // Mostra messaggio
+            alert('Date standard impostate per l\'anno ' + anno + '!');
+        }
+        
+        function clearAllDates() {
+            const dateInputs = document.querySelectorAll('input[type="date"]');
+            dateInputs.forEach(input => input.value = '');
+            alert('Tutte le date sono state cancellate!');
+        }
+        
+        // Gestione del switch anno corrente
+        document.getElementById('correnteSwitch').addEventListener('change', function() {
+            if (this.checked) {
+                if (!confirm('Impostare questo come anno corrente rimuoverà il flag da tutti gli altri anni. Continuare?')) {
+                    this.checked = false;
+                }
+            }
+        });
+    </script>
+}

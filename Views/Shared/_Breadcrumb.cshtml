@@ -1,0 +1,55 @@
+@{
+    var controller = ViewContext.RouteData.Values["controller"]?.ToString();
+    var action = ViewContext.RouteData.Values["action"]?.ToString();
+    var pageTitle = ViewData["Title"]?.ToString() ?? action;
+}
+
+<nav aria-label="breadcrumb" class="bg-light border-bottom">
+    <div class="container-fluid px-4 py-2">
+        <ol class="breadcrumb mb-0">
+            @* Breadcrumb principale rimosso - nessun link alle pagine di benvenuto *@
+            
+            @if (true)
+            {
+                @if (controller == "UserManagement")
+                {
+                    <li class="breadcrumb-item">
+                        <a asp-controller="UserManagement" asp-action="Index">Gestione Utenti</a>
+                    </li>
+                    
+                    @if (action != "Index")
+                    {
+                        <li class="breadcrumb-item active" aria-current="page">@pageTitle</li>
+                    }
+                }
+                else if (controller == "GestioneClienti")
+                {
+                    <li class="breadcrumb-item">
+                        <a asp-controller="GestioneClienti" asp-action="Index">Gestione Attività</a>
+                    </li>
+                    
+                    @if (action != "Index")
+                    {
+                        <li class="breadcrumb-item active" aria-current="page">@pageTitle</li>
+                    }
+                }
+                else if (controller == "DatiUtenza")
+                {
+                    <li class="breadcrumb-item active" aria-current="page">Dati Riservati</li>
+                }
+                else if (controller == "DatiUtenzaExtra")
+                {
+                    <li class="breadcrumb-item active" aria-current="page">Dati Generali</li>
+                }
+                else if (controller == "Attivita730")
+                {
+                    @* Non mostra breadcrumb per Attivita730 - ha già il suo titolo nella pagina *@
+                }
+                else
+                {
+                    <li class="breadcrumb-item active" aria-current="page">@pageTitle</li>
+                }
+            }
+        </ol>
+    </div>
+</nav>

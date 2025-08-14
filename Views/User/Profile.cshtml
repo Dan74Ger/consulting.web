@@ -1,0 +1,133 @@
+@{
+    ViewData["Title"] = "Profilo Utente";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item active" aria-current="page">Profilo</li>
+                </ol>
+            </nav>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header bg-primary text-white">
+                    <h4 class="mb-0">
+                        <i class="fas fa-user me-2"></i>
+                        Visualizza Profilo Utente
+                    </h4>
+                </div>
+                <div class="card-body">
+                    <div class="alert alert-warning">
+                        <i class="fas fa-eye me-2"></i>
+                        <strong>Modalità Solo Lettura:</strong> Puoi visualizzare i tuoi dati ma non modificarli. Per modifiche contatta l'amministratore.
+                    </div>
+                    <form>
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="firstName" class="form-label">Nome</label>
+                                <input type="text" class="form-control" id="firstName" value="Utente" readonly>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="lastName" class="form-label">Cognome</label>
+                                <input type="text" class="form-control" id="lastName" value="Test" readonly>
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <label for="email" class="form-label">Email</label>
+                            <input type="email" class="form-control" id="email" value="user@consultinggroup.com" readonly>
+                        </div>
+                        <div class="mb-3">
+                            <label for="username" class="form-label">Nome Utente</label>
+                            <input type="text" class="form-control" id="username" value="user" readonly>
+                        </div>
+                        <div class="mb-3">
+                            <label for="phone" class="form-label">Telefono</label>
+                            <input type="tel" class="form-control" id="phone" value="Non specificato" readonly>
+                        </div>
+                        <div class="mb-3">
+                            <label for="department" class="form-label">Dipartimento</label>
+                            <input type="text" class="form-control" id="department" value="Non assegnato" readonly>
+                        </div>
+                                                                <div class="alert alert-info">
+                                            <i class="fas fa-info-circle me-2"></i>
+                                            <strong>Nota:</strong> La modifica dei dati utente è riservata agli amministratori. Contatta l'amministratore di sistema per qualsiasi modifica necessaria.
+                                        </div>
+                                        @* Bottone rimosso - nessun link alla pagina di benvenuto *@
+                    </form>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-header">
+                    <h6 class="mb-0">Informazioni Account</h6>
+                </div>
+                <div class="card-body">
+                    <div class="text-center mb-3">
+                        <i class="fas fa-user-circle fa-5x text-muted"></i>
+                        <p class="mt-2 mb-0">Avatar Utente</p>
+                        <small class="text-muted">Avatar non modificabile</small>
+                    </div>
+                    <hr>
+                    <div class="row">
+                        <div class="col-6">
+                            <small class="text-muted">Ruolo:</small>
+                            <div>
+                                @if (User.IsInRole("Administrator"))
+                                {
+                                    <span class="badge bg-danger">Administrator</span>
+                                }
+                                else if (User.IsInRole("UserSenior"))
+                                {
+                                    <span class="badge bg-primary">Senior User</span>
+                                }
+                                else
+                                {
+                                    <span class="badge bg-secondary">Basic User</span>
+                                }
+                            </div>
+                        </div>
+                        <div class="col-6">
+                            <small class="text-muted">Stato:</small>
+                            <div>
+                                <span class="badge bg-success">Attivo</span>
+                            </div>
+                        </div>
+                    </div>
+                    <hr>
+                    <div class="row">
+                        <div class="col-12">
+                            <small class="text-muted">Data registrazione:</small>
+                            <div>@DateTime.Now.AddDays(-30).ToString("dd/MM/yyyy")</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card mt-3">
+                <div class="card-header">
+                    <h6 class="mb-0">Sicurezza</h6>
+                </div>
+                <div class="card-body">
+                    <div class="d-grid gap-2">
+                                                                <div class="alert alert-warning alert-sm">
+                                            <i class="fas fa-lock me-2"></i>
+                                            <small><strong>Accesso limitato:</strong> Solo l'amministratore può modificare profili utente, password e impostazioni di sicurezza.</small>
+                                        </div>
+                                        <button type="button" class="btn btn-outline-secondary btn-sm" disabled>
+                                            <i class="fas fa-download me-1"></i>
+                                            Scarica Dati (Solo Admin)
+                                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

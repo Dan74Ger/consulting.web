@@ -1,0 +1,289 @@
+@model ConsultingGroup.ViewModels.StudioCreateEditViewModel
+@{
+    ViewData["Title"] = Model.Azione + " Studio";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="container-fluid">
+    <!-- Header -->
+    <div class="card shadow mb-4">
+        <div class="card-header bg-gradient-primary text-white">
+            <div class="d-flex align-items-center justify-content-between">
+                <h3 class="mb-0">
+                    <i class="fas fa-@(Model.IsEdit ? "edit" : "plus") me-2"></i>
+                    @Model.Azione Studio
+                </h3>
+                <a asp-action="Index" class="btn btn-light btn-sm">
+                    <i class="fas fa-arrow-left me-1"></i>
+                    Torna alla Lista
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Form -->
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="card shadow">
+                <div class="card-header bg-light">
+                    <h5 class="mb-0">
+                        <i class="fas fa-building me-2"></i>
+                        Dati Studio
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <form asp-action="@(Model.IsEdit ? "Edit" : "Create")" method="post">
+                        @Html.AntiForgeryToken()
+                        @if (Model.IsEdit)
+                        {
+                            <input asp-for="Id" type="hidden" />
+                            <input asp-for="IsEdit" type="hidden" />
+                        }
+
+                        <!-- Informazioni Generali -->
+                        <div class="row">
+                            <div class="col-12">
+                                <h6 class="text-primary border-bottom pb-2 mb-3">
+                                    <i class="fas fa-info-circle me-1"></i>
+                                    Informazioni Generali
+                                </h6>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <!-- Nome Studio -->
+                            <div class="col-md-8">
+                                <div class="mb-3">
+                                    <label asp-for="NomeStudio" class="form-label">
+                                        <i class="fas fa-building me-1 text-primary"></i>
+                                        Nome Studio <span class="text-danger">*</span>
+                                    </label>
+                                    <input asp-for="NomeStudio" class="form-control" placeholder="Inserisci il nome dello studio..." />
+                                    <span asp-validation-for="NomeStudio" class="text-danger"></span>
+                                    <div class="form-text">
+                                        <i class="fas fa-info-circle me-1"></i>
+                                        Massimo 50 caratteri. Il nome deve essere univoco.
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Stato -->
+                            <div class="col-md-4">
+                                <div class="mb-3">
+                                    <label class="form-label">
+                                        <i class="fas fa-toggle-on me-1 text-success"></i>
+                                        Stato
+                                    </label>
+                                    <div class="card border-@(Model.Attivo ? "success" : "danger")">
+                                        <div class="card-body p-3">
+                                            <div class="form-check form-switch">
+                                                <input asp-for="Attivo" class="form-check-input" id="attivoSwitch" />
+                                                <label class="form-check-label" for="attivoSwitch">
+                                                    <span id="statoText">@(Model.Attivo ? "Attivo" : "Cessato")</span>
+                                                    <i id="statoIcon" class="fas fa-@(Model.Attivo ? "check-circle text-success" : "times-circle text-danger") ms-1"></i>
+                                                </label>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Riattivazione (solo per Edit) -->
+                        @if (Model.IsEdit)
+                        {
+                            <div class="row">
+                                <div class="col-12">
+                                    <h6 class="text-warning border-bottom pb-2 mb-3">
+                                        <i class="fas fa-sync me-1"></i>
+                                        Riattivazione per Anno Fiscale
+                                    </h6>
+                                </div>
+                            </div>
+
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label asp-for="RiattivatoperAnno" class="form-label">
+                                            <i class="fas fa-calendar-alt me-1 text-warning"></i>
+                                            Anno Fiscale Riattivazione
+                                        </label>
+                                        <select asp-for="RiattivatoperAnno" class="form-select">
+                                            <option value="">Nessuna riattivazione</option>
+                                            @foreach (var anno in Model.AnniFiscali)
+                                            {
+                                                <option value="@anno.Value" selected="@anno.Selected">@anno.Text</option>
+                                            }
+                                        </select>
+                                        <div class="form-text">
+                                            <i class="fas fa-info-circle me-1"></i>
+                                            Seleziona l'anno fiscale per cui riattivare questo studio.
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="alert alert-info">
+                                        <i class="fas fa-lightbulb me-2"></i>
+                                        <strong>Suggerimento:</strong> La riattivazione per anno fiscale permette di gestire studios che operano solo in determinati periodi.
+                                    </div>
+                                </div>
+                            </div>
+                        }
+
+                        <!-- Azioni -->
+                        <div class="row">
+                            <div class="col-12">
+                                <hr class="my-4" />
+                                <div class="d-flex justify-content-between">
+                                    <div>
+                                        <a asp-action="Index" class="btn btn-outline-secondary">
+                                            <i class="fas fa-times me-1"></i>
+                                            Annulla
+                                        </a>
+                                    </div>
+                                    <div>
+                                        @if (Model.IsEdit)
+                                        {
+                                            <a asp-action="Details" asp-route-id="@Model.Id" class="btn btn-outline-info me-2">
+                                                <i class="fas fa-eye me-1"></i>
+                                                Visualizza
+                                            </a>
+                                        }
+                                        <button type="submit" class="btn btn-@(Model.IsEdit ? "primary" : "success")">
+                                            <i class="fas fa-@(Model.IsEdit ? "save" : "plus") me-1"></i>
+                                            @(Model.IsEdit ? "Salva Modifiche" : "Crea Studio")
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Informazioni Aggiuntive -->
+            <div class="card shadow mt-4">
+                <div class="card-header bg-light">
+                    <h6 class="mb-0">
+                        <i class="fas fa-question-circle me-2"></i>
+                        Informazioni
+                    </h6>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <h6 class="text-primary">
+                                <i class="fas fa-check-circle me-1"></i>
+                                Studio Attivo
+                            </h6>
+                            <p class="small text-muted">
+                                Uno studio attivo è visibile in tutte le operazioni e può essere associato a clienti e professionisti.
+                            </p>
+                        </div>
+                        <div class="col-md-6">
+                            <h6 class="text-danger">
+                                <i class="fas fa-times-circle me-1"></i>
+                                Studio Cessato
+                            </h6>
+                            <p class="small text-muted">
+                                Uno studio cessato non è più utilizzabile per nuove operazioni, ma mantiene lo storico dei dati.
+                            </p>
+                        </div>
+                        @if (Model.IsEdit)
+                        {
+                            <div class="col-md-12 mt-3">
+                                <h6 class="text-warning">
+                                    <i class="fas fa-sync me-1"></i>
+                                    Riattivazione per Anno Fiscale
+                                </h6>
+                                <p class="small text-muted">
+                                    La funzione di riattivazione permette di rendere nuovamente operativo uno studio per un anno fiscale specifico, mantenendo traccia del periodo di riattivazione.
+                                </p>
+                            </div>
+                        }
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const attivoSwitch = document.getElementById('attivoSwitch');
+            const statoText = document.getElementById('statoText');
+            const statoIcon = document.getElementById('statoIcon');
+            const card = attivoSwitch.closest('.card');
+
+            function updateStatoDisplay() {
+                if (attivoSwitch.checked) {
+                    statoText.textContent = 'Attivo';
+                    statoIcon.className = 'fas fa-check-circle text-success ms-1';
+                    card.className = 'card border-success';
+                } else {
+                    statoText.textContent = 'Cessato';
+                    statoIcon.className = 'fas fa-times-circle text-danger ms-1';
+                    card.className = 'card border-danger';
+                }
+            }
+
+            attivoSwitch.addEventListener('change', updateStatoDisplay);
+            
+            // Validazione form
+            const form = document.querySelector('form');
+            const nomeStudio = document.querySelector('input[name="NomeStudio"]');
+            
+            form.addEventListener('submit', function(e) {
+                if (nomeStudio.value.trim().length === 0) {
+                    e.preventDefault();
+                    nomeStudio.focus();
+                    alert('Il nome dello studio è obbligatorio.');
+                    return false;
+                }
+                
+                if (nomeStudio.value.trim().length > 50) {
+                    e.preventDefault();
+                    nomeStudio.focus();
+                    alert('Il nome dello studio non può superare i 50 caratteri.');
+                    return false;
+                }
+            });
+
+            // Auto-focus sul campo nome quando si carica la pagina
+            nomeStudio.focus();
+        });
+    </script>
+}
+
+<style>
+.bg-gradient-primary {
+    background: linear-gradient(135deg, #007bff 0%, #0056b3 100%) !important;
+}
+
+.form-check-input:checked {
+    background-color: #28a745;
+    border-color: #28a745;
+}
+
+.form-check-input:not(:checked) {
+    background-color: #dc3545;
+    border-color: #dc3545;
+}
+
+.card {
+    transition: border-color 0.3s ease;
+}
+
+.form-control:focus {
+    border-color: #007bff;
+    box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+}
+
+.form-select:focus {
+    border-color: #007bff;
+    box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+}
+</style>

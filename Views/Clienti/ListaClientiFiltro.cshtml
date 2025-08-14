@@ -1,0 +1,621 @@
+@model IEnumerable<ConsultingGroup.Models.Cliente>
+@{
+    ViewData["Title"] = "Lista Clienti per Filtro";
+}
+
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header bg-primary text-white">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h4 class="mb-0">
+                                <i class="fas fa-filter me-2"></i>
+                                Lista Clienti per Filtro
+                            </h4>
+                            <small>Filtra i clienti per stato e servizi specifici</small>
+                        </div>
+                        <a asp-action="Index" class="btn btn-outline-light btn-sm">
+                            <i class="fas fa-arrow-left me-1"></i>
+                            Torna a Clienti
+                        </a>
+                    </div>
+                </div>
+                
+                <div class="card-body">
+                    <!-- Sezione Filtri Collassabile -->
+                    <div class="card mb-4">
+                        <div class="card-header">
+                            <h5 class="mb-0">
+                                <button class="btn btn-link p-0 text-decoration-none text-dark w-100 text-start" type="button" data-bs-toggle="collapse" data-bs-target="#filtriCollapse" aria-expanded="false" aria-controls="filtriCollapse">
+                                    <i class="fas fa-sliders-h me-2"></i>
+                                    Filtri di Ricerca
+                                    <i class="fas fa-chevron-down float-end mt-1"></i>
+                                </button>
+                            </h5>
+                        </div>
+                        <div class="collapse" id="filtriCollapse">
+                            <div class="card-body">
+                                <form method="get" id="filtroForm">
+                                    <div class="row">
+                                        <!-- Filtro Stato Cliente -->
+                                        <div class="col-md-4 mb-3">
+                                            <label class="form-label"><strong>Stato Cliente</strong></label>
+                                            <div class="form-check">
+                                                <input class="form-check-input" type="radio" name="statusFilter" value="tutti" 
+                                                       id="statusTutti" @(ViewBag.StatusFilter == "tutti" ? "checked" : "")>
+                                                <label class="form-check-label" for="statusTutti">
+                                                    <i class="fas fa-globe me-1"></i>Tutti i clienti
+                                                </label>
+                                            </div>
+                                            <div class="form-check">
+                                                <input class="form-check-input" type="radio" name="statusFilter" value="attivi" 
+                                                       id="statusAttivi" @(ViewBag.StatusFilter == "attivi" ? "checked" : "")>
+                                                <label class="form-check-label" for="statusAttivi">
+                                                    <i class="fas fa-check-circle text-success me-1"></i>Solo clienti attivi
+                                                </label>
+                                            </div>
+                                            <div class="form-check">
+                                                <input class="form-check-input" type="radio" name="statusFilter" value="cessati" 
+                                                       id="statusCessati" @(ViewBag.StatusFilter == "cessati" ? "checked" : "")>
+                                                <label class="form-check-label" for="statusCessati">
+                                                    <i class="fas fa-times-circle text-danger me-1"></i>Solo clienti cessati
+                                                </label>
+                                            </div>
+                                        </div>
+
+                                        <!-- Filtro Servizi - Attività Redditi -->
+                                        <div class="col-md-4 mb-3">
+                                            <label class="form-label"><strong>Attività Redditi</strong></label>
+                                            <div class="form-check">
+                                                <input class="form-check-input servizio-checkbox" type="checkbox" name="servizi" value="mod730" 
+                                                       id="mod730" @(((string[])ViewBag.ServiziFilter).Contains("mod730") ? "checked" : "")>
+                                                <label class="form-check-label" for="mod730">Mod. 730</label>
+                                            </div>
+                                            <div class="form-check">
+                                                <input class="form-check-input servizio-checkbox" type="checkbox" name="servizi" value="mod740" 
+                                                       id="mod740" @(((string[])ViewBag.ServiziFilter).Contains("mod740") ? "checked" : "")>
+                                                <label class="form-check-label" for="mod740">Mod. 740</label>
+                                            </div>
+                                            <div class="form-check">
+                                                <input class="form-check-input servizio-checkbox" type="checkbox" name="servizi" value="mod750" 
+                                                       id="mod750" @(((string[])ViewBag.ServiziFilter).Contains("mod750") ? "checked" : "")>
+                                                <label class="form-check-label" for="mod750">Mod. 750</label>
+                                            </div>
+                                            <div class="form-check">
+                                                <input class="form-check-input servizio-checkbox" type="checkbox" name="servizi" value="mod760" 
+                                                       id="mod760" @(((string[])ViewBag.ServiziFilter).Contains("mod760") ? "checked" : "")>
+                                                <label class="form-check-label" for="mod760">Mod. 760</label>
+                                            </div>
+                                            <div class="form-check">
+                                                <input class="form-check-input servizio-checkbox" type="checkbox" name="servizi" value="mod770" 
+                                                       id="mod770" @(((string[])ViewBag.ServiziFilter).Contains("mod770") ? "checked" : "")>
+                                                <label class="form-check-label" for="mod770">Mod. 770</label>
+                                            </div>
+                                            <div class="form-check">
+                                                <input class="form-check-input servizio-checkbox" type="checkbox" name="servizi" value="modcu" 
+                                                       id="modcu" @(((string[])ViewBag.ServiziFilter).Contains("modcu") ? "checked" : "")>
+                                                <label class="form-check-label" for="modcu">Mod. CU</label>
+                                            </div>
+                                            <div class="form-check">
+                                                <input class="form-check-input servizio-checkbox" type="checkbox" name="servizi" value="modenc" 
+                                                       id="modenc" @(((string[])ViewBag.ServiziFilter).Contains("modenc") ? "checked" : "")>
+                                                <label class="form-check-label" for="modenc">Mod. ENC</label>
+                                            </div>
+                                            <div class="form-check">
+                                                <input class="form-check-input servizio-checkbox" type="checkbox" name="servizi" value="modirap" 
+                                                       id="modirap" @(((string[])ViewBag.ServiziFilter).Contains("modirap") ? "checked" : "")>
+                                                <label class="form-check-label" for="modirap">Mod. IRAP</label>
+                                            </div>
+                                        </div>
+
+                                        <!-- Filtro Servizi - Attività IVA e Contabile -->
+                                        <div class="col-md-4 mb-3">
+                                            <label class="form-label"><strong>Attività IVA</strong></label>
+                                            <div class="form-check">
+                                                <input class="form-check-input servizio-checkbox" type="checkbox" name="servizi" value="driva" 
+                                                       id="driva" @(((string[])ViewBag.ServiziFilter).Contains("driva") ? "checked" : "")>
+                                                <label class="form-check-label" for="driva">DRIVA</label>
+                                            </div>
+                                            <div class="form-check">
+                                                <input class="form-check-input servizio-checkbox" type="checkbox" name="servizi" value="lipe" 
+                                                       id="lipe" @(((string[])ViewBag.ServiziFilter).Contains("lipe") ? "checked" : "")>
+                                                <label class="form-check-label" for="lipe">LIPE</label>
+                                            </div>
+                                            <div class="form-check">
+                                                <input class="form-check-input servizio-checkbox" type="checkbox" name="servizi" value="modtriva" 
+                                                       id="modtriva" @(((string[])ViewBag.ServiziFilter).Contains("modtriva") ? "checked" : "")>
+                                                <label class="form-check-label" for="modtriva">Mod. TR IVA</label>
+                                            </div>
+                                            
+                                            <label class="form-label mt-3"><strong>Attività Contabile</strong></label>
+                                            <div class="form-check">
+                                                <input class="form-check-input servizio-checkbox" type="checkbox" name="servizi" value="inail" 
+                                                       id="inail" @(((string[])ViewBag.ServiziFilter).Contains("inail") ? "checked" : "")>
+                                                <label class="form-check-label" for="inail">INAIL</label>
+                                            </div>
+                                            <div class="form-check">
+                                                <input class="form-check-input servizio-checkbox" type="checkbox" name="servizi" value="cassettofiscale" 
+                                                       id="cassettofiscale" @(((string[])ViewBag.ServiziFilter).Contains("cassettofiscale") ? "checked" : "")>
+                                                <label class="form-check-label" for="cassettofiscale">Cassetto Fiscale</label>
+                                            </div>
+                                            <div class="form-check">
+                                                <input class="form-check-input servizio-checkbox" type="checkbox" name="servizi" value="fatturazioneelettronica" 
+                                                       id="fatturazioneelettronica" @(((string[])ViewBag.ServiziFilter).Contains("fatturazioneelettronica") ? "checked" : "")>
+                                                <label class="form-check-label" for="fatturazioneelettronica">Fatturazione Elettronica</label>
+                                            </div>
+                                            <div class="form-check">
+                                                <input class="form-check-input servizio-checkbox" type="checkbox" name="servizi" value="conservazione" 
+                                                       id="conservazione" @(((string[])ViewBag.ServiziFilter).Contains("conservazione") ? "checked" : "")>
+                                                <label class="form-check-label" for="conservazione">Conservazione</label>
+                                            </div>
+                                            <div class="form-check">
+                                                <input class="form-check-input servizio-checkbox" type="checkbox" name="servizi" value="imu" 
+                                                       id="imu" @(((string[])ViewBag.ServiziFilter).Contains("imu") ? "checked" : "")>
+                                                <label class="form-check-label" for="imu">IMU</label>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- Altri servizi su una nuova riga -->
+                                    <div class="row">
+                                        <div class="col-md-12 mb-3">
+                                            <label class="form-label"><strong>Altri Servizi Contabili</strong></label>
+                                            <div class="row">
+                                                <div class="col-md-3">
+                                                    <div class="form-check">
+                                                        <input class="form-check-input servizio-checkbox" type="checkbox" name="servizi" value="regiva" 
+                                                               id="regiva" @(((string[])ViewBag.ServiziFilter).Contains("regiva") ? "checked" : "")>
+                                                        <label class="form-check-label" for="regiva">Registro IVA</label>
+                                                    </div>
+                                                    <div class="form-check">
+                                                        <input class="form-check-input servizio-checkbox" type="checkbox" name="servizi" value="regcespiti" 
+                                                               id="regcespiti" @(((string[])ViewBag.ServiziFilter).Contains("regcespiti") ? "checked" : "")>
+                                                        <label class="form-check-label" for="regcespiti">Registro Cespiti</label>
+                                                    </div>
+                                                    <div class="form-check">
+                                                        <input class="form-check-input servizio-checkbox" type="checkbox" name="servizi" value="inventari" 
+                                                               id="inventari" @(((string[])ViewBag.ServiziFilter).Contains("inventari") ? "checked" : "")>
+                                                        <label class="form-check-label" for="inventari">Inventari</label>
+                                                    </div>
+                                                </div>
+                                                <div class="col-md-3">
+                                                    <div class="form-check">
+                                                        <input class="form-check-input servizio-checkbox" type="checkbox" name="servizi" value="librogiornale" 
+                                                               id="librogiornale" @(((string[])ViewBag.ServiziFilter).Contains("librogiornale") ? "checked" : "")>
+                                                        <label class="form-check-label" for="librogiornale">Libro Giornale</label>
+                                                    </div>
+                                                    <div class="form-check">
+                                                        <input class="form-check-input servizio-checkbox" type="checkbox" name="servizi" value="lettereintento" 
+                                                               id="lettereintento" @(((string[])ViewBag.ServiziFilter).Contains("lettereintento") ? "checked" : "")>
+                                                        <label class="form-check-label" for="lettereintento">Lettere d'Intento</label>
+                                                    </div>
+                                                    <div class="form-check">
+                                                        <input class="form-check-input servizio-checkbox" type="checkbox" name="servizi" value="modintrastat" 
+                                                               id="modintrastat" @(((string[])ViewBag.ServiziFilter).Contains("modintrastat") ? "checked" : "")>
+                                                        <label class="form-check-label" for="modintrastat">Mod. INTRASTAT</label>
+                                                    </div>
+                                                </div>
+                                                <div class="col-md-3">
+                                                    <div class="form-check">
+                                                        <input class="form-check-input servizio-checkbox" type="checkbox" name="servizi" value="firmadigitale" 
+                                                               id="firmadigitale" @(((string[])ViewBag.ServiziFilter).Contains("firmadigitale") ? "checked" : "")>
+                                                        <label class="form-check-label" for="firmadigitale">Firma Digitale</label>
+                                                    </div>
+                                                    <div class="form-check">
+                                                        <input class="form-check-input servizio-checkbox" type="checkbox" name="servizi" value="titolareeffettivo" 
+                                                               id="titolareeffettivo" @(((string[])ViewBag.ServiziFilter).Contains("titolareeffettivo") ? "checked" : "")>
+                                                        <label class="form-check-label" for="titolareeffettivo">Titolare Effettivo</label>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- Pulsanti Azione -->
+                                    <div class="row">
+                                        <div class="col-12">
+                                            <div class="d-flex gap-2 align-items-center">
+                                                <button type="submit" class="btn btn-primary">
+                                                    <i class="fas fa-filter me-1"></i>Filtra
+                                                </button>
+                                                <button type="button" class="btn btn-warning" onclick="mostraSchemaCompleto()">
+                                                    <i class="fas fa-table me-1"></i>Schema Completo
+                                                </button>
+                                                <a href="@Url.Action("ListaClientiFiltro")" class="btn btn-secondary">
+                                                    <i class="fas fa-times me-1"></i>Reset
+                                                </a>
+                                                @if (Model.Any())
+                                                {
+                                                    <button type="button" class="btn btn-success" onclick="exportExcel()">
+                                                        <i class="fas fa-file-excel me-1"></i>Export Excel
+                                                    </button>
+                                                }
+                                            </div>
+                                        </div>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Risultati -->
+                    @if (Model.Any())
+                    {
+                        <div class="card">
+                            <div class="card-header">
+                                <h5 class="mb-0">
+                                    <i class="fas fa-users me-2"></i>
+                                    Risultati Filtro (@Model.Count() clienti)
+                                </h5>
+                            </div>
+                            <div class="card-body">
+                                <div class="table-responsive">
+                                    @if (ViewBag.SchemaCompleto == true)
+                                    {
+                                        <!-- Tabella Schema Completo -->
+                                        <table class="table table-striped table-hover table-sm schema-completo" id="risultatiTabella">
+                                            <thead class="table-dark">
+                                                <tr>
+                                                    <th rowspan="2" class="align-middle">Cliente</th>
+                                                    <th rowspan="2" class="align-middle">Stato</th>
+                                                    <th colspan="8" class="text-center border-end">Attività Redditi</th>
+                                                    <th colspan="3" class="text-center border-end">Attività IVA</th>
+                                                    <th colspan="13" class="text-center">Attività Contabile</th>
+                                                </tr>
+                                                <tr>
+                                                    <th class="text-center">730</th>
+                                                    <th class="text-center">740</th>
+                                                    <th class="text-center">750</th>
+                                                    <th class="text-center">760</th>
+                                                    <th class="text-center">770</th>
+                                                    <th class="text-center">CU</th>
+                                                    <th class="text-center">ENC</th>
+                                                    <th class="text-center border-end">IRAP</th>
+                                                    <th class="text-center">DRIVA</th>
+                                                    <th class="text-center">LIPE</th>
+                                                    <th class="text-center border-end">TR IVA</th>
+                                                    <th class="text-center">INAIL</th>
+                                                    <th class="text-center">Cassetto</th>
+                                                    <th class="text-center">Fatt.Elett.</th>
+                                                    <th class="text-center">Conserv.</th>
+                                                    <th class="text-center">IMU</th>
+                                                    <th class="text-center">RegIVA</th>
+                                                    <th class="text-center">RegCesp.</th>
+                                                    <th class="text-center">Invent.</th>
+                                                    <th class="text-center">LibroGiorn.</th>
+                                                    <th class="text-center">Lett.Int.</th>
+                                                    <th class="text-center">INTRASTAT</th>
+                                                    <th class="text-center">Firma Dig.</th>
+                                                    <th class="text-center">Tit.Eff.</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                @foreach (var cliente in Model)
+                                                {
+                                                    <tr>
+                                                        <td>
+                                                            <strong>@cliente.NomeCliente</strong>
+                                                            @if (!string.IsNullOrEmpty(cliente.MailCliente))
+                                                            {
+                                                                <br><small class="text-muted">@cliente.MailCliente</small>
+                                                            }
+                                                        </td>
+                                                        <td>
+                                                            @if (cliente.Attivo)
+                                                            {
+                                                                <span class="badge bg-success">Attivo</span>
+                                                            }
+                                                            else
+                                                            {
+                                                                <span class="badge bg-danger">Cessato</span>
+                                                            }
+                                                        </td>
+                                                        
+                                                        <!-- Mostra checkmark per ogni servizio -->
+                                                        <td class="text-center">
+                                                            <span class="@(cliente.Mod730 ? "servizio-attivo" : "servizio-inattivo")">@(cliente.Mod730 ? "✓" : "✗")</span>
+                                                        </td>
+                                                        <td class="text-center">
+                                                            <span class="@(cliente.Mod740 ? "servizio-attivo" : "servizio-inattivo")">@(cliente.Mod740 ? "✓" : "✗")</span>
+                                                        </td>
+                                                        <td class="text-center">
+                                                            <span class="@(cliente.Mod750 ? "servizio-attivo" : "servizio-inattivo")">@(cliente.Mod750 ? "✓" : "✗")</span>
+                                                        </td>
+                                                        <td class="text-center">
+                                                            <span class="@(cliente.Mod760 ? "servizio-attivo" : "servizio-inattivo")">@(cliente.Mod760 ? "✓" : "✗")</span>
+                                                        </td>
+                                                        <td class="text-center">
+                                                            <span class="@(cliente.Mod770 ? "servizio-attivo" : "servizio-inattivo")">@(cliente.Mod770 ? "✓" : "✗")</span>
+                                                        </td>
+                                                        <td class="text-center">
+                                                            <span class="@(cliente.ModCu ? "servizio-attivo" : "servizio-inattivo")">@(cliente.ModCu ? "✓" : "✗")</span>
+                                                        </td>
+                                                        <td class="text-center">
+                                                            <span class="@(cliente.ModEnc ? "servizio-attivo" : "servizio-inattivo")">@(cliente.ModEnc ? "✓" : "✗")</span>
+                                                        </td>
+                                                        <td class="text-center border-end">
+                                                            <span class="@(cliente.ModIrap ? "servizio-attivo" : "servizio-inattivo")">@(cliente.ModIrap ? "✓" : "✗")</span>
+                                                        </td>
+                                                        <td class="text-center">
+                                                            <span class="@(cliente.Driva ? "servizio-attivo" : "servizio-inattivo")">@(cliente.Driva ? "✓" : "✗")</span>
+                                                        </td>
+                                                        <td class="text-center">
+                                                            <span class="@(cliente.Lipe ? "servizio-attivo" : "servizio-inattivo")">@(cliente.Lipe ? "✓" : "✗")</span>
+                                                        </td>
+                                                        <td class="text-center border-end">
+                                                            <span class="@(cliente.ModTrIva ? "servizio-attivo" : "servizio-inattivo")">@(cliente.ModTrIva ? "✓" : "✗")</span>
+                                                        </td>
+                                                        <td class="text-center">
+                                                            <span class="@(cliente.Inail ? "servizio-attivo" : "servizio-inattivo")">@(cliente.Inail ? "✓" : "✗")</span>
+                                                        </td>
+                                                        <td class="text-center">
+                                                            <span class="@(cliente.CassettoFiscale ? "servizio-attivo" : "servizio-inattivo")">@(cliente.CassettoFiscale ? "✓" : "✗")</span>
+                                                        </td>
+                                                        <td class="text-center">
+                                                            <span class="@(cliente.FatturazioneElettronicaTs ? "servizio-attivo" : "servizio-inattivo")">@(cliente.FatturazioneElettronicaTs ? "✓" : "✗")</span>
+                                                        </td>
+                                                        <td class="text-center">
+                                                            <span class="@(cliente.Conservazione ? "servizio-attivo" : "servizio-inattivo")">@(cliente.Conservazione ? "✓" : "✗")</span>
+                                                        </td>
+                                                        <td class="text-center">
+                                                            <span class="@(cliente.Imu ? "servizio-attivo" : "servizio-inattivo")">@(cliente.Imu ? "✓" : "✗")</span>
+                                                        </td>
+                                                        <td class="text-center">
+                                                            <span class="@(cliente.RegIva ? "servizio-attivo" : "servizio-inattivo")">@(cliente.RegIva ? "✓" : "✗")</span>
+                                                        </td>
+                                                        <td class="text-center">
+                                                            <span class="@(cliente.RegCespiti ? "servizio-attivo" : "servizio-inattivo")">@(cliente.RegCespiti ? "✓" : "✗")</span>
+                                                        </td>
+                                                        <td class="text-center">
+                                                            <span class="@(cliente.Inventari ? "servizio-attivo" : "servizio-inattivo")">@(cliente.Inventari ? "✓" : "✗")</span>
+                                                        </td>
+                                                        <td class="text-center">
+                                                            <span class="@(cliente.LibroGiornale ? "servizio-attivo" : "servizio-inattivo")">@(cliente.LibroGiornale ? "✓" : "✗")</span>
+                                                        </td>
+                                                        <td class="text-center">
+                                                            <span class="@(cliente.LettereIntento ? "servizio-attivo" : "servizio-inattivo")">@(cliente.LettereIntento ? "✓" : "✗")</span>
+                                                        </td>
+                                                        <td class="text-center">
+                                                            <span class="@(cliente.ModIntrastat ? "servizio-attivo" : "servizio-inattivo")">@(cliente.ModIntrastat ? "✓" : "✗")</span>
+                                                        </td>
+                                                        <td class="text-center">
+                                                            <span class="@(cliente.FirmaDigitale ? "servizio-attivo" : "servizio-inattivo")">@(cliente.FirmaDigitale ? "✓" : "✗")</span>
+                                                        </td>
+                                                        <td class="text-center">
+                                                            <span class="@(cliente.TitolareEffettivo ? "servizio-attivo" : "servizio-inattivo")">@(cliente.TitolareEffettivo ? "✓" : "✗")</span>
+                                                        </td>
+                                                    </tr>
+                                                }
+                                            </tbody>
+                                        </table>
+                                    }
+                                    else
+                                    {
+                                        <!-- Tabella Normale con badge servizi -->
+                                        <table class="table table-striped table-hover" id="risultatiTabella">
+                                            <thead class="table-dark">
+                                                <tr>
+                                                    <th>Cliente</th>
+                                                    <th>Stato</th>
+                                                    <th>Programma</th>
+                                                    <th>Professionista</th>
+                                                    <th>Servizi Filtrati</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                @foreach (var cliente in Model)
+                                                {
+                                                    <tr>
+                                                        <td>
+                                                            <strong>@cliente.NomeCliente</strong>
+                                                            @if (!string.IsNullOrEmpty(cliente.MailCliente))
+                                                            {
+                                                                <br><small class="text-muted">@cliente.MailCliente</small>
+                                                            }
+                                                        </td>
+                                                        <td>
+                                                            @if (cliente.Attivo)
+                                                            {
+                                                                <span class="badge bg-success">
+                                                                    <i class="fas fa-check-circle me-1"></i>Attivo
+                                                                </span>
+                                                            }
+                                                            else
+                                                            {
+                                                                <span class="badge bg-danger">
+                                                                    <i class="fas fa-times-circle me-1"></i>Cessato
+                                                                </span>
+                                                            }
+                                                        </td>
+                                                        <td>@(cliente.Programma?.NomeProgramma ?? "-")</td>
+                                                        <td>@(cliente.Professionista?.NomeCompleto ?? "-")</td>
+                                                        <td class="servizi-colonna">
+                                                            @{
+                                                                var servizi = new List<string>();
+                                                                var serviziFiltrati = (string[])ViewBag.ServiziFilter;
+                                                                foreach (var servizioFiltrato in serviziFiltrati)
+                                                                {
+                                                                    var hasServizio = servizioFiltrato.ToLower() switch
+                                                                    {
+                                                                        "mod730" => cliente.Mod730,
+                                                                        "mod740" => cliente.Mod740,
+                                                                        "mod750" => cliente.Mod750,
+                                                                        "mod760" => cliente.Mod760,
+                                                                        "mod770" => cliente.Mod770,
+                                                                        "modcu" => cliente.ModCu,
+                                                                        "modenc" => cliente.ModEnc,
+                                                                        "modirap" => cliente.ModIrap,
+                                                                        "driva" => cliente.Driva,
+                                                                        "lipe" => cliente.Lipe,
+                                                                        "modtriva" => cliente.ModTrIva,
+                                                                        "inail" => cliente.Inail,
+                                                                        "cassettofiscale" => cliente.CassettoFiscale,
+                                                                        "fatturazioneelettronica" => cliente.FatturazioneElettronicaTs,
+                                                                        "conservazione" => cliente.Conservazione,
+                                                                        "imu" => cliente.Imu,
+                                                                        "regiva" => cliente.RegIva,
+                                                                        "regcespiti" => cliente.RegCespiti,
+                                                                        "inventari" => cliente.Inventari,
+                                                                        "librogiornale" => cliente.LibroGiornale,
+                                                                        "lettereintento" => cliente.LettereIntento,
+                                                                        "modintrastat" => cliente.ModIntrastat,
+                                                                        "firmadigitale" => cliente.FirmaDigitale,
+                                                                        "titolareeffettivo" => cliente.TitolareEffettivo,
+                                                                        _ => false
+                                                                    };
+                                                                    
+                                                                    if (hasServizio)
+                                                                    {
+                                                                        servizi.Add(servizioFiltrato.ToUpper());
+                                                                    }
+                                                                }
+                                                            }
+                                                            
+                                                            @if (servizi.Any())
+                                                            {
+                                                                foreach (var servizio in servizi)
+                                                                {
+                                                                    <span class="badge bg-primary me-1 mb-1">@servizio</span>
+                                                                }
+                                                            }
+                                                            else
+                                                            {
+                                                                <span class="text-muted">Nessun servizio</span>
+                                                            }
+                                                        </td>
+                                                    </tr>
+                                                }
+                                            </tbody>
+                                        </table>
+                                    }
+                                </div>
+                            </div>
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="alert alert-info text-center">
+                            <i class="fas fa-info-circle fa-2x mb-3"></i>
+                            <h5>Nessun cliente trovato</h5>
+                            <p>Non ci sono clienti che corrispondono ai criteri di filtro selezionati.</p>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        // Auto-submit form quando cambia lo stato
+        document.querySelectorAll('input[name="statusFilter"]').forEach(function(radio) {
+            radio.addEventListener('change', function() {
+                document.getElementById('filtroForm').submit();
+            });
+        });
+        
+        // Funzione per mostrare schema completo
+        function mostraSchemaCompleto() {
+            var form = document.getElementById('filtroForm');
+            var hiddenInput = document.createElement('input');
+            hiddenInput.type = 'hidden';
+            hiddenInput.name = 'schemaCompleto';
+            hiddenInput.value = 'true';
+            form.appendChild(hiddenInput);
+            form.submit();
+        }
+        
+        // Funzione per export Excel
+        function exportExcel() {
+            var form = document.getElementById('filtroForm');
+            var originalAction = form.action;
+            
+            // Cambia temporaneamente l'action al metodo export
+            form.action = '@Url.Action("ExportClientiFiltro")';
+            
+            // Se è schema completo, aggiungi il parametro
+            var isSchemaCompleto = '@ViewBag.SchemaCompleto' === 'True';
+            if (isSchemaCompleto) {
+                var hiddenInput = document.createElement('input');
+                hiddenInput.type = 'hidden';
+                hiddenInput.name = 'schemaCompleto';
+                hiddenInput.value = 'true';
+                form.appendChild(hiddenInput);
+            }
+            
+            form.submit();
+            
+            // Ripristina l'action originale
+            form.action = originalAction;
+        }
+        
+        // Aggiorna conteggio servizi selezionati
+        function updateServiziCount() {
+            var checked = document.querySelectorAll('.servizio-checkbox:checked').length;
+            var label = document.querySelector('#filtroForm button[type="submit"]');
+            if (checked > 0) {
+                label.innerHTML = '<i class="fas fa-filter me-1"></i>Filtra (' + checked + ' servizi)';
+            } else {
+                label.innerHTML = '<i class="fas fa-filter me-1"></i>Filtra';
+            }
+        }
+        
+        // Event listener per checkbox servizi
+        document.querySelectorAll('.servizio-checkbox').forEach(function(checkbox) {
+            checkbox.addEventListener('change', updateServiziCount);
+        });
+        
+        // Inizializza conteggio al caricamento
+        updateServiziCount();
+
+        // Aggiorna l'icona chevron quando il collasso viene aperto/chiuso
+        document.getElementById('filtriCollapse').addEventListener('shown.bs.collapse', function () {
+            document.querySelector('[data-bs-target="#filtriCollapse"] .fa-chevron-down').classList.replace('fa-chevron-down', 'fa-chevron-up');
+        });
+        
+        document.getElementById('filtriCollapse').addEventListener('hidden.bs.collapse', function () {
+            document.querySelector('[data-bs-target="#filtriCollapse"] .fa-chevron-up').classList.replace('fa-chevron-up', 'fa-chevron-down');
+        });
+    </script>
+}
+
+<style>
+    .form-check-input {
+        border: 2px solid #000;
+    }
+    
+    .servizi-colonna {
+        max-width: 300px;
+    }
+    
+    .badge {
+        font-size: 0.7rem;
+    }
+    
+    .table-responsive {
+        max-height: 600px;
+        overflow-y: auto;
+    }
+    
+    @@media (max-width: 768px) {
+        .servizi-colonna {
+            max-width: 200px;
+            word-break: break-word;
+        }
+    }
+    
+    /* Stili per lo schema completo */
+    .schema-completo .servizio-attivo {
+        color: #28a745 !important;
+        font-weight: bold;
+        font-size: 1.1em;
+    }
+    
+    .schema-completo .servizio-inattivo {
+        color: #dc3545 !important;
+        font-size: 0.8em;
+    }
+</style>

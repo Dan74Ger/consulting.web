@@ -1,0 +1,111 @@
+@{
+    ViewData["Title"] = "Reports - Area Senior";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item"><a href="@Url.Action("Welcome", "Senior")">Area Senior</a></li>
+                    <li class="breadcrumb-item active" aria-current="page">Reports</li>
+                </ol>
+            </nav>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header bg-info text-white">
+                    <h4 class="mb-0">
+                        <i class="fas fa-chart-line me-2"></i>
+                        Area Reports Senior
+                    </h4>
+                </div>
+                <div class="card-body">
+                    <div class="alert alert-info">
+                        <i class="fas fa-info-circle me-2"></i>
+                        @ViewBag.Message
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <div class="card">
+                                <div class="card-header">
+                                    <h6 class="mb-0">Report Clienti</h6>
+                                </div>
+                                <div class="card-body">
+                                    <p>Statistiche e analisi dei clienti registrati nel sistema.</p>
+                                    <button class="btn btn-primary btn-sm">
+                                        <i class="fas fa-download me-1"></i>
+                                        Genera Report
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <div class="card">
+                                <div class="card-header">
+                                    <h6 class="mb-0">Report Attività</h6>
+                                </div>
+                                <div class="card-body">
+                                    <p>Analisi delle attività e operazioni del sistema.</p>
+                                    <button class="btn btn-success btn-sm">
+                                        <i class="fas fa-download me-1"></i>
+                                        Genera Report
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-12">
+                            <h6>Funzionalità Avanzate Senior</h6>
+                            <div class="table-responsive">
+                                <table class="table table-striped">
+                                    <thead>
+                                        <tr>
+                                            <th>Report</th>
+                                            <th>Descrizione</th>
+                                            <th>Accesso</th>
+                                            <th>Azioni</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td>Analytics Avanzate</td>
+                                            <td>Analisi completa dei dati di sistema</td>
+                                            <td><span class="badge bg-success">Disponibile</span></td>
+                                            <td>
+                                                <button class="btn btn-outline-primary btn-sm">Visualizza</button>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td>Export Dati</td>
+                                            <td>Esportazione completa database</td>
+                                            <td><span class="badge bg-success">Disponibile</span></td>
+                                            <td>
+                                                <button class="btn btn-outline-success btn-sm">Esporta</button>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td>Report Personalizzati</td>
+                                            <td>Creazione di report su misura</td>
+                                            <td><span class="badge bg-success">Disponibile</span></td>
+                                            <td>
+                                                <button class="btn btn-outline-info btn-sm">Crea</button>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,167 @@
+@{
+    ViewData["Title"] = "Report Avanzati";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item active" aria-current="page">Report Avanzati</li>
+                </ol>
+            </nav>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header bg-warning text-dark">
+                    <h4 class="mb-0">
+                        <i class="fas fa-chart-bar me-2"></i>
+                        Report Avanzati - Area Riservata
+                    </h4>
+                </div>
+                <div class="card-body">
+                    <div class="alert alert-success">
+                        <i class="fas fa-check-circle me-2"></i>
+                        @ViewBag.Message
+                    </div>
+
+                    <div class="alert alert-info">
+                        <i class="fas fa-info-circle me-2"></i>
+                        <strong>Accesso autorizzato:</strong> Sei abilitato a visualizzare i report avanzati in quanto utente Senior o Administrator.
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <div class="card border-primary">
+                                <div class="card-header bg-primary text-white">
+                                    <h6 class="mb-0">Analytics Completa</h6>
+                                </div>
+                                <div class="card-body">
+                                    <p>Analisi dettagliata di tutte le attività del sistema con metriche avanzate.</p>
+                                    <ul class="list-unstyled small">
+                                        <li><i class="fas fa-check text-success me-2"></i>Trend temporali</li>
+                                        <li><i class="fas fa-check text-success me-2"></i>Comparazioni periodiche</li>
+                                        <li><i class="fas fa-check text-success me-2"></i>Proiezioni future</li>
+                                    </ul>
+                                    <button class="btn btn-primary btn-sm">
+                                        <i class="fas fa-chart-line me-1"></i>
+                                        Genera Report
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <div class="card border-success">
+                                <div class="card-header bg-success text-white">
+                                    <h6 class="mb-0">Export Avanzato</h6>
+                                </div>
+                                <div class="card-body">
+                                    <p>Esportazione completa dei dati con formattazione personalizzata.</p>
+                                    <ul class="list-unstyled small">
+                                        <li><i class="fas fa-check text-success me-2"></i>Formati multipli (PDF, Excel, CSV)</li>
+                                        <li><i class="fas fa-check text-success me-2"></i>Filtri avanzati</li>
+                                        <li><i class="fas fa-check text-success me-2"></i>Schedulazione automatica</li>
+                                    </ul>
+                                    <button class="btn btn-success btn-sm">
+                                        <i class="fas fa-download me-1"></i>
+                                        Configura Export
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-12">
+                            <div class="card">
+                                <div class="card-header">
+                                    <h6 class="mb-0">Dashboard Metriche Avanzate</h6>
+                                </div>
+                                <div class="card-body">
+                                    <div class="row">
+                                        <div class="col-md-3 text-center">
+                                            <div class="border rounded p-3 mb-3">
+                                                <h3 class="text-primary">1,247</h3>
+                                                <small class="text-muted">Operazioni Totali</small>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-3 text-center">
+                                            <div class="border rounded p-3 mb-3">
+                                                <h3 class="text-success">98.5%</h3>
+                                                <small class="text-muted">Uptime Sistema</small>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-3 text-center">
+                                            <div class="border rounded p-3 mb-3">
+                                                <h3 class="text-info">156</h3>
+                                                <small class="text-muted">Utenti Attivi</small>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-3 text-center">
+                                            <div class="border rounded p-3 mb-3">
+                                                <h3 class="text-warning">12.3GB</h3>
+                                                <small class="text-muted">Dati Processati</small>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <hr>
+
+                                    <h6>Report Personalizzati</h6>
+                                    <div class="table-responsive">
+                                        <table class="table table-striped">
+                                            <thead>
+                                                <tr>
+                                                    <th>Nome Report</th>
+                                                    <th>Tipo</th>
+                                                    <th>Ultimo Aggiornamento</th>
+                                                    <th>Stato</th>
+                                                    <th>Azioni</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                <tr>
+                                                    <td>Report Mensile Attività</td>
+                                                    <td><span class="badge bg-primary">Analytics</span></td>
+                                                    <td>Oggi, 08:30</td>
+                                                    <td><span class="badge bg-success">Aggiornato</span></td>
+                                                    <td>
+                                                        <button class="btn btn-outline-primary btn-sm">Visualizza</button>
+                                                        <button class="btn btn-outline-success btn-sm">Download</button>
+                                                    </td>
+                                                </tr>
+                                                <tr>
+                                                    <td>Analisi Performance</td>
+                                                    <td><span class="badge bg-info">Performance</span></td>
+                                                    <td>Ieri, 23:45</td>
+                                                    <td><span class="badge bg-warning">In Elaborazione</span></td>
+                                                    <td>
+                                                        <button class="btn btn-outline-secondary btn-sm" disabled>In Attesa</button>
+                                                    </td>
+                                                </tr>
+                                                <tr>
+                                                    <td>Report Sicurezza</td>
+                                                    <td><span class="badge bg-danger">Security</span></td>
+                                                    <td>2 giorni fa</td>
+                                                    <td><span class="badge bg-success">Completato</span></td>
+                                                    <td>
+                                                        <button class="btn btn-outline-primary btn-sm">Visualizza</button>
+                                                        <button class="btn btn-outline-success btn-sm">Download</button>
+                                                    </td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

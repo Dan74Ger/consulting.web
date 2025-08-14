@@ -1,0 +1,476 @@
+@model ConsultingGroup.Models.Cliente
+
+@{
+    ViewData["Title"] = "Dettagli Cliente";
+}
+
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <div>
+                    <h2><i class="fas fa-user me-2 text-info"></i>Dettagli Cliente</h2>
+                    <p class="text-muted mb-0">Visualizza i dettagli completi del cliente: <strong>@Model.NomeCliente</strong></p>
+                </div>
+                <div>
+                    <a asp-action="Index" class="btn btn-secondary">
+                        <i class="fas fa-arrow-left me-1"></i>Torna all'Elenco
+                    </a>
+                    <a asp-action="Edit" asp-route-id="@Model.IdCliente" class="btn btn-primary">
+                        <i class="fas fa-edit me-1"></i>Modifica
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-8">
+            <!-- Informazioni Anagrafiche -->
+            <div class="card mb-4">
+                <div class="card-header bg-secondary text-white">
+                    <h5 class="card-title mb-0">
+                        <i class="fas fa-id-card me-2"></i>Informazioni Anagrafiche
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label text-muted fw-bold">
+                                <i class="fas fa-hashtag me-1"></i>ID Cliente
+                            </label>
+                            <div class="form-control-plaintext">@Model.IdCliente</div>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label text-muted fw-bold">
+                                <i class="fas fa-user me-1"></i>Nome Cliente
+                            </label>
+                            <div class="form-control-plaintext fs-5 fw-bold text-secondary">@Model.NomeCliente</div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label text-muted fw-bold">
+                                <i class="fas fa-envelope me-1"></i>Email
+                            </label>
+                            <div class="form-control-plaintext">
+                                @if (!string.IsNullOrEmpty(Model.MailCliente))
+                                {
+                                    <a href="mailto:@Model.MailCliente">@Model.MailCliente</a>
+                                }
+                                else
+                                {
+                                    <span class="text-muted">Non specificata</span>
+                                }
+                            </div>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label text-muted fw-bold">
+                                <i class="fas fa-industry me-1"></i>Codice ATECO
+                                <span class="badge bg-primary ms-1">MASTER</span>
+                            </label>
+                            <div class="form-control-plaintext">
+                                @if (!string.IsNullOrEmpty(Model.CodiceAteco))
+                                {
+                                    <span class="badge bg-info fs-6">@Model.CodiceAteco</span>
+                                }
+                                else
+                                {
+                                    <span class="text-muted">Non specificato</span>
+                                }
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Relazioni -->
+            <div class="card mb-4">
+                <div class="card-header bg-info text-white">
+                    <h5 class="card-title mb-0">
+                        <i class="fas fa-link me-2"></i>Relazioni e Assegnazioni
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label text-muted fw-bold">
+                                <i class="fas fa-cogs me-1"></i>Programma
+                            </label>
+                            <div class="form-control-plaintext">
+                                @if (Model.Programma != null)
+                                {
+                                    <span class="badge bg-success">@Model.Programma.NomeProgramma</span>
+                                }
+                                else
+                                {
+                                    <span class="text-muted">Non assegnato</span>
+                                }
+                            </div>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label text-muted fw-bold">
+                                <i class="fas fa-user-tie me-1"></i>Professionista
+                            </label>
+                            <div class="form-control-plaintext">
+                                @if (Model.Professionista != null)
+                                {
+                                    <span class="badge bg-info">@Model.Professionista.Nome @Model.Professionista.Cognome</span>
+                                }
+                                else
+                                {
+                                    <span class="text-muted">Non assegnato</span>
+                                }
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label text-muted fw-bold">
+                                <i class="fas fa-balance-scale me-1"></i>Regime Contabile
+                            </label>
+                            <div class="form-control-plaintext">
+                                @if (Model.RegimeContabile != null)
+                                {
+                                    <span class="badge bg-secondary">@Model.RegimeContabile.NomeRegime</span>
+                                }
+                                else
+                                {
+                                    <span class="text-muted">Non specificato</span>
+                                }
+                            </div>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label text-muted fw-bold">
+                                <i class="fas fa-id-card me-1"></i>Tipologia INPS
+                            </label>
+                            <div class="form-control-plaintext">
+                                @if (Model.TipologiaInps != null)
+                                {
+                                    <span class="badge bg-info">@Model.TipologiaInps.Tipologia</span>
+                                }
+                                else
+                                {
+                                    <span class="text-muted">Non specificata</span>
+                                }
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Configurazione Operativa -->
+            <div class="card mb-4">
+                <div class="card-header bg-warning text-dark">
+                    <h5 class="card-title mb-0">
+                        <i class="fas fa-cog me-2"></i>Configurazione Operativa
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label text-muted fw-bold">
+                                <i class="fas fa-calculator me-1"></i>Gestione Contabilità
+                            </label>
+                            <div class="form-control-plaintext">
+                                @if (Model.Contabilita)
+                                {
+                                    <span class="badge bg-success">Interna</span>
+                                }
+                                else
+                                {
+                                    <span class="badge bg-secondary">Esterna</span>
+                                }
+                            </div>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label text-muted fw-bold">
+                                <i class="fas fa-calendar me-1"></i>Periodicità
+                            </label>
+                            <div class="form-control-plaintext">
+                                @if (Model.PeriodoContabilita)
+                                {
+                                    <span class="badge bg-primary">Mensile</span>
+                                }
+                                else
+                                {
+                                    <span class="badge bg-info">Trimestrale</span>
+                                }
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Attività e Servizi -->
+            <div class="card mb-4">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="card-title mb-0">
+                        <i class="fas fa-tasks me-2"></i>Attività e Servizi Associati
+                    </h5>
+                </div>
+                <div class="card-body">
+                    
+                    <!-- ATTIVITÀ REDDITI -->
+                    <div class="mb-4">
+                        <h6 class="text-danger fw-bold border-bottom border-danger pb-2 mb-3">
+                            <i class="fas fa-file-invoice-dollar me-2"></i>ATTIVITÀ REDDITI
+                        </h6>
+                        <div class="d-flex flex-wrap gap-2">
+                            @if (Model.Mod730) { <span class="badge bg-danger">Mod. 730</span> }
+                            @if (Model.Mod740) { <span class="badge bg-danger">Mod. 740</span> }
+                            @if (Model.Mod750) { <span class="badge bg-danger">Mod. 750</span> }
+                            @if (Model.Mod760) { <span class="badge bg-danger">Mod. 760</span> }
+                            @if (Model.Mod770) { <span class="badge bg-danger">Mod. 770</span> }
+                            @if (Model.ModCu) { <span class="badge bg-danger">Mod. CU</span> }
+                            @if (Model.ModEnc) { <span class="badge bg-danger">Mod. ENC</span> }
+                            @if (Model.ModIrap) { <span class="badge bg-danger">Mod. IRAP</span> }
+                            @{
+                                var attivitaRedditi = new[] { Model.Mod730, Model.Mod740, Model.Mod750, Model.Mod760, Model.Mod770, Model.ModCu, Model.ModEnc, Model.ModIrap };
+                                if (!attivitaRedditi.Any(a => a))
+                                {
+                                    <span class="text-muted">Nessuna attività redditi selezionata</span>
+                                }
+                            }
+                        </div>
+                    </div>
+
+                    <!-- ATTIVITÀ IVA -->
+                    <div class="mb-4">
+                        <h6 class="text-warning fw-bold border-bottom border-warning pb-2 mb-3">
+                            <i class="fas fa-percent me-2"></i>ATTIVITÀ IVA
+                        </h6>
+                        <div class="d-flex flex-wrap gap-2">
+                            @if (Model.Driva) { <span class="badge bg-warning text-dark">DRIVA</span> }
+                            @if (Model.Lipe) { <span class="badge bg-warning text-dark">LIPE</span> }
+                            @if (Model.ModTrIva) { <span class="badge bg-warning text-dark">Mod. TR IVA</span> }
+                            @{
+                                var attivitaIva = new[] { Model.Driva, Model.Lipe, Model.ModTrIva };
+                                if (!attivitaIva.Any(a => a))
+                                {
+                                    <span class="text-muted">Nessuna attività IVA selezionata</span>
+                                }
+                            }
+                        </div>
+                    </div>
+
+                    <!-- ATTIVITÀ CONTABILE -->
+                    <div class="mb-3">
+                        <h6 class="text-success fw-bold border-bottom border-success pb-2 mb-3">
+                            <i class="fas fa-book me-2"></i>ATTIVITÀ CONTABILE
+                        </h6>
+                        <div class="d-flex flex-wrap gap-2">
+                            @if (Model.Inail) { <span class="badge bg-success">INAIL</span> }
+                            @if (Model.CassettoFiscale) { <span class="badge bg-success">Cassetto Fiscale</span> }
+                            @if (Model.FatturazioneElettronicaTs) { <span class="badge bg-success">Fatturazione Elettronica TS</span> }
+                            @if (Model.Conservazione) { <span class="badge bg-success">Conservazione</span> }
+                            @if (Model.Imu) { <span class="badge bg-success">IMU</span> }
+                            @if (Model.RegIva) { <span class="badge bg-success">Registro IVA</span> }
+                            @if (Model.RegCespiti) { <span class="badge bg-success">Registro Cespiti</span> }
+                            @if (Model.Inventari) { <span class="badge bg-success">Inventari</span> }
+                            @if (Model.LibroGiornale) { <span class="badge bg-success">Libro Giornale</span> }
+                            @if (Model.LettereIntento) { <span class="badge bg-success">Lettere d'Intento</span> }
+                            @if (Model.ModIntrastat) { <span class="badge bg-success">Mod. INTRASTAT</span> }
+                            @if (Model.FirmaDigitale) { <span class="badge bg-success">Firma Digitale</span> }
+                            @if (Model.TitolareEffettivo) { <span class="badge bg-success">Titolare Effettivo</span> }
+                            @{
+                                var attivitaContabile = new[] { Model.Inail, Model.CassettoFiscale, Model.FatturazioneElettronicaTs, Model.Conservazione, Model.Imu, Model.RegIva, Model.RegCespiti, Model.Inventari, Model.LibroGiornale, Model.LettereIntento, Model.ModIntrastat, Model.FirmaDigitale, Model.TitolareEffettivo };
+                                if (!attivitaContabile.Any(a => a))
+                                {
+                                    <span class="text-muted">Nessuna attività contabile selezionata</span>
+                                }
+                            }
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Informazioni di Stato -->
+            <div class="card mb-4">
+                <div class="card-header bg-light">
+                    <h5 class="card-title mb-0">
+                        <i class="fas fa-info-circle me-2"></i>Stato e Date
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label text-muted fw-bold">
+                                <i class="fas fa-toggle-on me-1"></i>Stato
+                            </label>
+                            <div>
+                                @if (Model.Attivo)
+                                {
+                                    <span class="badge bg-success fs-6">
+                                        <i class="fas fa-check me-1"></i>Attivo
+                                    </span>
+                                }
+                                else
+                                {
+                                    <span class="badge bg-warning text-dark fs-6">
+                                        <i class="fas fa-pause me-1"></i>Cessato
+                                    </span>
+                                }
+                            </div>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label text-muted fw-bold">
+                                <i class="fas fa-calendar-plus me-1"></i>Data Attivazione
+                            </label>
+                            <div class="form-control-plaintext">
+                                <i class="fas fa-calendar me-1 text-success"></i>
+                                @Model.DataAttivazione.ToString("dd/MM/yyyy") alle @Model.DataAttivazione.ToString("HH:mm")
+                            </div>
+                        </div>
+                    </div>
+
+                    @if (Model.DataCessazione.HasValue)
+                    {
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label text-muted fw-bold">
+                                    <i class="fas fa-calendar-times me-1"></i>Data Cessazione
+                                </label>
+                                <div class="form-control-plaintext text-warning">
+                                    <i class="fas fa-calendar me-1 text-warning"></i>
+                                    @Model.DataCessazione?.ToString("dd/MM/yyyy") alle @Model.DataCessazione?.ToString("HH:mm")
+                                </div>
+                            </div>
+                        </div>
+                    }
+
+                    @if (Model.AnnoFiscaleRiattivazione != null || Model.DataRiattivazione.HasValue)
+                    {
+                        <div class="row">
+                            @if (Model.AnnoFiscaleRiattivazione != null)
+                            {
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label text-muted fw-bold">
+                                        <i class="fas fa-calendar-alt me-1"></i>Anno Fiscale Riattivazione
+                                    </label>
+                                    <div class="form-control-plaintext">
+                                        <span class="badge bg-info fs-6">
+                                            @Model.AnnoFiscaleRiattivazione.Anno - @Model.AnnoFiscaleRiattivazione.Descrizione
+                                        </span>
+                                    </div>
+                                </div>
+                            }
+                            @if (Model.DataRiattivazione.HasValue)
+                            {
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label text-muted fw-bold">
+                                        <i class="fas fa-redo me-1"></i>Data Riattivazione
+                                    </label>
+                                    <div class="form-control-plaintext text-info">
+                                        <i class="fas fa-calendar me-1 text-info"></i>
+                                        @Model.DataRiattivazione?.ToString("dd/MM/yyyy") alle @Model.DataRiattivazione?.ToString("HH:mm")
+                                    </div>
+                                </div>
+                            }
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+
+        <!-- Azioni rapide -->
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-header bg-light">
+                    <h5 class="card-title mb-0">
+                        <i class="fas fa-tools me-2"></i>Azioni Rapide
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="d-grid gap-2">
+                        <a asp-action="Edit" asp-route-id="@Model.IdCliente" class="btn btn-primary">
+                            <i class="fas fa-edit me-2"></i>Modifica Cliente
+                        </a>
+                        
+                        <form asp-action="ToggleStatus" asp-route-id="@Model.IdCliente" method="post">
+                            @Html.AntiForgeryToken()
+                            <button type="submit" 
+                                    class="btn btn-@(Model.Attivo ? "warning" : "success") w-100"
+                                    onclick="return confirm('@(Model.Attivo ? "Vuoi davvero cessare questo cliente?" : "Vuoi davvero riattivare questo cliente?")')">
+                                <i class="fas fa-@(Model.Attivo ? "pause" : "play") me-2"></i>
+                                @(Model.Attivo ? "Cessa Cliente" : "Riattiva Cliente")
+                            </button>
+                        </form>
+
+                        <hr>
+
+                        <form asp-action="DeleteConfirmed" asp-route-id="@Model.IdCliente" method="post">
+                            @Html.AntiForgeryToken()
+                            <button type="submit" 
+                                    class="btn btn-outline-danger w-100"
+                                    onclick="return confirm('Vuoi davvero eliminare questo cliente? Questa azione non può essere annullata.')">
+                                <i class="fas fa-trash me-2"></i>Elimina Cliente
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Riepilogo Attività -->
+            <div class="card mt-3">
+                <div class="card-header bg-light">
+                    <h6 class="card-title mb-0">
+                        <i class="fas fa-chart-pie me-2"></i>Riepilogo Attività
+                    </h6>
+                </div>
+                <div class="card-body">
+                    @{
+                        var totRedditi = (new[] { Model.Mod730, Model.Mod740, Model.Mod750, Model.Mod760, Model.Mod770, Model.ModCu, Model.ModEnc, Model.ModIrap }).Count(a => a);
+                        var totIva = (new[] { Model.Driva, Model.Lipe, Model.ModTrIva }).Count(a => a);
+                        var totContabile = (new[] { Model.Inail, Model.CassettoFiscale, Model.FatturazioneElettronicaTs, Model.Conservazione, Model.Imu, Model.RegIva, Model.RegCespiti, Model.Inventari, Model.LibroGiornale, Model.LettereIntento, Model.ModIntrastat, Model.FirmaDigitale, Model.TitolareEffettivo }).Count(a => a);
+                    }
+                    
+                    <div class="mb-2">
+                        <span class="badge bg-danger me-2">Redditi: @totRedditi/8</span>
+                    </div>
+                    <div class="mb-2">
+                        <span class="badge bg-warning text-dark me-2">IVA: @totIva/3</span>
+                    </div>
+                    <div class="mb-2">
+                        <span class="badge bg-success me-2">Contabile: @totContabile/13</span>
+                    </div>
+                    <hr class="my-2">
+                    <div>
+                        <strong>Totale: @(totRedditi + totIva + totContabile)/24</strong>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Informazioni di sistema -->
+            <div class="card mt-3">
+                <div class="card-header bg-light">
+                    <h6 class="card-title mb-0">
+                        <i class="fas fa-cog me-2"></i>Informazioni Sistema
+                    </h6>
+                </div>
+                <div class="card-body">
+                    @if (Model.CreatedAt.HasValue)
+                    {
+                        <small class="text-muted d-block mb-1">
+                            <i class="fas fa-plus-circle me-1"></i>
+                            Creato: @Model.CreatedAt?.ToString("dd/MM/yyyy HH:mm")
+                        </small>
+                    }
+                    @if (Model.UpdatedAt.HasValue)
+                    {
+                        <small class="text-muted d-block">
+                            <i class="fas fa-edit me-1"></i>
+                            Aggiornato: @Model.UpdatedAt?.ToString("dd/MM/yyyy HH:mm")
+                        </small>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+
+
+

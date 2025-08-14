@@ -1,0 +1,342 @@
+@model ConsultingGroup.ViewModels.ProgrammiIndexViewModel
+
+@{
+    ViewData["Title"] = "Gestione Programmi";
+}
+
+<div class="container-fluid">
+    <!-- Header della pagina -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h2><i class="fas fa-cogs text-primary me-2"></i>Gestione Programmi</h2>
+            <p class="text-muted mb-0">Gestisci i programmi utilizzati nello studio</p>
+        </div>
+        <a asp-action="Create" class="btn btn-primary">
+            <i class="fas fa-plus me-1"></i>Nuovo Programma
+        </a>
+    </div>
+
+    <!-- Statistiche -->
+    <div class="row mb-4">
+        <div class="col-md-3">
+            <div class="card bg-success text-white">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <h5 class="card-title">Programmi Attivi</h5>
+                            <h3>@Model.TotaleAttivi</h3>
+                        </div>
+                        <div class="align-self-center">
+                            <i class="fas fa-check-circle fa-2x"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-danger text-white">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <h5 class="card-title">Programmi Cessati</h5>
+                            <h3>@Model.TotaleCessati</h3>
+                        </div>
+                        <div class="align-self-center">
+                            <i class="fas fa-times-circle fa-2x"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-warning text-white">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <h5 class="card-title">Programmi Riattivati</h5>
+                            <h3>@Model.TotaleRiattivati</h3>
+                        </div>
+                        <div class="align-self-center">
+                            <i class="fas fa-redo fa-2x"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-info text-white">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <h5 class="card-title">Totale Programmi</h5>
+                            <h3>@(Model.TotaleAttivi + Model.TotaleCessati)</h3>
+                        </div>
+                        <div class="align-self-center">
+                            <i class="fas fa-list fa-2x"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Filtri e Ricerca -->
+    <div class="card mb-4">
+        <div class="card-body">
+            <form method="get" class="row g-3">
+                <div class="col-md-4">
+                    <label class="form-label">Filtra per Stato</label>
+                    <select name="filtroStato" class="form-select" onchange="this.form.submit()">
+                        <option value="tutti" selected="@(Model.FiltroStato == "tutti")">Tutti i Programmi</option>
+                        <option value="attivi" selected="@(Model.FiltroStato == "attivi")">Solo Attivi</option>
+                        <option value="cessati" selected="@(Model.FiltroStato == "cessati")">Solo Cessati</option>
+                        <option value="riattivati" selected="@(Model.FiltroStato == "riattivati")">Solo Riattivati</option>
+                    </select>
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label">Ricerca per Nome</label>
+                    <input name="ricerca" type="text" class="form-control" placeholder="Cerca programma..." value="@Model.Ricerca">
+                </div>
+                <div class="col-md-2">
+                    <label class="form-label">&nbsp;</label>
+                    <button type="submit" class="btn btn-outline-primary d-block w-100">
+                        <i class="fas fa-search me-1"></i>Cerca
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Tabella Programmi -->
+    <div class="card">
+        <div class="card-body">
+            @if (Model.Programmi.Any())
+            {
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead class="table-dark">
+                            <tr>
+                                <th>Nome Programma</th>
+                                <th>Stato</th>
+                                <th>Data Attivazione</th>
+                                <th>Ultima Modifica</th>
+                                <th>Data Cessazione</th>
+                                <th class="text-center">Azioni</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var programma in Model.Programmi)
+                            {
+                                <tr>
+                                    <td>
+                                        <strong>@programma.NomeProgramma</strong>
+                                        @if (programma.IsRiattivato)
+                                        {
+                                            <small class="text-muted d-block">Anno Riattivazione: @programma.RiattivatoperAnno</small>
+                                        }
+                                    </td>
+                                    <td>
+                                        <span class="badge bg-@programma.StatoClasse">
+                                            <i class="@programma.StatoIcona me-1"></i>@programma.StatoDescrizione
+                                        </span>
+                                    </td>
+                                    <td>
+                                        @if (programma.DataAttivazione.HasValue)
+                                        {
+                                            @programma.DataAttivazione.Value.ToString("dd/MM/yyyy HH:mm")
+                                        }
+                                        else
+                                        {
+                                            <span class="text-muted">-</span>
+                                        }
+                                    </td>
+                                    <td>
+                                        @if (programma.DataModifica.HasValue)
+                                        {
+                                            @programma.DataModifica.Value.ToString("dd/MM/yyyy HH:mm")
+                                        }
+                                        else
+                                        {
+                                            <span class="text-muted">-</span>
+                                        }
+                                    </td>
+                                    <td>
+                                        @if (programma.DataCessazione.HasValue)
+                                        {
+                                            @programma.DataCessazione.Value.ToString("dd/MM/yyyy HH:mm")
+                                        }
+                                        else
+                                        {
+                                            <span class="text-muted">-</span>
+                                        }
+                                    </td>
+                                    <td class="text-center">
+                                        <div class="btn-group" role="group">
+                                            <a asp-action="Details" asp-route-id="@programma.Id" 
+                                               class="btn btn-sm btn-outline-info" title="Dettagli">
+                                                <i class="fas fa-eye"></i>
+                                            </a>
+                                            <a asp-action="Edit" asp-route-id="@programma.Id" 
+                                               class="btn btn-sm btn-outline-warning" title="Modifica">
+                                                <i class="fas fa-edit"></i>
+                                            </a>
+                                            <button type="button" class="btn btn-sm btn-outline-@(programma.Attivo ? "secondary" : "success")" 
+                                                    data-bs-toggle="modal" data-bs-target="#toggleModal" 
+                                                    data-id="@programma.Id" data-nome="@programma.NomeProgramma" 
+                                                    data-azione="@(programma.Attivo ? "disattivare" : "attivare")"
+                                                    title="@(programma.Attivo ? "Disattiva" : "Attiva")">
+                                                <i class="fas fa-@(programma.Attivo ? "pause" : "play")"></i>
+                                            </button>
+                                            @if (!programma.Attivo)
+                                            {
+                                                <button type="button" class="btn btn-sm btn-outline-success" 
+                                                        data-bs-toggle="modal" data-bs-target="#riattivaModal" 
+                                                        data-id="@programma.Id" data-nome="@programma.NomeProgramma"
+                                                        title="Riattiva">
+                                                    <i class="fas fa-redo"></i>
+                                                </button>
+                                            }
+                                            <button type="button" class="btn btn-sm btn-outline-danger" 
+                                                    data-bs-toggle="modal" data-bs-target="#deleteModal" 
+                                                    data-id="@programma.Id" data-nome="@programma.NomeProgramma"
+                                                    title="Elimina">
+                                                <i class="fas fa-trash"></i>
+                                            </button>
+                                        </div>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            }
+            else
+            {
+                <div class="text-center py-4">
+                    <i class="fas fa-cogs fa-3x text-muted mb-3"></i>
+                    <h5 class="text-muted">Nessun programma trovato</h5>
+                    <p class="text-muted">Non ci sono programmi che corrispondono ai criteri di ricerca.</p>
+                    <a asp-action="Create" class="btn btn-primary">
+                        <i class="fas fa-plus me-1"></i>Crea il primo programma
+                    </a>
+                </div>
+            }
+        </div>
+    </div>
+</div>
+
+<!-- Modal per Toggle Status -->
+<div class="modal fade" id="toggleModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Conferma Azione</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <p>Sei sicuro di voler <span id="azioneText"></span> il programma "<span id="nomeText"></span>"?</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annulla</button>
+                <form method="post" style="display: inline;">
+                    @Html.AntiForgeryToken()
+                    <input type="hidden" id="toggleId" name="id" />
+                    <button type="submit" class="btn btn-primary" formaction="@Url.Action("ToggleStatus")">Conferma</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal per Riattivazione -->
+<div class="modal fade" id="riattivaModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Riattiva Programma</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <form method="post" asp-action="Riattiva">
+                @Html.AntiForgeryToken()
+                <div class="modal-body">
+                    <p>Riattiva il programma "<span id="riattivaNameText"></span>" per l'anno fiscale:</p>
+                    <input type="hidden" id="riattivaId" name="id" />
+                    <div class="mb-3">
+                        <label class="form-label">Anno Fiscale</label>
+                        <select name="annoFiscale" class="form-select" required>
+                            <option value="">Seleziona anno fiscale...</option>
+                            <option value="2024">2024</option>
+                            <option value="2023">2023</option>
+                            <option value="2022">2022</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annulla</button>
+                    <button type="submit" class="btn btn-success">Riattiva</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Modal per Eliminazione -->
+<div class="modal fade" id="deleteModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Conferma Eliminazione</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <p><strong>Attenzione!</strong> Stai per eliminare definitivamente il programma "<span id="deleteNameText"></span>".</p>
+                <p class="text-danger">Questa azione non può essere annullata.</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annulla</button>
+                <form method="post" style="display: inline;">
+                    @Html.AntiForgeryToken()
+                    <input type="hidden" id="deleteId" name="id" />
+                    <button type="submit" class="btn btn-danger" formaction="@Url.Action("Delete")">Elimina Definitivamente</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        // Toggle Modal
+        $('#toggleModal').on('show.bs.modal', function (event) {
+            var button = $(event.relatedTarget);
+            var id = button.data('id');
+            var nome = button.data('nome');
+            var azione = button.data('azione');
+            
+            $('#toggleId').val(id);
+            $('#nomeText').text(nome);
+            $('#azioneText').text(azione);
+        });
+
+        // Riattiva Modal
+        $('#riattivaModal').on('show.bs.modal', function (event) {
+            var button = $(event.relatedTarget);
+            var id = button.data('id');
+            var nome = button.data('nome');
+            
+            $('#riattivaId').val(id);
+            $('#riattivaNameText').text(nome);
+        });
+
+        // Delete Modal
+        $('#deleteModal').on('show.bs.modal', function (event) {
+            var button = $(event.relatedTarget);
+            var id = button.data('id');
+            var nome = button.data('nome');
+            
+            $('#deleteId').val(id);
+            $('#deleteNameText').text(nome);
+        });
+    </script>
+}
+

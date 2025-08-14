@@ -1,0 +1,102 @@
+@model ConsultingGroup.Models.CarteCredito
+
+@{
+    ViewData["Title"] = "Elimina Carta di Credito - GESTIONE STUDIO";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="container-fluid">
+    <partial name="_Breadcrumb" model="@(new Dictionary<string, string> {
+        {"Home", Url.Action("Index", "Home") ?? ""},
+        {"Dati Riservati", Url.Action("Index", "DatiUtenza") ?? ""},
+        {"Carte di Credito", Url.Action("CarteCredito", "DatiUtenza") ?? ""},
+        {"Elimina Carta", ""}
+    })" />
+
+    <div class="row">
+        <div class="col-12">
+            <div class="card shadow mb-4">
+                <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+                    <h6 class="m-0 font-weight-bold text-danger">
+                        <i class="fas fa-trash"></i> Conferma Eliminazione Carta di Credito
+                    </h6>
+                </div>
+                <div class="card-body">
+                    <div class="alert alert-danger" role="alert">
+                        <h4 class="alert-heading">
+                            <i class="fas fa-exclamation-triangle"></i> Attenzione!
+                        </h4>
+                        <p>Sei sicuro di voler eliminare definitivamente questa carta di credito?</p>
+                        <p class="mb-0"><strong>Questa operazione non può essere annullata.</strong></p>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6">
+                            <h5 class="text-danger">Dettagli Carta da Eliminare:</h5>
+                            <dl class="row">
+                                <dt class="col-sm-4">Numero Carta:</dt>
+                                <dd class="col-sm-8">
+                                    <span class="text-monospace">
+                                        @if (!string.IsNullOrEmpty(Model.NumeroCarta) && Model.NumeroCarta.Length > 4)
+                                        {
+                                            @($"**** **** **** {Model.NumeroCarta.Substring(Model.NumeroCarta.Length - 4)}")
+                                        }
+                                        else
+                                        {
+                                            @Html.DisplayFor(model => model.NumeroCarta)
+                                        }
+                                    </span>
+                                </dd>
+
+                                <dt class="col-sm-4">Intestazione:</dt>
+                                <dd class="col-sm-8">@Html.DisplayFor(model => model.Intestazione)</dd>
+
+                                <dt class="col-sm-4">Scadenza:</dt>
+                                <dd class="col-sm-8">
+                                    @($"{Model.MeseScadenza:00}/{Model.AnnoScadenza}")
+                                </dd>
+
+                                @if (!string.IsNullOrEmpty(Model.Note))
+                                {
+                                    <dt class="col-sm-4">Note:</dt>
+                                    <dd class="col-sm-8">@Html.DisplayFor(model => model.Note)</dd>
+                                }
+
+                                <dt class="col-sm-4">Creato il:</dt>
+                                <dd class="col-sm-8">@Model.CreatedAt.ToString("dd/MM/yyyy HH:mm")</dd>
+
+                                <dt class="col-sm-4">Aggiornato il:</dt>
+                                <dd class="col-sm-8">@Model.UpdatedAt.ToString("dd/MM/yyyy HH:mm")</dd>
+                            </dl>
+                        </div>
+                    </div>
+
+                    <hr />
+
+                    <form asp-action="DeleteCarta" method="post" class="d-inline">
+                        <input type="hidden" asp-for="Id" />
+                        <div class="form-group">
+                            <button type="submit" class="btn btn-danger">
+                                <i class="fas fa-trash"></i> Sì, Elimina Definitivamente
+                            </button>
+                            <a class="btn btn-secondary ml-2" asp-action="CarteCredito">
+                                <i class="fas fa-times"></i> Annulla
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    $(document).ready(function() {
+        $('form').on('submit', function(e) {
+            if (!confirm('Sei sicuro di voler eliminare definitivamente questa carta di credito? Questa operazione non può essere annullata.')) {
+                e.preventDefault();
+                return false;
+            }
+        });
+    });
+</script>

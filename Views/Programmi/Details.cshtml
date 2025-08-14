@@ -1,0 +1,424 @@
+@model ConsultingGroup.ViewModels.ProgrammiViewModel
+
+@{
+    ViewData["Title"] = "Dettagli Programma";
+}
+
+<div class="container-fluid">
+    <!-- Header della pagina -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h2><i class="fas fa-cogs text-primary me-2"></i>Dettagli Programma</h2>
+            <p class="text-muted mb-0">Informazioni complete del programma "@Model.NomeProgramma"</p>
+        </div>
+        <div class="btn-group">
+            <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-warning">
+                <i class="fas fa-edit me-1"></i>Modifica
+            </a>
+            <a asp-action="Index" class="btn btn-outline-secondary">
+                <i class="fas fa-arrow-left me-1"></i>Torna alla Lista
+            </a>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-lg-8">
+            <!-- Informazioni Principali -->
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">
+                        <i class="fas fa-info-circle me-2"></i>Informazioni Principali
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label text-muted">Nome Programma</label>
+                                <p class="fs-5 fw-bold">@Model.NomeProgramma</p>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label text-muted">Stato Attuale</label>
+                                <p>
+                                    <span class="badge bg-@Model.StatoClasse fs-6">
+                                        <i class="@Model.StatoIcona me-1"></i>@Model.StatoDescrizione
+                                    </span>
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+
+                    @if (Model.IsRiattivato)
+                    {
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label class="form-label text-muted">Anno Fiscale Riattivazione</label>
+                                    <p class="fs-6 fw-bold text-warning">@Model.RiattivatoperAnno</p>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label class="form-label text-muted">Data Riattivazione</label>
+                                    <p class="fs-6">
+                                        @if (Model.DataRiattivazione.HasValue)
+                                        {
+                                            @Model.DataRiattivazione.Value.ToString("dd/MM/yyyy HH:mm")
+                                        }
+                                        else
+                                        {
+                                            <span class="text-muted">Non disponibile</span>
+                                        }
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    }
+                </div>
+            </div>
+
+            <!-- Timeline Date -->
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">
+                        <i class="fas fa-history me-2"></i>Cronologia Date
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="timeline">
+                        <!-- Data Creazione -->
+                        <div class="timeline-item">
+                            <div class="timeline-marker bg-primary"></div>
+                            <div class="timeline-content">
+                                <h6 class="timeline-title">Creazione Programma</h6>
+                                <p class="timeline-description">
+                                    Il programma è stato creato nel sistema
+                                </p>
+                                <small class="text-muted">
+                                    <i class="fas fa-calendar me-1"></i>
+                                    @if (Model.CreatedAt != default(DateTime))
+                                    {
+                                        @Model.CreatedAt.ToString("dd/MM/yyyy HH:mm")
+                                    }
+                                    else
+                                    {
+                                        <span class="text-muted">Non disponibile</span>
+                                    }
+                                </small>
+                            </div>
+                        </div>
+
+                        <!-- Data Attivazione -->
+                        <div class="timeline-item">
+                            <div class="timeline-marker bg-success"></div>
+                            <div class="timeline-content">
+                                <h6 class="timeline-title">Attivazione</h6>
+                                <p class="timeline-description">
+                                    Il programma è stato attivato per l'uso
+                                </p>
+                                <small class="text-muted">
+                                    <i class="fas fa-calendar me-1"></i>
+                                    @if (Model.DataAttivazione.HasValue)
+                                    {
+                                        @Model.DataAttivazione.Value.ToString("dd/MM/yyyy HH:mm")
+                                    }
+                                    else
+                                    {
+                                        <span class="text-muted">Non disponibile</span>
+                                    }
+                                </small>
+                            </div>
+                        </div>
+
+                        @if (Model.DataCessazione.HasValue)
+                        {
+                            <!-- Data Cessazione -->
+                            <div class="timeline-item">
+                                <div class="timeline-marker bg-danger"></div>
+                                <div class="timeline-content">
+                                    <h6 class="timeline-title">Cessazione</h6>
+                                    <p class="timeline-description">
+                                        Il programma è stato disattivato
+                                    </p>
+                                    <small class="text-muted">
+                                        <i class="fas fa-calendar me-1"></i>@Model.DataCessazione.Value.ToString("dd/MM/yyyy HH:mm")
+                                    </small>
+                                </div>
+                            </div>
+                        }
+
+                        @if (Model.IsRiattivato && Model.DataRiattivazione.HasValue)
+                        {
+                            <!-- Data Riattivazione -->
+                            <div class="timeline-item">
+                                <div class="timeline-marker bg-warning"></div>
+                                <div class="timeline-content">
+                                    <h6 class="timeline-title">Riattivazione</h6>
+                                    <p class="timeline-description">
+                                        Il programma è stato riattivato per l'anno fiscale @Model.RiattivatoperAnno
+                                    </p>
+                                    <small class="text-muted">
+                                        <i class="fas fa-calendar me-1"></i>@Model.DataRiattivazione.Value.ToString("dd/MM/yyyy HH:mm")
+                                    </small>
+                                </div>
+                            </div>
+                        }
+
+                        <!-- Ultima Modifica -->
+                        <div class="timeline-item">
+                            <div class="timeline-marker bg-info"></div>
+                            <div class="timeline-content">
+                                <h6 class="timeline-title">Ultima Modifica</h6>
+                                <p class="timeline-description">
+                                    Ultima modifica alle informazioni del programma
+                                </p>
+                                <small class="text-muted">
+                                    <i class="fas fa-calendar me-1"></i>
+                                    @if (Model.UpdatedAt != default(DateTime))
+                                    {
+                                        @Model.UpdatedAt.ToString("dd/MM/yyyy HH:mm")
+                                    }
+                                    else
+                                    {
+                                        <span class="text-muted">Non disponibile</span>
+                                    }
+                                </small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-4">
+            <!-- Azioni Rapide -->
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h6 class="card-title mb-0">
+                        <i class="fas fa-bolt me-2"></i>Azioni Rapide
+                    </h6>
+                </div>
+                <div class="card-body">
+                    <div class="d-grid gap-2">
+                        <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-warning">
+                            <i class="fas fa-edit me-1"></i>Modifica Programma
+                        </a>
+                        
+                        <button type="button" class="btn btn-@(Model.Attivo ? "secondary" : "success")" 
+                                data-bs-toggle="modal" data-bs-target="#toggleModal">
+                            <i class="fas fa-@(Model.Attivo ? "pause" : "play") me-1"></i>
+                            @(Model.Attivo ? "Disattiva" : "Attiva") Programma
+                        </button>
+
+                        @if (!Model.Attivo)
+                        {
+                            <button type="button" class="btn btn-success" 
+                                    data-bs-toggle="modal" data-bs-target="#riattivaModal">
+                                <i class="fas fa-redo me-1"></i>Riattiva Programma
+                            </button>
+                        }
+
+                        <hr>
+
+                        <button type="button" class="btn btn-outline-danger" 
+                                data-bs-toggle="modal" data-bs-target="#deleteModal">
+                            <i class="fas fa-trash me-1"></i>Elimina Programma
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Statistiche -->
+            <div class="card">
+                <div class="card-header">
+                    <h6 class="card-title mb-0">
+                        <i class="fas fa-chart-bar me-2"></i>Informazioni Tecniche
+                    </h6>
+                </div>
+                <div class="card-body">
+                    <div class="row text-center">
+                        <div class="col-6">
+                            <div class="p-2">
+                                <h5 class="text-primary">@Model.Id</h5>
+                                <small class="text-muted">ID Programma</small>
+                            </div>
+                        </div>
+                        <div class="col-6">
+                            <div class="p-2">
+                                <h5 class="text-@Model.StatoClasse">
+                                    <i class="@Model.StatoIcona"></i>
+                                </h5>
+                                <small class="text-muted">Stato</small>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <hr>
+                    
+                    <div class="mb-2">
+                        <small class="text-muted">Creato il:</small>
+                        <br>
+                        <strong>
+                            @if (Model.CreatedAt != default(DateTime))
+                            {
+                                @Model.CreatedAt.ToString("dd/MM/yyyy HH:mm")
+                            }
+                            else
+                            {
+                                <span class="text-muted">Non disponibile</span>
+                            }
+                        </strong>
+                    </div>
+                    <div class="mb-2">
+                        <small class="text-muted">Modificato il:</small>
+                        <br>
+                        <strong>
+                            @if (Model.UpdatedAt != default(DateTime))
+                            {
+                                @Model.UpdatedAt.ToString("dd/MM/yyyy HH:mm")
+                            }
+                            else
+                            {
+                                <span class="text-muted">Non disponibile</span>
+                            }
+                        </strong>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal per Toggle Status -->
+<div class="modal fade" id="toggleModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Conferma Azione</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <p>Sei sicuro di voler @(Model.Attivo ? "disattivare" : "attivare") il programma "@Model.NomeProgramma"?</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annulla</button>
+                <form method="post" style="display: inline;">
+                    @Html.AntiForgeryToken()
+                    <input type="hidden" name="id" value="@Model.Id" />
+                    <button type="submit" class="btn btn-primary" formaction="@Url.Action("ToggleStatus")">Conferma</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal per Riattivazione -->
+<div class="modal fade" id="riattivaModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Riattiva Programma</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <form method="post" asp-action="Riattiva">
+                @Html.AntiForgeryToken()
+                <div class="modal-body">
+                    <p>Riattiva il programma "@Model.NomeProgramma" per l'anno fiscale:</p>
+                    <input type="hidden" name="id" value="@Model.Id" />
+                    <div class="mb-3">
+                        <label class="form-label">Anno Fiscale</label>
+                        <select name="annoFiscale" class="form-select" required>
+                            <option value="">Seleziona anno fiscale...</option>
+                            <option value="2024">2024</option>
+                            <option value="2023">2023</option>
+                            <option value="2022">2022</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annulla</button>
+                    <button type="submit" class="btn btn-success">Riattiva</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Modal per Eliminazione -->
+<div class="modal fade" id="deleteModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Conferma Eliminazione</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <p><strong>Attenzione!</strong> Stai per eliminare definitivamente il programma "@Model.NomeProgramma".</p>
+                <p class="text-danger">Questa azione non può essere annullata.</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annulla</button>
+                <form method="post" style="display: inline;">
+                    @Html.AntiForgeryToken()
+                    <input type="hidden" name="id" value="@Model.Id" />
+                    <button type="submit" class="btn btn-danger" formaction="@Url.Action("Delete")">Elimina Definitivamente</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Styles {
+    <style>
+        .timeline {
+            position: relative;
+            padding-left: 2rem;
+        }
+
+        .timeline::before {
+            content: '';
+            position: absolute;
+            left: 0.75rem;
+            top: 0;
+            bottom: 0;
+            width: 2px;
+            background: #dee2e6;
+        }
+
+        .timeline-item {
+            position: relative;
+            margin-bottom: 2rem;
+        }
+
+        .timeline-marker {
+            position: absolute;
+            left: -1.75rem;
+            top: 0.25rem;
+            width: 0.75rem;
+            height: 0.75rem;
+            border-radius: 50%;
+            border: 2px solid #fff;
+            box-shadow: 0 0 0 2px #dee2e6;
+        }
+
+        .timeline-content {
+            background: #f8f9fa;
+            border-radius: 0.375rem;
+            padding: 1rem;
+            border-left: 3px solid #dee2e6;
+        }
+
+        .timeline-title {
+            margin-bottom: 0.5rem;
+            color: #495057;
+        }
+
+        .timeline-description {
+            margin-bottom: 0.5rem;
+            color: #6c757d;
+        }
+    </style>
+}
+

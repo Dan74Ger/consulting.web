@@ -1,0 +1,86 @@
+@model ConsultingGroup.ViewModels.ProfessionistiViewModel
+@{
+    ViewData["Title"] = "Nuovo Professionista";
+}
+
+<div class="container-fluid">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="card shadow-sm border-0">
+                <div class="card-header bg-success text-white">
+                    <h4 class="mb-0">
+                        <i class="fas fa-user-plus me-2"></i>
+                        Nuovo Professionista
+                    </h4>
+                </div>
+
+                <form asp-action="Create" method="post">
+                    <div class="card-body">
+                        <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label asp-for="Nome" class="form-label">
+                                        <i class="fas fa-user me-1"></i>Nome
+                                    </label>
+                                    <input asp-for="Nome" class="form-control" placeholder="Inserisci il nome" />
+                                    <span asp-validation-for="Nome" class="text-danger"></span>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label asp-for="Cognome" class="form-label">
+                                        <i class="fas fa-user me-1"></i>Cognome
+                                    </label>
+                                    <input asp-for="Cognome" class="form-control" placeholder="Inserisci il cognome" />
+                                    <span asp-validation-for="Cognome" class="text-danger"></span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-12">
+                                <div class="mb-3">
+                                    <label asp-for="RiattivatoPerAnno" class="form-label">
+                                        <i class="fas fa-calendar-check me-1"></i>Anno Fiscale di Riattivazione (opzionale)
+                                    </label>
+                                    <select asp-for="RiattivatoPerAnno" asp-items="Model.AnniFiscaliDisponibili" class="form-select">
+                                    </select>
+                                    <div class="form-text">
+                                        <i class="fas fa-info-circle me-1"></i>
+                                        Seleziona un anno fiscale se questo professionista viene riattivato per un anno specifico.
+                                    </div>
+                                    <span asp-validation-for="RiattivatoPerAnno" class="text-danger"></span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card-footer bg-light">
+                        <div class="d-flex justify-content-between">
+                            <a asp-action="Index" class="btn btn-outline-secondary">
+                                <i class="fas fa-arrow-left me-1"></i>Torna alla Lista
+                            </a>
+                            <div>
+                                <button type="submit" class="btn btn-success">
+                                    <i class="fas fa-save me-1"></i>Salva Professionista
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}
+
+
+
+
+
+

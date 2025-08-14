@@ -1,0 +1,96 @@
+@model ConsultingGroup.Models.UserPermissions
+
+@{
+    var isAdmin = User.IsInRole("Administrator");
+    var isSenior = User.IsInRole("UserSenior");
+    var isUser = User.IsInRole("User");
+}
+
+<!-- SISTEMA SEMPLIFICATO - MENU BASATO SU PERMESSI PERSONALIZZATI DAL DATABASE -->
+
+
+<!-- Gestione Amministrativa - Solo Admin o utenti con permesso dal database -->
+@if (isAdmin || Model.CanAccessAreaAmministrativa)
+{
+    <li class="nav-item">
+        <a asp-controller="Admin" asp-action="GestioneAmministrativa" class="nav-link">
+            <i class="fas fa-shield-alt me-2"></i> Gestione Amministrativa
+        </a>
+    </li>
+}
+
+<!-- Dati Riservati - Solo Admin o utenti con permesso dal database -->
+@if (isAdmin || Model.CanAccessDatiUtenzaRiservata)
+{
+    <li class="nav-item">
+        <a asp-controller="DatiUtenza" asp-action="Index" class="nav-link">
+            <i class="fas fa-lock me-2 text-danger"></i> Dati Riservati
+        </a>
+    </li>
+}
+
+<!-- Dati Generali - Solo se l'utente ha il permesso nel database -->
+@if (isAdmin || Model.CanAccessDatiUtenzaGenerale)
+{
+    <li class="nav-item">
+        <a asp-controller="DatiUtenzaExtra" asp-action="Index" class="nav-link">
+            <i class="fas fa-folder-open me-2 text-info"></i> Dati Generali
+        </a>
+    </li>
+}
+
+<!-- Anagrafiche - Solo se l'utente ha il permesso nel database -->
+@if (isAdmin || Model.CanAccessAnagrafiche)
+{
+    <li class="nav-item">
+        <a asp-controller="Anagrafiche" asp-action="Index" class="nav-link">
+            <i class="fas fa-address-book me-2 text-success"></i> Anagrafiche
+        </a>
+    </li>
+}
+
+<!-- Gestione Attività - Solo se l'utente ha il permesso nel database -->
+@if (isAdmin || Model.GestioneAttivita)
+{
+    <li class="nav-item">
+        <a asp-controller="GestioneAttivita" asp-action="Index" class="nav-link">
+            <i class="fas fa-tasks me-2 text-primary"></i> Gestione Attività
+        </a>
+    </li>
+}
+
+@* Reports Avanzati temporaneamente nascosti
+<!-- Reports Avanzati - Solo Admin + Senior -->
+@if (isAdmin || isSenior)
+{
+    <li class="nav-item">
+        <a asp-controller="Senior" asp-action="Reports" class="nav-link">
+            <i class="fas fa-chart-line me-2"></i> Reports Avanzati
+        </a>
+    </li>
+}
+*@
+
+@* Visualizza Dati Base temporaneamente nascosti
+<!-- Visualizza Dati Base - Solo Administrator -->
+@if (isAdmin)
+{
+    <li class="nav-item">
+        <a asp-controller="User" asp-action="ViewBasicData" class="nav-link">
+            <i class="fas fa-eye me-2"></i> Visualizza Dati
+        </a>
+    </li>
+}
+*@
+
+@* Area Riservata temporaneamente nascosta
+<!-- Area Riservata - Solo Senior + Admin -->
+@if (isAdmin || isSenior)
+{
+    <li class="nav-item">
+        <a asp-controller="User" asp-action="RestrictedArea" class="nav-link">
+            <i class="fas fa-shield-alt me-2"></i> Area Riservata
+        </a>
+    </li>
+}
+*@

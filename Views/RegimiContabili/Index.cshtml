@@ -1,0 +1,207 @@
+@model IEnumerable<ConsultingGroup.ViewModels.RegimiContabiliViewModel>
+@{
+    ViewData["Title"] = "Gestione Regimi Contabili";
+}
+
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <div class="card shadow-sm border-0">
+                <div class="card-header bg-secondary text-white">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <h4 class="mb-0">
+                            <i class="fas fa-balance-scale me-2"></i>
+                            Gestione Regimi Contabili
+                        </h4>
+                        <a asp-action="Create" class="btn btn-light">
+                            <i class="fas fa-plus me-1"></i> Nuovo Regime Contabile
+                        </a>
+                    </div>
+                </div>
+
+                <div class="card-body p-0">
+                    @if (Model.Any())
+                    {
+                        <div class="table-responsive">
+                            <table class="table table-hover mb-0">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th scope="col">
+                                            <i class="fas fa-balance-scale me-1"></i>Nome Regime
+                                        </th>
+                                        <th scope="col">
+                                            <i class="fas fa-info-circle me-1"></i>Stato
+                                        </th>
+                                        <th scope="col">
+                                            <i class="fas fa-calendar me-1"></i>Data Attivazione
+                                        </th>
+                                        <th scope="col">
+                                            <i class="fas fa-calendar-check me-1"></i>Anno Riattivazione
+                                        </th>
+                                        <th scope="col" class="text-center">
+                                            <i class="fas fa-cogs me-1"></i>Azioni
+                                        </th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var regime in Model)
+                                    {
+                                        <tr>
+                                            <td>
+                                                <div class="d-flex align-items-center">
+                                                    <div class="avatar-sm rounded-circle bg-secondary text-white d-flex align-items-center justify-content-center me-2">
+                                                        <i class="fas fa-balance-scale"></i>
+                                                    </div>
+                                                    <div>
+                                                        <strong>@regime.NomeRegime</strong>
+                                                    </div>
+                                                </div>
+                                            </td>
+                                            <td>
+                                                <span class="badge bg-@regime.StatoCssClass">
+                                                    @regime.StatoDescrizione
+                                                </span>
+                                            </td>
+                                            <td>
+                                                @if (regime.DataAttivazione.HasValue)
+                                                {
+                                                    <span class="text-muted">
+                                                        <i class="fas fa-calendar-alt me-1"></i>
+                                                        @regime.DataAttivazione.Value.ToString("dd/MM/yyyy")
+                                                    </span>
+                                                }
+                                                else
+                                                {
+                                                    <span class="text-muted">-</span>
+                                                }
+                                            </td>
+                                            <td>
+                                                @if (!string.IsNullOrEmpty(regime.AnnoFiscaleDescrizione))
+                                                {
+                                                    <span class="badge bg-info">
+                                                        @regime.AnnoFiscaleDescrizione
+                                                    </span>
+                                                }
+                                                else
+                                                {
+                                                    <span class="text-muted">-</span>
+                                                }
+                                            </td>
+                                            <td class="text-center">
+                                                <div class="btn-group" role="group">
+                                                    <a asp-action="Details" asp-route-id="@regime.IdRegimeContabile" 
+                                                       class="btn btn-sm btn-outline-info" title="Visualizza">
+                                                        <i class="fas fa-eye"></i>
+                                                    </a>
+                                                    <a asp-action="Edit" asp-route-id="@regime.IdRegimeContabile" 
+                                                       class="btn btn-sm btn-outline-primary" title="Modifica">
+                                                        <i class="fas fa-edit"></i>
+                                                    </a>
+                                                    
+                                                    @* Pulsante Cessa/Riattiva *@
+                                                    <form asp-action="ToggleStatus" asp-route-id="@regime.IdRegimeContabile" 
+                                                          method="post" class="d-inline">
+                                                        @Html.AntiForgeryToken()
+                                                        <button type="submit" 
+                                                                class="btn btn-sm btn-outline-@(regime.Attivo ? "warning" : "success")" 
+                                                                title="@(regime.Attivo ? "Cessa" : "Riattiva")"
+                                                                onclick="return confirm('@(regime.Attivo ? "Vuoi davvero cessare questo regime contabile?" : "Vuoi davvero riattivare questo regime contabile?")')">
+                                                            <i class="fas fa-@(regime.Attivo ? "pause" : "play")"></i>
+                                                        </button>
+                                                    </form>
+                                                    
+                                                    @* Pulsante Elimina *@
+                                                    <form asp-action="DeleteConfirmed" asp-route-id="@regime.IdRegimeContabile" 
+                                                          method="post" class="d-inline">
+                                                        @Html.AntiForgeryToken()
+                                                        <button type="submit" 
+                                                                class="btn btn-sm btn-outline-danger" 
+                                                                title="Elimina"
+                                                                onclick="return confirm('Vuoi davvero eliminare questo regime contabile? Questa azione non può essere annullata.')">
+                                                            <i class="fas fa-trash"></i>
+                                                        </button>
+                                                    </form>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="text-center py-5">
+                            <div class="mb-3">
+                                <i class="fas fa-balance-scale fa-3x text-muted"></i>
+                            </div>
+                            <h5 class="text-muted">Nessun regime contabile trovato</h5>
+                            <p class="text-muted">Inizia aggiungendo il primo regime contabile al sistema.</p>
+                            <a asp-action="Create" class="btn btn-secondary">
+                                <i class="fas fa-plus me-1"></i> Aggiungi Primo Regime Contabile
+                            </a>
+                        </div>
+                    }
+                </div>
+
+                @if (Model.Any())
+                {
+                    <div class="card-footer bg-light">
+                        <div class="row text-center">
+                            <div class="col-md-4">
+                                <div class="d-flex align-items-center justify-content-center">
+                                    <i class="fas fa-balance-scale fa-2x text-secondary me-3"></i>
+                                    <div>
+                                        <h5 class="mb-0">@Model.Count()</h5>
+                                        <small class="text-muted">Totale Regimi</small>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="d-flex align-items-center justify-content-center">
+                                    <i class="fas fa-check-circle fa-2x text-primary me-3"></i>
+                                    <div>
+                                        <h5 class="mb-0">@Model.Count(r => r.Attivo)</h5>
+                                        <small class="text-muted">Attivi</small>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="d-flex align-items-center justify-content-center">
+                                    <i class="fas fa-times-circle fa-2x text-danger me-3"></i>
+                                    <div>
+                                        <h5 class="mb-0">@Model.Count(r => !r.Attivo)</h5>
+                                        <small class="text-muted">Cessati</small>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.avatar-sm {
+    width: 40px;
+    height: 40px;
+    font-size: 0.875rem;
+}
+
+/* Stili per i pulsanti azioni */
+.btn-group .btn {
+    margin-right: 2px;
+}
+
+.btn-group .btn:last-child {
+    margin-right: 0;
+}
+</style>
+
+
+
+
+
+

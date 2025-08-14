@@ -1,0 +1,555 @@
+@model ConsultingGroup.ViewModels.AnniFiscaliViewModel
+
+@{
+    ViewData["Title"] = "Dettagli Anno Fiscale";
+}
+
+<div class="container-fluid">
+    <!-- Header della pagina -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h2><i class="fas fa-calendar-alt text-warning me-2"></i>Dettagli Anno Fiscale</h2>
+            <p class="text-muted mb-0">Informazioni complete dell'anno fiscale @Model.Anno</p>
+        </div>
+        <div class="btn-group">
+            <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-warning text-dark">
+                <i class="fas fa-edit me-1"></i>Modifica
+            </a>
+            <a asp-action="Index" class="btn btn-outline-secondary">
+                <i class="fas fa-arrow-left me-1"></i>Torna alla Lista
+            </a>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-lg-8">
+            <!-- Informazioni Principali -->
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">
+                        <i class="fas fa-info-circle me-2"></i>Informazioni Generali
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label text-muted">Anno Fiscale</label>
+                                <p class="fs-3 fw-bold text-warning">@Model.Anno</p>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label text-muted">Stato</label>
+                                <p>
+                                    <span class="badge bg-@Model.StatoClasse fs-6">
+                                        <i class="@Model.StatoIcona me-1"></i>@Model.StatoDescrizione
+                                    </span>
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+
+                    @if (!string.IsNullOrEmpty(Model.Descrizione))
+                    {
+                        <div class="row">
+                            <div class="col-12">
+                                <div class="mb-3">
+                                    <label class="form-label text-muted">Descrizione</label>
+                                    <p class="fs-6">@Model.Descrizione</p>
+                                </div>
+                            </div>
+                        </div>
+                    }
+
+                    @if (!string.IsNullOrEmpty(Model.Note))
+                    {
+                        <div class="row">
+                            <div class="col-12">
+                                <div class="mb-3">
+                                    <label class="form-label text-muted">Note</label>
+                                    <div class="border rounded p-3 bg-light">
+                                        @Model.Note
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    }
+                </div>
+            </div>
+
+            <!-- Scadenze Fiscali -->
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">
+                        <i class="fas fa-clock me-2"></i>Scadenze Fiscali
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <!-- Gruppo 1: Dichiarazioni -->
+                    <h6 class="text-primary mb-3">
+                        <i class="fas fa-file-alt me-1"></i>Dichiarazioni
+                    </h6>
+                    <div class="row mb-4">
+                        <div class="col-md-6">
+                            <div class="card h-100 @(Model.Scadenza730.HasValue ? "border-success" : "border-light")">
+                                <div class="card-body text-center p-3">
+                                    <h6 class="card-title">730</h6>
+                                    @if (Model.Scadenza730.HasValue)
+                                    {
+                                        <p class="text-success fw-bold">@Model.Scadenza730.Value.ToString("dd/MM/yyyy")</p>
+                                        <small class="text-muted">@Model.Scadenza730.Value.ToString("dddd")</small>
+                                    }
+                                    else
+                                    {
+                                        <p class="text-muted">Non impostata</p>
+                                    }
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="card h-100 @(Model.Scadenza740.HasValue ? "border-success" : "border-light")">
+                                <div class="card-body text-center p-3">
+                                    <h6 class="card-title">740</h6>
+                                    @if (Model.Scadenza740.HasValue)
+                                    {
+                                        <p class="text-success fw-bold">@Model.Scadenza740.Value.ToString("dd/MM/yyyy")</p>
+                                        <small class="text-muted">@Model.Scadenza740.Value.ToString("dddd")</small>
+                                    }
+                                    else
+                                    {
+                                        <p class="text-muted">Non impostata</p>
+                                    }
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row mb-4">
+                        <div class="col-md-4">
+                            <div class="card h-100 @(Model.Scadenza750.HasValue ? "border-success" : "border-light")">
+                                <div class="card-body text-center p-3">
+                                    <h6 class="card-title">750</h6>
+                                    @if (Model.Scadenza750.HasValue)
+                                    {
+                                        <p class="text-success fw-bold">@Model.Scadenza750.Value.ToString("dd/MM/yyyy")</p>
+                                    }
+                                    else
+                                    {
+                                        <p class="text-muted">Non impostata</p>
+                                    }
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="card h-100 @(Model.Scadenza760.HasValue ? "border-success" : "border-light")">
+                                <div class="card-body text-center p-3">
+                                    <h6 class="card-title">760</h6>
+                                    @if (Model.Scadenza760.HasValue)
+                                    {
+                                        <p class="text-success fw-bold">@Model.Scadenza760.Value.ToString("dd/MM/yyyy")</p>
+                                    }
+                                    else
+                                    {
+                                        <p class="text-muted">Non impostata</p>
+                                    }
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="card h-100 @(Model.Scadenza770.HasValue ? "border-success" : "border-light")">
+                                <div class="card-body text-center p-3">
+                                    <h6 class="card-title">770</h6>
+                                    @if (Model.Scadenza770.HasValue)
+                                    {
+                                        <p class="text-success fw-bold">@Model.Scadenza770.Value.ToString("dd/MM/yyyy")</p>
+                                    }
+                                    else
+                                    {
+                                        <p class="text-muted">Non impostata</p>
+                                    }
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Gruppo 2: ENC e IRAP -->
+                    <div class="row mb-4">
+                        <div class="col-md-6">
+                            <div class="card h-100 @(Model.ScadenzaENC.HasValue ? "border-success" : "border-light")">
+                                <div class="card-body text-center p-3">
+                                    <h6 class="card-title">ENC</h6>
+                                    @if (Model.ScadenzaENC.HasValue)
+                                    {
+                                        <p class="text-success fw-bold">@Model.ScadenzaENC.Value.ToString("dd/MM/yyyy")</p>
+                                    }
+                                    else
+                                    {
+                                        <p class="text-muted">Non impostata</p>
+                                    }
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="card h-100 @(Model.ScadenzaIRAP.HasValue ? "border-success" : "border-light")">
+                                <div class="card-body text-center p-3">
+                                    <h6 class="card-title">IRAP</h6>
+                                    @if (Model.ScadenzaIRAP.HasValue)
+                                    {
+                                        <p class="text-success fw-bold">@Model.ScadenzaIRAP.Value.ToString("dd/MM/yyyy")</p>
+                                    }
+                                    else
+                                    {
+                                        <p class="text-muted">Non impostata</p>
+                                    }
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Gruppo 3: CU e DRIVA -->
+                    <h6 class="text-info mb-3">
+                        <i class="fas fa-file-alt me-1"></i>CU e DRIVA
+                    </h6>
+                    <div class="row mb-4">
+                        <div class="col-md-6">
+                            <div class="card h-100 @(Model.ScadenzaCU.HasValue ? "border-success" : "border-light")">
+                                <div class="card-body text-center p-3">
+                                    <h6 class="card-title">CU</h6>
+                                    @if (Model.ScadenzaCU.HasValue)
+                                    {
+                                        <p class="text-success fw-bold">@Model.ScadenzaCU.Value.ToString("dd/MM/yyyy")</p>
+                                    }
+                                    else
+                                    {
+                                        <p class="text-muted">Non impostata</p>
+                                    }
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="card h-100 @(Model.ScadenzaDIVA.HasValue ? "border-success" : "border-light")">
+                                <div class="card-body text-center p-3">
+                                    <h6 class="card-title">DRIVA</h6>
+                                    @if (Model.ScadenzaDIVA.HasValue)
+                                    {
+                                        <p class="text-success fw-bold">@Model.ScadenzaDIVA.Value.ToString("dd/MM/yyyy")</p>
+                                    }
+                                    else
+                                    {
+                                        <p class="text-muted">Non impostata</p>
+                                    }
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Gruppo 4: Lipe Trimestrali -->
+                    <h6 class="text-warning mb-3">
+                        <i class="fas fa-chart-bar me-1"></i>Lipe Trimestrali
+                    </h6>
+                    <div class="row">
+                        <div class="col-md-6 col-lg-3">
+                            <div class="card h-100 @(Model.ScadenzaLipe1t.HasValue ? "border-success" : "border-light")">
+                                <div class="card-body text-center p-3">
+                                    <h6 class="card-title">1° Trimestre</h6>
+                                    @if (Model.ScadenzaLipe1t.HasValue)
+                                    {
+                                        <p class="text-success fw-bold">@Model.ScadenzaLipe1t.Value.ToString("dd/MM/yyyy")</p>
+                                    }
+                                    else
+                                    {
+                                        <p class="text-muted">Non impostata</p>
+                                    }
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6 col-lg-3">
+                            <div class="card h-100 @(Model.ScadenzaLipe2t.HasValue ? "border-success" : "border-light")">
+                                <div class="card-body text-center p-3">
+                                    <h6 class="card-title">2° Trimestre</h6>
+                                    @if (Model.ScadenzaLipe2t.HasValue)
+                                    {
+                                        <p class="text-success fw-bold">@Model.ScadenzaLipe2t.Value.ToString("dd/MM/yyyy")</p>
+                                    }
+                                    else
+                                    {
+                                        <p class="text-muted">Non impostata</p>
+                                    }
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6 col-lg-3">
+                            <div class="card h-100 @(Model.ScadenzaLipe3t.HasValue ? "border-success" : "border-light")">
+                                <div class="card-body text-center p-3">
+                                    <h6 class="card-title">3° Trimestre</h6>
+                                    @if (Model.ScadenzaLipe3t.HasValue)
+                                    {
+                                        <p class="text-success fw-bold">@Model.ScadenzaLipe3t.Value.ToString("dd/MM/yyyy")</p>
+                                    }
+                                    else
+                                    {
+                                        <p class="text-muted">Non impostata</p>
+                                    }
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6 col-lg-3">
+                            <div class="card h-100 @(Model.ScadenzaLipe4t.HasValue ? "border-success" : "border-light")">
+                                <div class="card-body text-center p-3">
+                                    <h6 class="card-title">4° Trimestre</h6>
+                                    @if (Model.ScadenzaLipe4t.HasValue)
+                                    {
+                                        <p class="text-success fw-bold">@Model.ScadenzaLipe4t.Value.ToString("dd/MM/yyyy")</p>
+                                    }
+                                    else
+                                    {
+                                        <p class="text-muted">Non impostata</p>
+                                    }
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Gruppo 5: Mod TR IVA Trimestrali -->
+                    <h6 class="text-dark mb-3 mt-4">
+                        <i class="fas fa-file-invoice me-1"></i>Mod TR IVA Trimestrali
+                    </h6>
+                    <div class="row">
+                        <div class="col-md-6 col-lg-3">
+                            <div class="card h-100 @(Model.ScadenzaModTRIva1t.HasValue ? "border-success" : "border-light")">
+                                <div class="card-body text-center p-3">
+                                    <h6 class="card-title">1° Trimestre</h6>
+                                    @if (Model.ScadenzaModTRIva1t.HasValue)
+                                    {
+                                        <p class="text-success fw-bold">@Model.ScadenzaModTRIva1t.Value.ToString("dd/MM/yyyy")</p>
+                                    }
+                                    else
+                                    {
+                                        <p class="text-muted">Non impostata</p>
+                                    }
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6 col-lg-3">
+                            <div class="card h-100 @(Model.ScadenzaModTRIva2t.HasValue ? "border-success" : "border-light")">
+                                <div class="card-body text-center p-3">
+                                    <h6 class="card-title">2° Trimestre</h6>
+                                    @if (Model.ScadenzaModTRIva2t.HasValue)
+                                    {
+                                        <p class="text-success fw-bold">@Model.ScadenzaModTRIva2t.Value.ToString("dd/MM/yyyy")</p>
+                                    }
+                                    else
+                                    {
+                                        <p class="text-muted">Non impostata</p>
+                                    }
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6 col-lg-3">
+                            <div class="card h-100 @(Model.ScadenzaModTRIva3t.HasValue ? "border-success" : "border-light")">
+                                <div class="card-body text-center p-3">
+                                    <h6 class="card-title">3° Trimestre</h6>
+                                    @if (Model.ScadenzaModTRIva3t.HasValue)
+                                    {
+                                        <p class="text-success fw-bold">@Model.ScadenzaModTRIva3t.Value.ToString("dd/MM/yyyy")</p>
+                                    }
+                                    else
+                                    {
+                                        <p class="text-muted">Non impostata</p>
+                                    }
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6 col-lg-3">
+                            <div class="card h-100 @(Model.ScadenzaModTRIva4t.HasValue ? "border-success" : "border-light")">
+                                <div class="card-body text-center p-3">
+                                    <h6 class="card-title">4° Trimestre</h6>
+                                    @if (Model.ScadenzaModTRIva4t.HasValue)
+                                    {
+                                        <p class="text-success fw-bold">@Model.ScadenzaModTRIva4t.Value.ToString("dd/MM/yyyy")</p>
+                                    }
+                                    else
+                                    {
+                                        <p class="text-muted">Non impostata</p>
+                                    }
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-4">
+            <!-- Azioni Rapide -->
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h6 class="card-title mb-0">
+                        <i class="fas fa-bolt me-2"></i>Azioni Rapide
+                    </h6>
+                </div>
+                <div class="card-body">
+                    <div class="d-grid gap-2">
+                        <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-warning text-dark">
+                            <i class="fas fa-edit me-1"></i>Modifica Anno Fiscale
+                        </a>
+                        
+                        @if (!Model.AnnoCorrente)
+                        {
+                            <button type="button" class="btn btn-primary" 
+                                    data-bs-toggle="modal" data-bs-target="#setCorrenteModal">
+                                <i class="fas fa-star me-1"></i>Imposta come Corrente
+                            </button>
+                        }
+
+                        <button type="button" class="btn btn-@(Model.Attivo ? "secondary" : "success")" 
+                                data-bs-toggle="modal" data-bs-target="#toggleModal">
+                            <i class="fas fa-@(Model.Attivo ? "pause" : "play") me-1"></i>
+                            @(Model.Attivo ? "Disattiva" : "Attiva") Anno
+                        </button>
+
+                        <hr>
+
+                        <button type="button" class="btn btn-outline-danger" 
+                                data-bs-toggle="modal" data-bs-target="#deleteModal">
+                            <i class="fas fa-trash me-1"></i>Elimina Anno Fiscale
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Statistiche -->
+            <div class="card">
+                <div class="card-header">
+                    <h6 class="card-title mb-0">
+                        <i class="fas fa-chart-pie me-2"></i>Statistiche
+                    </h6>
+                </div>
+                <div class="card-body">
+                    <div class="row text-center">
+                        <div class="col-6">
+                            <div class="p-2">
+                                <h4 class="text-success">@Model.NumeroScadenzeImpostate</h4>
+                                <small class="text-muted">Scadenze Impostate</small>
+                            </div>
+                        </div>
+                        <div class="col-6">
+                            <div class="p-2">
+                                <h4 class="text-@Model.StatoClasse">
+                                    <i class="@Model.StatoIcona"></i>
+                                </h4>
+                                <small class="text-muted">Stato</small>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <hr>
+                    
+                    <div class="mb-2">
+                        <small class="text-muted">Creato il:</small>
+                        <br>
+                        <strong>
+                            @if (Model.CreatedAt != default(DateTime))
+                            {
+                                @Model.CreatedAt.ToString("dd/MM/yyyy HH:mm")
+                            }
+                            else
+                            {
+                                <span class="text-muted">Non disponibile</span>
+                            }
+                        </strong>
+                    </div>
+                    <div class="mb-2">
+                        <small class="text-muted">Modificato il:</small>
+                        <br>
+                        <strong>
+                            @if (Model.UpdatedAt != default(DateTime))
+                            {
+                                @Model.UpdatedAt.ToString("dd/MM/yyyy HH:mm")
+                            }
+                            else
+                            {
+                                <span class="text-muted">Non disponibile</span>
+                            }
+                        </strong>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal per Toggle Status -->
+<div class="modal fade" id="toggleModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Conferma Azione</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <p>Sei sicuro di voler @(Model.Attivo ? "disattivare" : "attivare") l'anno fiscale "@Model.Anno"?</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annulla</button>
+                <form method="post" style="display: inline;">
+                    @Html.AntiForgeryToken()
+                    <input type="hidden" name="id" value="@Model.Id" />
+                    <button type="submit" class="btn btn-primary" formaction="@Url.Action("ToggleStatus")">Conferma</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal per Impostare Anno Corrente -->
+@if (!Model.AnnoCorrente)
+{
+    <div class="modal fade" id="setCorrenteModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Imposta Anno Corrente</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <p><strong>Attenzione!</strong> Stai per impostare l'anno "@Model.Anno" come anno fiscale corrente.</p>
+                    <p class="text-warning">Questa azione rimuoverà il flag di "anno corrente" da tutti gli altri anni.</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annulla</button>
+                    <form method="post" style="display: inline;">
+                        @Html.AntiForgeryToken()
+                        <input type="hidden" name="id" value="@Model.Id" />
+                        <button type="submit" class="btn btn-primary" formaction="@Url.Action("SetCorrente")">Imposta come Corrente</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+<!-- Modal per Eliminazione -->
+<div class="modal fade" id="deleteModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Conferma Eliminazione</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <p><strong>Attenzione!</strong> Stai per eliminare definitivamente l'anno fiscale "@Model.Anno".</p>
+                <p class="text-danger">Questa azione non può essere annullata e potrebbe influenzare studio e programmi collegati.</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annulla</button>
+                <form method="post" style="display: inline;">
+                    @Html.AntiForgeryToken()
+                    <input type="hidden" name="id" value="@Model.Id" />
+                    <button type="submit" class="btn btn-danger" formaction="@Url.Action("Delete")">Elimina Definitivamente</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,837 @@
+@model IEnumerable<ConsultingGroup.Models.AttivitaEnc>
+@{
+    ViewData["Title"] = "Mod. ENC";
+    var annoSelezionato = ViewBag.AnnoSelezionato as int? ?? DateTime.Now.Year;
+    var annoFiscale = ViewBag.AnnoFiscale as ConsultingGroup.Models.AnnoFiscale;
+}
+
+<!-- Filtro Anno -->
+<div class="row mb-4">
+    <div class="col-md-12">
+        <div class="card border-primary">
+            <div class="card-header bg-primary text-white">
+                <h5 class="mb-0">
+                    <i class="fas fa-calendar-alt me-2"></i>Anno di Riferimento
+                </h5>
+            </div>
+            <div class="card-body">
+                <form method="get" class="d-flex align-items-center gap-3">
+                    <label for="annoSelezionato" class="form-label mb-0 fw-bold">Seleziona Anno:</label>
+                    <select name="annoSelezionato" id="annoSelezionato" class="form-select w-auto" onchange="this.form.submit()">
+                        @{
+                            var anniFiscali = ViewBag.AnniFiscali as IEnumerable<Microsoft.AspNetCore.Mvc.Rendering.SelectListItem>;
+                        }
+                        @if (anniFiscali != null)
+                        {
+                            @foreach (var anno in anniFiscali)
+                            {
+                                @if (anno.Selected)
+                                {
+                                    <option value="@anno.Value" selected>@anno.Text</option>
+                                }
+                                else
+                                {
+                                    <option value="@anno.Value">@anno.Text</option>
+                                }
+                            }
+                        }
+                    </select>
+                    <div class="ms-auto d-flex gap-2">
+                        <a href="@Url.Action("Index", "GestioneAttivita")" class="btn btn-outline-primary btn-sm">
+                            <i class="fas fa-arrow-left me-1"></i>Gestione Attività
+                        </a>
+                        <a href="@Url.Action("Index", "Clienti")" class="btn btn-outline-success btn-sm">
+                            <i class="fas fa-users me-1"></i>Gestione Clienti
+                        </a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Lista Attività -->
+<div class="card shadow">
+    <div class="card-header bg-primary text-white">
+        <h5 class="mb-0">
+            <i class="fas fa-list me-2"></i>Elenco Attività ENC - @(annoFiscale?.AnnoDescrizione ?? $"Anno {annoSelezionato}")
+        </h5>
+    </div>
+    <div class="card-body p-0">
+        @if (Model.Any())
+        {
+            <!-- Form per il bulk update -->
+            <form id="bulkUpdateForm" method="post" action="@Url.Action("BulkUpdate")">
+                @Html.AntiForgeryToken()
+                <input type="hidden" name="annoSelezionato" value="@annoSelezionato" />
+
+                <!-- Filtri e Pulsanti - DENTRO il form -->
+                <div class="mb-3 p-3 bg-light border-bottom">
+                    <!-- Prima riga filtri -->
+                    <div class="d-flex flex-wrap gap-3 align-items-center mb-2">
+                        <div class="d-flex align-items-center gap-2">
+                            <label for="filtroNomeCliente" class="form-label mb-0 fw-bold">Cliente:</label>
+                            <input type="text" id="filtroNomeCliente" class="form-control form-control-sm" style="width: 180px;" placeholder="Cerca per nome...">
+                        </div>
+                        
+                        <div class="d-flex align-items-center gap-2">
+                            <label for="filtroProfessionista" class="form-label mb-0 fw-bold">Professionista:</label>
+                            <select id="filtroProfessionista" class="form-select form-select-sm" style="width: auto;">
+                                <option value="">Tutti</option>
+                                @{
+                                    var professionistiFiltro = ViewBag.Professionisti as IEnumerable<Microsoft.AspNetCore.Mvc.Rendering.SelectListItem>;
+                                }
+                                @if (professionistiFiltro != null)
+                                {
+                                    @foreach (var prof in professionistiFiltro)
+                                    {
+                                        <option value="@prof.Value">@prof.Text</option>
+                                    }
+                                }
+                            </select>
+                        </div>
+                        
+                        <div class="d-flex align-items-center gap-2">
+                            <label for="filtroRaccoltaDocumenti" class="form-label mb-0 fw-bold">Raccolta Doc.:</label>
+                            <select id="filtroRaccoltaDocumenti" class="form-select form-select-sm" style="width: auto;">
+                                <option value="">Tutti</option>
+                                <option value="da_richiedere">Da Richiedere</option>
+                                <option value="richiesti">Richiesti</option>
+                                <option value="ricevuti">Ricevuti</option>
+                            </select>
+                        </div>
+                        
+                        <div class="d-flex align-items-center gap-2">
+                            <label for="filtroDrStatus" class="form-label mb-0 fw-bold">Stato DR:</label>
+                            <select id="filtroDrStatus" class="form-select form-select-sm" style="width: auto;">
+                                <option value="">Tutti</option>
+                                <option value="inserita">Solo DR Inserita</option>
+                                <option value="controllata">Solo DR Controllata</option>
+                                <option value="spedita">Solo DR Spedita</option>
+                                <option value="complete">Tutte Complete</option>
+                                <option value="incomplete">Incomplete</option>
+                            </select>
+                        </div>
+                        
+                        <div class="d-flex align-items-center gap-2">
+                            <label for="filtroIsaStatus" class="form-label mb-0 fw-bold">ISA:</label>
+                            <select id="filtroIsaStatus" class="form-select form-select-sm" style="width: auto;">
+                                <option value="">Tutti</option>
+                                <option value="file_disponibile">File ISA Disponibile</option>
+                                <option value="dr_inseriti">ISA DR Inseriti</option>
+                                <option value="all_isa_complete">ISA Completi</option>
+                                <option value="missing">ISA Mancanti</option>
+                            </select>
+                        </div>
+                        
+                        <div class="d-flex align-items-center gap-2">
+                            <label for="filtroPecFirmata" class="form-label mb-0 fw-bold">PEC/Firmata:</label>
+                            <select id="filtroPecFirmata" class="form-select form-select-sm" style="width: auto;">
+                                <option value="">Tutti</option>
+                                <option value="pec_inviata">PEC Inviata</option>
+                                <option value="dr_firmata">DR Firmata</option>
+                                <option value="both_complete">PEC + Firmata</option>
+                                <option value="incomplete">Incompleto</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <!-- Seconda riga: pulsanti azioni -->
+                    <div class="d-flex flex-wrap gap-2 align-items-center">
+                        <button type="button" id="applyFilters" class="btn btn-primary btn-sm">
+                            <i class="fas fa-filter me-1"></i>Applica Filtri
+                        </button>
+                        <button type="button" id="resetFilters" class="btn btn-outline-secondary btn-sm">
+                            <i class="fas fa-filter me-1"></i>Reset Filtri
+                        </button>
+                        <div class="ms-auto d-flex gap-2">
+                            <button type="submit" class="btn btn-success btn-sm">
+                                <i class="fas fa-save me-1"></i>Salva Tutto
+                            </button>
+                            <a href="@Url.Action("ExportExcel", new { anno = annoSelezionato })" class="btn btn-warning btn-sm">
+                                <i class="fas fa-file-excel me-1"></i>Export Excel
+                            </a>
+                            <button type="button" class="btn btn-outline-danger btn-sm" onclick="confermaEliminazioneAnno()">
+                                <i class="fas fa-trash-alt me-1"></i>Elimina Anno
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="table-responsive" style="max-height: 80vh; overflow-y: auto;">
+                    <table class="table table-hover table-sm mb-0">
+                        <thead class="table-dark sticky-top">
+                            <tr>
+                                <th style="width: 140px;">Cliente</th>
+                                <th style="width: 60px;">ATECO</th>
+                                <th style="width: 120px;">Professionista</th>
+                                <th style="width: 140px;">Appuntamento</th>
+                                <th style="width: 90px;">Cod. DR</th>
+                                <th style="width: 110px;">Raccolta</th>
+                                <th style="width: 70px;" class="text-center">ISA File</th>
+                                <th style="width: 90px;" class="text-center">ISA DR</th>
+                                <th style="width: 80px;" class="text-center">Inserita</th>
+                                <th style="width: 90px;" class="text-center">Controllata</th>
+                                <th style="width: 80px;" class="text-center">Spedita</th>
+                                <th style="width: 70px;" class="text-center">Ricevuta</th>
+                                <th style="width: 60px;" class="text-center">PEC</th>
+                                <th style="width: 70px;" class="text-center">Firmata</th>
+                                <th style="width: 60px;" class="text-center">CCIAA</th>
+                                <th style="width: 70px;" class="text-center">Rate 1°</th>
+                                <th style="width: 80px;" class="text-center">F24 1°</th>
+                                <th style="width: 70px;" class="text-center">Rate 2°</th>
+                                <th style="width: 80px;" class="text-center">F24 2°</th>
+                                <th style="width: 150px;">Note</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @{
+                                var index = 0;
+                            }
+                            @foreach (var item in Model)
+                            {
+                                <tr>
+                                    <td class="align-middle">
+                                        <input type="hidden" name="[@index].IdAttivitaEnc" value="@item.IdAttivitaEnc" />
+                                        <input type="hidden" name="[@index].IdAnno" value="@item.IdAnno" />
+                                        <input type="hidden" name="[@index].IdCliente" value="@item.IdCliente" />
+                                        <strong>@item.Cliente?.NomeCliente</strong>
+                                        @if (!item.Cliente?.Attivo == true)
+                                        {
+                                            <span class="badge bg-warning text-dark ms-1" title="Cliente cessato">CESSATO</span>
+                                        }
+                                    </td>
+                                    
+                                    <!-- ATECO -->
+                                    <td class="align-middle text-center">
+                                        <small class="text-muted">@(item.Cliente?.CodiceAteco ?? "")</small>
+                                    </td>
+
+                                    <!-- Professionista -->
+                                    <td class="align-middle">
+                                        <select name="[@index].IdProfessionista" class="form-select form-select-sm">
+                                            <option value="">-- Nessuno --</option>
+                                            @{
+                                                var professionisti = ViewBag.Professionisti as IEnumerable<Microsoft.AspNetCore.Mvc.Rendering.SelectListItem>;
+                                            }
+                                            @if (professionisti != null)
+                                            {
+                                                @foreach (var prof in professionisti)
+                                                {
+                                                    @if (prof.Value == item.IdProfessionista?.ToString())
+                                                    {
+                                                        <option value="@prof.Value" selected>@prof.Text</option>
+                                                    }
+                                                    else
+                                                    {
+                                                        <option value="@prof.Value">@prof.Text</option>
+                                                    }
+                                                }
+                                            }
+                                        </select>
+                                    </td>
+                                    
+                                    <!-- Appuntamento -->
+                                    <td class="align-middle">
+                                        <input type="datetime-local" name="[@index].AppuntamentoDataOra" 
+                                               value="@(item.AppuntamentoDataOra?.ToString("yyyy-MM-ddTHH:mm"))" 
+                                               class="form-control form-control-sm" />
+                                    </td>
+
+                                    <!-- Codice DR -->
+                                    <td class="align-middle">
+                                        <input type="text" name="[@index].CodiceDr" value="@item.CodiceDr" 
+                                               class="form-control form-control-sm" placeholder="Codice DR" maxlength="20" />
+                                    </td>
+
+                                    <!-- Raccolta Documenti -->
+                                    <td class="align-middle">
+                                        <select name="[@index].RaccoltaDocumenti" class="form-select form-select-sm">
+                                            @if (item.RaccoltaDocumenti == "da_richiedere")
+                                            {
+                                                <option value="da_richiedere" selected>Da Richiedere</option>
+                                            }
+                                            else
+                                            {
+                                                <option value="da_richiedere">Da Richiedere</option>
+                                            }
+                                            @if (item.RaccoltaDocumenti == "richiesti")
+                                            {
+                                                <option value="richiesti" selected>Richiesti</option>
+                                            }
+                                            else
+                                            {
+                                                <option value="richiesti">Richiesti</option>
+                                            }
+                                            @if (item.RaccoltaDocumenti == "ricevuti")
+                                            {
+                                                <option value="ricevuti" selected>Ricevuti</option>
+                                            }
+                                            else
+                                            {
+                                                <option value="ricevuti">Ricevuti</option>
+                                            }
+                                        </select>
+                                    </td>
+
+                                    <!-- File ISA -->
+                                    <td class="align-middle text-center">
+                                        @if (item.FileIsa)
+                                        {
+                                            <input type="checkbox" name="[@index].FileIsa" value="true" checked class="form-check-input" style="accent-color: black; border: 2px solid black;" />
+                                        }
+                                        else
+                                        {
+                                            <input type="checkbox" name="[@index].FileIsa" value="true" class="form-check-input" style="accent-color: black; border: 2px solid black;" />
+                                        }
+                                        <input type="hidden" name="[@index].FileIsa" value="false" />
+                                    </td>
+
+                                    <!-- ISA DR Inseriti -->
+                                    <td class="align-middle text-center">
+                                        <div class="d-flex flex-column align-items-center">
+                                            @if (item.IsaDrInseriti)
+                                            {
+                                                <input type="checkbox" name="[@index].IsaDrInseriti" value="true" checked class="form-check-input mb-1" style="accent-color: black; border: 2px solid black;" />
+                                            }
+                                            else
+                                            {
+                                                <input type="checkbox" name="[@index].IsaDrInseriti" value="true" class="form-check-input mb-1" style="accent-color: black; border: 2px solid black;" />
+                                            }
+                                            <input type="hidden" name="[@index].IsaDrInseriti" value="false" />
+                                            <input type="date" name="[@index].IsaDrInseritiData" value="@(item.IsaDrInseritiData?.ToString("yyyy-MM-dd"))" 
+                                                   class="form-control form-control-sm" style="width: 90px; font-size: 0.6rem;" />
+                                        </div>
+                                    </td>
+
+                                    <!-- DR Inserita -->
+                                    <td class="align-middle text-center">
+                                        <div class="d-flex flex-column align-items-center">
+                                            @if (item.DrInserita)
+                                            {
+                                                <input type="checkbox" name="[@index].DrInserita" value="true" checked class="form-check-input mb-1" style="accent-color: black; border: 2px solid black;" />
+                                            }
+                                            else
+                                            {
+                                                <input type="checkbox" name="[@index].DrInserita" value="true" class="form-check-input mb-1" style="accent-color: black; border: 2px solid black;" />
+                                            }
+                                            <input type="hidden" name="[@index].DrInserita" value="false" />
+                                            <input type="date" name="[@index].DrInseritaData" value="@(item.DrInseritaData?.ToString("yyyy-MM-dd"))" 
+                                                   class="form-control form-control-sm" style="width: 80px; font-size: 0.6rem;" />
+                                        </div>
+                                    </td>
+
+                                    <!-- DR Controllata -->
+                                    <td class="align-middle text-center">
+                                        <div class="d-flex flex-column align-items-center">
+                                            @if (item.DrControllata)
+                                            {
+                                                <input type="checkbox" name="[@index].DrControllata" value="true" checked class="form-check-input mb-1" style="accent-color: black; border: 2px solid black;" />
+                                            }
+                                            else
+                                            {
+                                                <input type="checkbox" name="[@index].DrControllata" value="true" class="form-check-input mb-1" style="accent-color: black; border: 2px solid black;" />
+                                            }
+                                            <input type="hidden" name="[@index].DrControllata" value="false" />
+                                            <input type="date" name="[@index].DrControllataData" value="@(item.DrControllataData?.ToString("yyyy-MM-dd"))" 
+                                                   class="form-control form-control-sm" style="width: 90px; font-size: 0.6rem;" />
+                                        </div>
+                                    </td>
+
+                                    <!-- DR Spedita -->
+                                    <td class="align-middle text-center">
+                                        <div class="d-flex flex-column align-items-center">
+                                            @if (item.DrSpedita)
+                                            {
+                                                <input type="checkbox" name="[@index].DrSpedita" value="true" checked class="form-check-input mb-1" style="accent-color: black; border: 2px solid black;" />
+                                            }
+                                            else
+                                            {
+                                                <input type="checkbox" name="[@index].DrSpedita" value="true" class="form-check-input mb-1" style="accent-color: black; border: 2px solid black;" />
+                                            }
+                                            <input type="hidden" name="[@index].DrSpedita" value="false" />
+                                            <input type="date" name="[@index].DrSpeditaData" value="@(item.DrSpeditaData?.ToString("yyyy-MM-dd"))" 
+                                                   class="form-control form-control-sm" style="width: 80px; font-size: 0.6rem;" />
+                                        </div>
+                                    </td>
+
+                                    <!-- Ricevuta -->
+                                    <td class="align-middle text-center">
+                                        @if (item.Ricevuta)
+                                        {
+                                            <input type="checkbox" name="[@index].Ricevuta" value="true" checked class="form-check-input" style="accent-color: black; border: 2px solid black;" />
+                                        }
+                                        else
+                                        {
+                                            <input type="checkbox" name="[@index].Ricevuta" value="true" class="form-check-input" style="accent-color: black; border: 2px solid black;" />
+                                        }
+                                        <input type="hidden" name="[@index].Ricevuta" value="false" />
+                                    </td>
+
+                                    <!-- PEC -->
+                                    <td class="align-middle text-center">
+                                        @if (item.PecInvioDr)
+                                        {
+                                            <input type="checkbox" name="[@index].PecInvioDr" value="true" checked class="form-check-input" style="accent-color: black; border: 2px solid black;" />
+                                        }
+                                        else
+                                        {
+                                            <input type="checkbox" name="[@index].PecInvioDr" value="true" class="form-check-input" style="accent-color: black; border: 2px solid black;" />
+                                        }
+                                        <input type="hidden" name="[@index].PecInvioDr" value="false" />
+                                    </td>
+
+                                    <!-- DR Firmata -->
+                                    <td class="align-middle text-center">
+                                        @if (item.DrFirmata)
+                                        {
+                                            <input type="checkbox" name="[@index].DrFirmata" value="true" checked class="form-check-input" style="accent-color: black; border: 2px solid black;" />
+                                        }
+                                        else
+                                        {
+                                            <input type="checkbox" name="[@index].DrFirmata" value="true" class="form-check-input" style="accent-color: black; border: 2px solid black;" />
+                                        }
+                                        <input type="hidden" name="[@index].DrFirmata" value="false" />
+                                    </td>
+
+                                    <!-- CCIAA -->
+                                    <td class="align-middle text-center">
+                                        @if (item.Cciaa)
+                                        {
+                                            <input type="checkbox" name="[@index].Cciaa" value="true" checked class="form-check-input" style="accent-color: black; border: 2px solid black;" />
+                                        }
+                                        else
+                                        {
+                                            <input type="checkbox" name="[@index].Cciaa" value="true" class="form-check-input" style="accent-color: black; border: 2px solid black;" />
+                                        }
+                                        <input type="hidden" name="[@index].Cciaa" value="false" />
+                                    </td>
+
+                                    <!-- Rate F24 Primo Acconto/Saldo -->
+                                    <td class="align-middle text-center">
+                                        <input type="number" name="[@index].NumeroRateF24PrimoAccontoSaldo" 
+                                               value="@item.NumeroRateF24PrimoAccontoSaldo" 
+                                               class="form-control form-control-sm text-center" min="0" max="99" style="width: 60px;" />
+                                    </td>
+
+                                    <!-- F24 Primo Acconto/Saldo Consegnato -->
+                                    <td class="align-middle text-center">
+                                        @if (item.F24PrimoAccontoSaldoConsegnato)
+                                        {
+                                            <input type="checkbox" name="[@index].F24PrimoAccontoSaldoConsegnato" value="true" checked class="form-check-input" style="accent-color: black; border: 2px solid black;" />
+                                        }
+                                        else
+                                        {
+                                            <input type="checkbox" name="[@index].F24PrimoAccontoSaldoConsegnato" value="true" class="form-check-input" style="accent-color: black; border: 2px solid black;" />
+                                        }
+                                        <input type="hidden" name="[@index].F24PrimoAccontoSaldoConsegnato" value="false" />
+                                    </td>
+
+                                    <!-- F24 Secondo Acconto -->
+                                    <td class="align-middle text-center">
+                                        <input type="number" name="[@index].F24SecondoAcconto" 
+                                               value="@item.F24SecondoAcconto" 
+                                               class="form-control form-control-sm text-center" min="0" max="99" style="width: 60px;" />
+                                    </td>
+
+                                    <!-- F24 Secondo Acconto Consegnato -->
+                                    <td class="align-middle text-center">
+                                        @if (item.F24SecondoAccontoConsegnato)
+                                        {
+                                            <input type="checkbox" name="[@index].F24SecondoAccontoConsegnato" value="true" checked class="form-check-input" style="accent-color: black; border: 2px solid black;" />
+                                        }
+                                        else
+                                        {
+                                            <input type="checkbox" name="[@index].F24SecondoAccontoConsegnato" value="true" class="form-check-input" style="accent-color: black; border: 2px solid black;" />
+                                        }
+                                        <input type="hidden" name="[@index].F24SecondoAccontoConsegnato" value="false" />
+                                    </td>
+
+                                    <!-- Note -->
+                                    <td class="align-middle">
+                                        <textarea name="[@index].Note" class="form-control form-control-sm" rows="2" placeholder="Note...">@item.Note</textarea>
+                                    </td>
+                                </tr>
+                                index++;
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </form>
+        }
+        else
+        {
+            <div class="text-center p-5">
+                <i class="fas fa-inbox fa-3x text-muted mb-3"></i>
+                <h5 class="text-muted">Nessuna attività trovata</h5>
+                <p class="text-muted">Non ci sono attività ENC per l'anno selezionato o nessun cliente ha il modulo ENC attivo.</p>
+                <a href="@Url.Action("Index", "Clienti")" class="btn btn-primary">
+                    <i class="fas fa-users me-1"></i>Gestisci Clienti
+                </a>
+            </div>
+        }
+    </div>
+</div>
+
+<!-- JavaScript per filtri -->
+<script>
+// Aspetta che il DOM e jQuery siano pronti
+document.addEventListener('DOMContentLoaded', function() {
+    // Verifica se jQuery è disponibile
+    if (typeof $ === 'undefined') {
+        console.error('jQuery non è caricato! I filtri potrebbero non funzionare.');
+        initFiltersWithVanillaJS();
+        return;
+    }
+    
+    // Inizializza con jQuery
+    initFiltersWithJQuery();
+});
+
+function initFiltersWithJQuery() {
+    $(document).ready(function() {
+        $('[title]').tooltip();
+        
+        // Filtro ricerca in tempo reale per nome cliente
+        $('#filtroNomeCliente').on('input', function() {
+            filterTable();
+        });
+        
+        // Pulsante Applica Filtri
+        $('#applyFilters').click(function(e) {
+            e.preventDefault();
+            console.log('Applica Filtri cliccato');
+            filterTable();
+        });
+        
+        // Reset filters button
+        $('#resetFilters').click(function(e) {
+            e.preventDefault();
+            console.log('Reset Filtri cliccato');
+            resetFilters();
+        });
+        
+        console.log('Filtri inizializzati con successo');
+    });
+}
+
+function initFiltersWithVanillaJS() {
+    // Fallback con JavaScript vanilla se jQuery non è disponibile
+    const applyBtn = document.getElementById('applyFilters');
+    const resetBtn = document.getElementById('resetFilters');
+    const clienteInput = document.getElementById('filtroNomeCliente');
+    
+    if (applyBtn) {
+        applyBtn.addEventListener('click', function(e) {
+            e.preventDefault();
+            console.log('Applica Filtri cliccato (vanilla JS)');
+            filterTableVanilla();
+        });
+    }
+    
+    if (resetBtn) {
+        resetBtn.addEventListener('click', function(e) {
+            e.preventDefault();
+            console.log('Reset Filtri cliccato (vanilla JS)');
+            resetFiltersVanilla();
+        });
+    }
+    
+    if (clienteInput) {
+        clienteInput.addEventListener('input', function() {
+            filterTableVanilla();
+        });
+    }
+    
+    console.log('Filtri inizializzati con vanilla JS');
+}
+
+function filterTable() {
+    const filtroCliente = $('#filtroNomeCliente').val().toLowerCase();
+    const filtroProfessionista = $('#filtroProfessionista').val();
+    const filtroRaccolta = $('#filtroRaccoltaDocumenti').val();
+    const filtroDrStatus = $('#filtroDrStatus').val();
+    const filtroIsa = $('#filtroIsaStatus').val();
+    const filtroPecFirmata = $('#filtroPecFirmata').val();
+
+
+    $('tbody tr').each(function() {
+        const $row = $(this);
+        let showRow = true;
+
+        // Filtro Cliente
+        if (filtroCliente && showRow) {
+            const nomeCliente = $row.find('strong').first().text().toLowerCase();
+            if (!nomeCliente.includes(filtroCliente)) showRow = false;
+        }
+
+        // Filtro Professionista
+        if (filtroProfessionista && showRow) {
+            const professionistaValue = $row.find('select[name*=".IdProfessionista"]').val();
+            if (professionistaValue !== filtroProfessionista) showRow = false;
+        }
+
+        // Filtro Raccolta Documenti
+        if (filtroRaccolta && showRow) {
+            const raccoltaValue = $row.find('select[name*=".RaccoltaDocumenti"]').val();
+            if (raccoltaValue !== filtroRaccolta) showRow = false;
+        }
+
+        // Filtro DR Status
+        if (filtroDrStatus && showRow) {
+            const drInserita = $row.find('input[name*=".DrInserita"][value="true"]').is(':checked');
+            const drControllata = $row.find('input[name*=".DrControllata"][value="true"]').is(':checked');
+            const drSpedita = $row.find('input[name*=".DrSpedita"][value="true"]').is(':checked');
+            
+            switch(filtroDrStatus) {
+                case 'inserita':
+                    if (!drInserita) showRow = false;
+                    break;
+                case 'controllata':
+                    if (!drControllata) showRow = false;
+                    break;
+                case 'spedita':
+                    if (!drSpedita) showRow = false;
+                    break;
+                case 'complete':
+                    if (!(drInserita && drControllata && drSpedita)) showRow = false;
+                    break;
+                case 'incomplete':
+                    if (drInserita && drControllata && drSpedita) showRow = false;
+                    break;
+            }
+        }
+
+        // Filtro ISA
+        if (filtroIsa && showRow) {
+            const fileIsa = $row.find('input[name*=".FileIsa"][value="true"]').is(':checked');
+            const isaDrInseriti = $row.find('input[name*=".IsaDrInseriti"][value="true"]').is(':checked');
+            
+            switch(filtroIsa) {
+                case 'file_disponibile':
+                    if (!fileIsa) showRow = false;
+                    break;
+                case 'dr_inseriti':
+                    if (!isaDrInseriti) showRow = false;
+                    break;
+                case 'all_isa_complete':
+                    if (!fileIsa || !isaDrInseriti) showRow = false;
+                    break;
+                case 'missing':
+                    if (fileIsa || isaDrInseriti) showRow = false;
+                    break;
+            }
+        }
+
+        // Filtro PEC/Firmata
+        if (filtroPecFirmata && showRow) {
+            const pecInvioDr = $row.find('input[name*=".PecInvioDr"][value="true"]').is(':checked');
+            const drFirmata = $row.find('input[name*=".DrFirmata"][value="true"]').is(':checked');
+            
+            switch(filtroPecFirmata) {
+                case 'pec_inviata':
+                    if (!pecInvioDr) showRow = false;
+                    break;
+                case 'dr_firmata':
+                    if (!drFirmata) showRow = false;
+                    break;
+                case 'both_complete':
+                    if (!pecInvioDr || !drFirmata) showRow = false;
+                    break;
+                case 'incomplete':
+                    if (pecInvioDr && drFirmata) showRow = false;
+                    break;
+            }
+        }
+
+        if (showRow) {
+            $row.show();
+        } else {
+            $row.hide();
+        }
+    });
+}
+
+function resetFilters() {
+    $('#filtroNomeCliente').val('');
+    $('#filtroProfessionista').val('');
+    $('#filtroRaccoltaDocumenti').val('');
+    $('#filtroDrStatus').val('');
+    $('#filtroIsaStatus').val('');
+    $('#filtroPecFirmata').val('');
+    $('tbody tr').show();
+}
+
+// Funzioni vanilla JavaScript per fallback
+function filterTableVanilla() {
+    const filtroCliente = document.getElementById('filtroNomeCliente').value.toLowerCase();
+    const filtroProfessionista = document.getElementById('filtroProfessionista').value;
+    const filtroRaccolta = document.getElementById('filtroRaccoltaDocumenti').value;
+    const filtroDrStatus = document.getElementById('filtroDrStatus').value;
+    const filtroIsa = document.getElementById('filtroIsaStatus').value;
+    const filtroPecFirmata = document.getElementById('filtroPecFirmata').value;
+
+    const rows = document.querySelectorAll('tbody tr');
+    
+    rows.forEach(function(row) {
+        let showRow = true;
+
+        // Filtro Cliente
+        if (filtroCliente && showRow) {
+            const nomeCliente = row.querySelector('strong');
+            if (nomeCliente && !nomeCliente.textContent.toLowerCase().includes(filtroCliente)) {
+                showRow = false;
+            }
+        }
+
+        // Filtro Professionista
+        if (filtroProfessionista && showRow) {
+            const professionistaSelect = row.querySelector('select[name*=".IdProfessionista"]');
+            if (professionistaSelect && professionistaSelect.value !== filtroProfessionista) {
+                showRow = false;
+            }
+        }
+
+        // Filtro Raccolta Documenti
+        if (filtroRaccolta && showRow) {
+            const raccoltaSelect = row.querySelector('select[name*=".RaccoltaDocumenti"]');
+            if (raccoltaSelect && raccoltaSelect.value !== filtroRaccolta) {
+                showRow = false;
+            }
+        }
+
+        // Filtro DR Status
+        if (filtroDrStatus && showRow) {
+            const drInserita = row.querySelector('input[name*=".DrInserita"][value="true"]');
+            const drControllata = row.querySelector('input[name*=".DrControllata"][value="true"]');
+            const drSpedita = row.querySelector('input[name*=".DrSpedita"][value="true"]');
+            
+            switch(filtroDrStatus) {
+                case 'inserita':
+                    if (!drInserita || !drInserita.checked) showRow = false;
+                    break;
+                case 'controllata':
+                    if (!drControllata || !drControllata.checked) showRow = false;
+                    break;
+                case 'spedita':
+                    if (!drSpedita || !drSpedita.checked) showRow = false;
+                    break;
+                case 'complete':
+                    if (!drInserita?.checked || !drControllata?.checked || !drSpedita?.checked) showRow = false;
+                    break;
+                case 'incomplete':
+                    if (drInserita?.checked && drControllata?.checked && drSpedita?.checked) showRow = false;
+                    break;
+            }
+        }
+
+        // Filtro ISA
+        if (filtroIsa && showRow) {
+            const fileIsa = row.querySelector('input[name*=".FileIsa"][value="true"]');
+            const isaDrInseriti = row.querySelector('input[name*=".IsaDrInseriti"][value="true"]');
+            
+            switch(filtroIsa) {
+                case 'file_disponibile':
+                    if (!fileIsa || !fileIsa.checked) showRow = false;
+                    break;
+                case 'dr_inseriti':
+                    if (!isaDrInseriti || !isaDrInseriti.checked) showRow = false;
+                    break;
+                case 'all_isa_complete':
+                    if (!fileIsa?.checked || !isaDrInseriti?.checked) showRow = false;
+                    break;
+                case 'missing':
+                    if (fileIsa?.checked || isaDrInseriti?.checked) showRow = false;
+                    break;
+            }
+        }
+
+        // Filtro PEC/Firmata
+        if (filtroPecFirmata && showRow) {
+            const pecInvioDr = row.querySelector('input[name*=".PecInvioDr"][value="true"]');
+            const drFirmata = row.querySelector('input[name*=".DrFirmata"][value="true"]');
+            
+            switch(filtroPecFirmata) {
+                case 'pec_inviata':
+                    if (!pecInvioDr || !pecInvioDr.checked) showRow = false;
+                    break;
+                case 'dr_firmata':
+                    if (!drFirmata || !drFirmata.checked) showRow = false;
+                    break;
+                case 'both_complete':
+                    if (!pecInvioDr?.checked || !drFirmata?.checked) showRow = false;
+                    break;
+                case 'incomplete':
+                    if (pecInvioDr?.checked && drFirmata?.checked) showRow = false;
+                    break;
+            }
+        }
+
+        row.style.display = showRow ? '' : 'none';
+    });
+}
+
+function resetFiltersVanilla() {
+    document.getElementById('filtroNomeCliente').value = '';
+    document.getElementById('filtroProfessionista').value = '';
+    document.getElementById('filtroRaccoltaDocumenti').value = '';
+    document.getElementById('filtroDrStatus').value = '';
+    document.getElementById('filtroIsaStatus').value = '';
+    document.getElementById('filtroPecFirmata').value = '';
+    
+    const rows = document.querySelectorAll('tbody tr');
+    rows.forEach(function(row) {
+        row.style.display = '';
+    });
+}
+
+function confermaEliminazioneAnno() {
+    const anno = @annoSelezionato;
+    let totalRows;
+    
+    // Ottieni il numero di righe in modo compatibile
+    if (typeof $ !== 'undefined') {
+        totalRows = $('tbody tr').length;
+    } else {
+        totalRows = document.querySelectorAll('tbody tr').length;
+    }
+    
+    if (!confirm(`⚠️ ATTENZIONE!\n\nStai per eliminare TUTTI i ${totalRows} inserimenti del modello ENC dell'anno ${anno}.\n\nQuesta operazione è IRREVERSIBILE!\n\nVuoi continuare?`)) {
+        return;
+    }
+    
+    const confermaParola = prompt(`🚨 ULTIMA CONFERMA!\n\nPer eliminare DEFINITIVAMENTE tutti i ${totalRows} inserimenti Mod. ENC dell'anno ${anno},\n\nScrivi esattamente: ELIMINA\n\ne poi premi OK:`);
+    
+    if (confermaParola !== "ELIMINA") {
+        alert("❌ Operazione annullata!\n\nDevi scrivere esattamente 'ELIMINA' per confermare.");
+        return;
+    }
+    
+    // Crea un form temporaneo per POST
+    const form = document.createElement('form');
+    form.method = 'POST';
+    form.action = '@Url.Action("EliminaTuttiPerAnno")';
+    
+    // Aggiungi il token antiforgery
+    const token = document.querySelector('input[name="__RequestVerificationToken"]').value;
+    const tokenInput = document.createElement('input');
+    tokenInput.type = 'hidden';
+    tokenInput.name = '__RequestVerificationToken';
+    tokenInput.value = token;
+    form.appendChild(tokenInput);
+    
+    // Aggiungi il parametro anno
+    const annoInput = document.createElement('input');
+    annoInput.type = 'hidden';
+    annoInput.name = 'anno';
+    annoInput.value = anno;
+    form.appendChild(annoInput);
+    
+    // Aggiungi al DOM e invia
+    document.body.appendChild(form);
+    form.submit();
+}
+
+
+
+</script>

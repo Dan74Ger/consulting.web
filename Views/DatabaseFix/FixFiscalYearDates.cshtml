@@ -1,0 +1,111 @@
+@model List<ConsultingGroup.Models.AnnoFiscale>
+
+@{
+    ViewData["Title"] = "Correzione Date Fiscali";
+}
+
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-md-12">
+            <div class="card">
+                <div class="card-header @(ViewBag.Success == true ? "bg-success" : ViewBag.Success == false ? "bg-danger" : "bg-primary") text-white">
+                    <h4 class="mb-0">
+                        <i class="fas fa-tools me-2"></i>Correzione Date Standard Anni Fiscali
+                    </h4>
+                </div>
+                <div class="card-body">
+                    @if (!string.IsNullOrEmpty(ViewBag.Message))
+                    {
+                        <div class="alert @(ViewBag.Success == true ? "alert-success" : "alert-danger") alert-dismissible fade show" role="alert">
+                            <strong>@ViewBag.Message</strong>
+                            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                        </div>
+                    }
+
+                    <div class="row mb-4">
+                        <div class="col-md-8">
+                            <h5>📅 Date Standard Applicate:</h5>
+                            <ul class="list-group list-group-flush">
+                                <li class="list-group-item"><strong>730:</strong> 31 Luglio</li>
+                                <li class="list-group-item"><strong>740:</strong> 30 Settembre</li>
+                                <li class="list-group-item"><strong>750:</strong> 28 Febbraio (anno successivo)</li>
+                                <li class="list-group-item"><strong>760:</strong> 31 Ottobre</li>
+                                <li class="list-group-item"><strong>770:</strong> 30 Novembre</li>
+                                <li class="list-group-item"><strong>ENC:</strong> 31 Luglio</li>
+                                <li class="list-group-item"><strong>IRAP:</strong> 30 Giugno</li>
+                                <li class="list-group-item"><strong>CU:</strong> 28 Febbraio (anno successivo)</li>
+                                <li class="list-group-item"><strong>DRIVA:</strong> 28 Febbraio (anno successivo)</li>
+                            </ul>
+                        </div>
+                        <div class="col-md-4">
+                            <h5>📊 Lipe Trimestrali:</h5>
+                            <ul class="list-group list-group-flush">
+                                <li class="list-group-item"><strong>1° Trim:</strong> 16 Maggio</li>
+                                <li class="list-group-item"><strong>2° Trim:</strong> 20 Agosto</li>
+                                <li class="list-group-item"><strong>3° Trim:</strong> 18 Novembre</li>
+                                <li class="list-group-item"><strong>4° Trim:</strong> 17 Febbraio (anno successivo)</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    @if (Model != null && Model.Any())
+                    {
+                        <h5>📋 Anni Fiscali Aggiornati:</h5>
+                        <div class="table-responsive">
+                            <table class="table table-striped">
+                                <thead>
+                                    <tr>
+                                        <th>Anno</th>
+                                        <th>Descrizione</th>
+                                        <th>730</th>
+                                        <th>740</th>
+                                        <th>750</th>
+                                        <th>IRAP</th>
+                                        <th>CU</th>
+                                        <th>DRIVA</th>
+                                        <th>Aggiornato</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var anno in Model)
+                                    {
+                                        <tr>
+                                            <td><strong>@anno.Anno</strong> @(anno.AnnoCorrente ? "⭐" : "")</td>
+                                            <td>@anno.Descrizione</td>
+                                            <td>@anno.Scadenza730?.ToString("dd/MM/yyyy")</td>
+                                            <td>@anno.Scadenza740?.ToString("dd/MM/yyyy")</td>
+                                            <td>@anno.Scadenza750?.ToString("dd/MM/yyyy")</td>
+                                            <td>@anno.ScadenzaIRAP?.ToString("dd/MM/yyyy")</td>
+                                            <td>@anno.ScadenzaCU?.ToString("dd/MM/yyyy")</td>
+                                            <td>@anno.ScadenzaDIVA?.ToString("dd/MM/yyyy")</td>
+                                            <td><small class="text-muted">@anno.UpdatedAt.ToString("dd/MM/yyyy HH:mm")</small></td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    }
+
+                    <div class="mt-4">
+                        <a href="/AnniFiscali" class="btn btn-primary">
+                            <i class="fas fa-arrow-left me-1"></i>Torna agli Anni Fiscali
+                        </a>
+                        
+                        @if (ViewBag.Success != true)
+                        {
+                            <a href="/DatabaseFix/FixFiscalYearDates" class="btn btn-warning">
+                                <i class="fas fa-sync-alt me-1"></i>Esegui Correzione Date
+                            </a>
+                        }
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+
+
+

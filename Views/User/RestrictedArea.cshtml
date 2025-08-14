@@ -1,0 +1,93 @@
+@{
+    ViewData["Title"] = "Area Riservata";
+}
+
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <!-- Breadcrumb -->
+            <nav aria-label="breadcrumb" class="mb-3">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item active">Area Riservata</li>
+                </ol>
+            </nav>
+
+            <div class="card">
+                <div class="card-header bg-warning text-dark">
+                    <h4 class="mb-0">
+                        <i class="fas fa-shield-alt me-2"></i>
+                        Area Riservata
+                    </h4>
+                    <small>Contenuto per utenti con permessi speciali</small>
+                </div>
+                
+                <div class="card-body">
+                    <div class="alert alert-success">
+                        <i class="fas fa-check-circle me-2"></i>
+                        @ViewBag.Message
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="card bg-light">
+                                <div class="card-header">
+                                    <h6 class="mb-0">Accesso Autorizzato</h6>
+                                </div>
+                                <div class="card-body">
+                                    <p class="card-text">
+                                        Hai i permessi necessari per accedere a questa sezione riservata.
+                                    </p>
+                                    <ul class="list-group list-group-flush">
+                                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                                            Documenti Riservati
+                                            <span class="badge bg-success rounded-pill">Disponibile</span>
+                                        </li>
+                                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                                            Funzioni Avanzate
+                                            <span class="badge bg-success rounded-pill">Disponibile</span>
+                                        </li>
+                                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                                            Area Collaborativa
+                                            <span class="badge bg-success rounded-pill">Disponibile</span>
+                                        </li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="col-md-6">
+                            <div class="card bg-light">
+                                <div class="card-header">
+                                    <h6 class="mb-0">Strumenti Disponibili</h6>
+                                </div>
+                                <div class="card-body">
+                                    <div class="d-grid gap-2">
+                                        <button class="btn btn-outline-primary" disabled>
+                                            <i class="fas fa-file-download me-2"></i>
+                                            Scarica Documenti Riservati
+                                        </button>
+                                        <button class="btn btn-outline-info" disabled>
+                                            <i class="fas fa-users me-2"></i>
+                                            Accesso Area Collaborativa
+                                        </button>
+                                        <button class="btn btn-outline-warning" disabled>
+                                            <i class="fas fa-cogs me-2"></i>
+                                            Configurazioni Avanzate
+                                        </button>
+                                    </div>
+                                    <hr>
+                                    <small class="text-muted">
+                                        <i class="fas fa-info-circle me-1"></i>
+                                        Funzionalità in via di sviluppo
+                                    </small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    @* Bottone rimosso - nessun link alla pagina di benvenuto *@
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

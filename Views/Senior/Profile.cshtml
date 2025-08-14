@@ -1,0 +1,161 @@
+@{
+    ViewData["Title"] = "Profilo Senior";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item"><a href="@Url.Action("Welcome", "Senior")">Area Senior</a></li>
+                    <li class="breadcrumb-item active" aria-current="page">Profilo</li>
+                </ol>
+            </nav>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-12">
+            <div class="alert alert-info">
+                <i class="fas fa-info-circle me-2"></i>
+                <strong>Area Senior:</strong> Hai accesso a funzionalità avanzate del sistema. Utilizza questa sezione per gestire il tuo profilo e le impostazioni personali.
+            </div>
+        </div>
+    </div>
+
+    <!-- Include same content as User Profile but with Senior-specific features -->
+    <div class="row">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header bg-primary text-white">
+                    <h4 class="mb-0">
+                        <i class="fas fa-user-tie me-2"></i>
+                        Profilo Utente Senior
+                    </h4>
+                </div>
+                <div class="card-body">
+                    <form>
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="firstName" class="form-label">Nome</label>
+                                <input type="text" class="form-control" id="firstName" value="Utente">
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="lastName" class="form-label">Cognome</label>
+                                <input type="text" class="form-control" id="lastName" value="Senior">
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <label for="email" class="form-label">Email</label>
+                            <input type="email" class="form-control" id="email" value="senior@consultinggroup.com">
+                        </div>
+                        <div class="mb-3">
+                            <label for="username" class="form-label">Nome Utente</label>
+                            <input type="text" class="form-control" id="username" value="senior" readonly>
+                        </div>
+                        <div class="mb-3">
+                            <label for="accessLevel" class="form-label">Livello di Accesso</label>
+                            <select class="form-select" id="accessLevel" disabled>
+                                <option value="senior" selected>Senior User - Accesso Avanzato</option>
+                            </select>
+                            <div class="form-text">Il livello di accesso può essere modificato solo dall'Amministratore.</div>
+                        </div>
+                        
+                        <!-- Senior-specific options -->
+                        <div class="card bg-light mt-3">
+                            <div class="card-header">
+                                <h6 class="mb-0">Preferenze Senior</h6>
+                            </div>
+                            <div class="card-body">
+                                <div class="form-check mb-2">
+                                    <input class="form-check-input" type="checkbox" id="advancedReports" checked>
+                                    <label class="form-check-label" for="advancedReports">
+                                        Abilita report avanzati automatici
+                                    </label>
+                                </div>
+                                <div class="form-check mb-2">
+                                    <input class="form-check-input" type="checkbox" id="systemNotifications" checked>
+                                    <label class="form-check-label" for="systemNotifications">
+                                        Ricevi notifiche di sistema
+                                    </label>
+                                </div>
+                                <div class="form-check mb-2">
+                                    <input class="form-check-input" type="checkbox" id="fullAccess">
+                                    <label class="form-check-label" for="fullAccess">
+                                        Modalità accesso completo sezioni
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="d-grid gap-2 d-md-flex justify-content-md-end mt-3">
+                            <button type="button" class="btn btn-secondary me-md-2">Annulla</button>
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-save me-1"></i>
+                                Salva Modifiche
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-header bg-primary text-white">
+                    <h6 class="mb-0 text-white">Privilegi Senior</h6>
+                </div>
+                <div class="card-body">
+                    <ul class="list-unstyled">
+                        <li class="mb-2">
+                            <i class="fas fa-check text-success me-2"></i>
+                            Accesso completo sezioni
+                        </li>
+                        <li class="mb-2">
+                            <i class="fas fa-check text-success me-2"></i>
+                            Report avanzati
+                        </li>
+                        <li class="mb-2">
+                            <i class="fas fa-check text-success me-2"></i>
+                            Configurazioni sistema
+                        </li>
+                        <li class="mb-2">
+                            <i class="fas fa-check text-success me-2"></i>
+                            Export completo dati
+                        </li>
+                        <li class="mb-2">
+                            <i class="fas fa-times text-danger me-2"></i>
+                            Gestione utenti
+                        </li>
+                    </ul>
+                    <hr>
+                    <small class="text-muted">
+                        Per ottenere privilegi di Amministratore, contatta il sistemista.
+                    </small>
+                </div>
+            </div>
+
+            <div class="card mt-3">
+                <div class="card-header">
+                    <h6 class="mb-0">Strumenti Senior</h6>
+                </div>
+                <div class="card-body">
+                    <div class="d-grid gap-2">
+                        <a href="@Url.Action("Reports", "Senior")" class="btn btn-outline-info btn-sm">
+                            <i class="fas fa-chart-bar me-1"></i>
+                            Report Dashboard
+                        </a>
+                        <a href="@Url.Action("Settings", "Senior")" class="btn btn-outline-warning btn-sm">
+                            <i class="fas fa-cogs me-1"></i>
+                            Impostazioni Avanzate
+                        </a>
+                        <button type="button" class="btn btn-outline-success btn-sm">
+                            <i class="fas fa-download me-1"></i>
+                            Export Completo
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

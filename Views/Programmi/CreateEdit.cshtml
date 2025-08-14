@@ -1,0 +1,210 @@
+@model ConsultingGroup.ViewModels.ProgrammiCreateEditViewModel
+
+@{
+    ViewData["Title"] = Model.PageTitle;
+}
+
+<div class="container-fluid">
+    <!-- Header della pagina -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h2><i class="fas fa-@(Model.IsEdit ? "edit" : "plus") text-primary me-2"></i>@Model.PageTitle</h2>
+            <p class="text-muted mb-0">@(Model.IsEdit ? "Modifica le informazioni del programma" : "Inserisci le informazioni del nuovo programma")</p>
+        </div>
+        <a asp-action="Index" class="btn btn-outline-secondary">
+            <i class="fas fa-arrow-left me-1"></i>Torna alla Lista
+        </a>
+    </div>
+
+    <div class="row">
+        <div class="col-lg-8">
+            <!-- Form Principale -->
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">
+                        <i class="fas fa-info-circle me-2"></i>Informazioni Programma
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <form asp-action="@(Model.IsEdit ? "Edit" : "Create")" method="post">
+                        @Html.AntiForgeryToken()
+                        @if (Model.IsEdit)
+                        {
+                            <input asp-for="Id" type="hidden" />
+                        }
+
+                        <div class="row">
+                            <div class="col-md-12">
+                                <div class="mb-3">
+                                    <label asp-for="NomeProgramma" class="form-label">
+                                        <i class="fas fa-tag me-1"></i>Nome Programma <span class="text-danger">*</span>
+                                    </label>
+                                    <input asp-for="NomeProgramma" class="form-control" placeholder="Es: Contabilità Ordinaria" />
+                                    <span asp-validation-for="NomeProgramma" class="text-danger"></span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <div class="form-check form-switch">
+                                        <input asp-for="Attivo" class="form-check-input" type="checkbox" id="attivoSwitch">
+                                        <label asp-for="Attivo" class="form-check-label" for="attivoSwitch">
+                                            <i class="fas fa-power-off me-1"></i>Programma Attivo
+                                        </label>
+                                    </div>
+                                    <small class="form-text text-muted">
+                                        Indica se il programma è attualmente utilizzabile
+                                    </small>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label asp-for="RiattivatoperAnno" class="form-label">
+                                        <i class="fas fa-calendar me-1"></i>Anno Fiscale Riattivazione
+                                    </label>
+                                    <select asp-for="RiattivatoperAnno" class="form-select" 
+                                            asp-items="Model.AnniFiscali">
+                                        <option value="">Nessuna riattivazione</option>
+                                    </select>
+                                    <small class="form-text text-muted">
+                                        Imposta solo se il programma è stato riattivato per un anno specifico
+                                    </small>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="d-flex gap-2">
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-save me-1"></i>@Model.SubmitButtonText
+                            </button>
+                            <a asp-action="Index" class="btn btn-outline-secondary">
+                                <i class="fas fa-times me-1"></i>Annulla
+                            </a>
+                            @if (Model.IsEdit)
+                            {
+                                <a asp-action="Details" asp-route-id="@Model.Id" class="btn btn-outline-info ms-auto">
+                                    <i class="fas fa-eye me-1"></i>Visualizza Dettagli
+                                </a>
+                            }
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-4">
+            <!-- Pannello Informativo -->
+            <div class="card">
+                <div class="card-header">
+                    <h6 class="card-title mb-0">
+                        <i class="fas fa-lightbulb me-2"></i>Suggerimenti
+                    </h6>
+                </div>
+                <div class="card-body">
+                    <div class="mb-3">
+                        <h6><i class="fas fa-tag text-primary me-1"></i>Nome Programma</h6>
+                        <small class="text-muted">
+                            Inserisci un nome descrittivo per il programma (es: "Contabilità Ordinaria", "Gestione IVA", "Dichiarazioni Fiscali").
+                        </small>
+                    </div>
+
+                    <div class="mb-3">
+                        <h6><i class="fas fa-power-off text-success me-1"></i>Stato Attivo</h6>
+                        <small class="text-muted">
+                            Un programma attivo può essere assegnato ai clienti e utilizzato nelle operazioni.
+                        </small>
+                    </div>
+
+                    <div class="mb-3">
+                        <h6><i class="fas fa-redo text-warning me-1"></i>Riattivazione</h6>
+                        <small class="text-muted">
+                            Imposta l'anno fiscale solo se il programma è stato cessato e poi riattivato per un anno specifico.
+                        </small>
+                    </div>
+                </div>
+            </div>
+
+            @if (Model.IsEdit)
+            {
+                <!-- Pannello Azioni Rapide -->
+                <div class="card mt-3">
+                    <div class="card-header">
+                        <h6 class="card-title mb-0">
+                            <i class="fas fa-bolt me-2"></i>Azioni Rapide
+                        </h6>
+                    </div>
+                    <div class="card-body">
+                        <div class="d-grid gap-2">
+                            <a asp-action="Details" asp-route-id="@Model.Id" class="btn btn-outline-info btn-sm">
+                                <i class="fas fa-eye me-1"></i>Visualizza Dettagli
+                            </a>
+                            <button type="button" class="btn btn-outline-warning btn-sm" 
+                                    data-bs-toggle="modal" data-bs-target="#toggleModal">
+                                <i class="fas fa-@(Model.Attivo ? "pause" : "play") me-1"></i>
+                                @(Model.Attivo ? "Disattiva" : "Attiva") Programma
+                            </button>
+                            <button type="button" class="btn btn-outline-danger btn-sm" 
+                                    data-bs-toggle="modal" data-bs-target="#deleteModal">
+                                <i class="fas fa-trash me-1"></i>Elimina Programma
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Modal per Toggle Status -->
+                <div class="modal fade" id="toggleModal" tabindex="-1">
+                    <div class="modal-dialog">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title">Conferma Azione</h5>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                            </div>
+                            <div class="modal-body">
+                                <p>Sei sicuro di voler @(Model.Attivo ? "disattivare" : "attivare") il programma "@Model.NomeProgramma"?</p>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annulla</button>
+                                <form method="post" style="display: inline;">
+                                    @Html.AntiForgeryToken()
+                                    <input type="hidden" name="id" value="@Model.Id" />
+                                    <button type="submit" class="btn btn-primary" formaction="@Url.Action("ToggleStatus")">Conferma</button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Modal per Eliminazione -->
+                <div class="modal fade" id="deleteModal" tabindex="-1">
+                    <div class="modal-dialog">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title">Conferma Eliminazione</h5>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                            </div>
+                            <div class="modal-body">
+                                <p><strong>Attenzione!</strong> Stai per eliminare definitivamente il programma "@Model.NomeProgramma".</p>
+                                <p class="text-danger">Questa azione non può essere annullata.</p>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annulla</button>
+                                <form method="post" style="display: inline;">
+                                    @Html.AntiForgeryToken()
+                                    <input type="hidden" name="id" value="@Model.Id" />
+                                    <button type="submit" class="btn btn-danger" formaction="@Url.Action("Delete")">Elimina Definitivamente</button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}
+

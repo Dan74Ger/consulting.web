@@ -1,0 +1,273 @@
+@model IEnumerable<ConsultingGroup.Models.TipologiaInps>
+
+@{
+    ViewData["Title"] = "Tipologie INPS";
+    var totaleTipologie = ViewBag.TotaleTipologie ?? 0;
+    var tipologieAttive = ViewBag.TipologieAttive ?? 0;
+    var tipologieCessate = ViewBag.TipologieCessate ?? 0;
+    var tipologieRiattivate = ViewBag.TipologieRiattivate ?? 0;
+    var currentPage = ViewBag.CurrentPage ?? 1;
+    var totalPages = ViewBag.TotalPages ?? 1;
+    var currentFilter = ViewBag.CurrentFilter ?? "";
+}
+
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <div>
+                    <h2><i class="fas fa-id-card me-2 text-info"></i>Tipologie INPS</h2>
+                    <p class="text-muted mb-0">Gestione delle tipologie INPS (artigiano, commerciante, lav. autonomo, ecc.)</p>
+                </div>
+                <div>
+                    <a asp-action="Create" class="btn btn-success">
+                        <i class="fas fa-plus me-1"></i>Nuova Tipologia
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Statistiche -->
+    <div class="row mb-4">
+        <div class="col-md-3">
+            <div class="card border-info">
+                <div class="card-body text-center">
+                    <i class="fas fa-list-ul fa-2x text-info mb-2"></i>
+                    <h4 class="card-title text-info">@totaleTipologie</h4>
+                    <p class="card-text">Totale Tipologie</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card border-success">
+                <div class="card-body text-center">
+                    <i class="fas fa-check-circle fa-2x text-success mb-2"></i>
+                    <h4 class="card-title text-success">@tipologieAttive</h4>
+                    <p class="card-text">Attive</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card border-warning">
+                <div class="card-body text-center">
+                    <i class="fas fa-pause-circle fa-2x text-warning mb-2"></i>
+                    <h4 class="card-title text-warning">@tipologieCessate</h4>
+                    <p class="card-text">Cessate</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card border-info">
+                <div class="card-body text-center">
+                    <i class="fas fa-redo fa-2x text-info mb-2"></i>
+                    <h4 class="card-title text-info">@tipologieRiattivate</h4>
+                    <p class="card-text">Riattivate per Anno</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Barra di ricerca -->
+    <div class="row mb-3">
+        <div class="col-md-6">
+            <form method="get" asp-action="Index">
+                <div class="input-group">
+                    <input type="text" name="searchString" value="@currentFilter" class="form-control" placeholder="Cerca tipologie...">
+                    <button class="btn btn-outline-secondary" type="submit">
+                        <i class="fas fa-search"></i>
+                    </button>
+                    @if (!string.IsNullOrEmpty(currentFilter))
+                    {
+                        <a href="@Url.Action("Index")" class="btn btn-outline-danger">
+                            <i class="fas fa-times"></i>
+                        </a>
+                    }
+                </div>
+            </form>
+        </div>
+    </div>
+
+    @if (TempData["SuccessMessage"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            <i class="fas fa-check-circle me-2"></i>@TempData["SuccessMessage"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    }
+
+    <!-- Tabella -->
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-body p-0">
+                    @if (Model.Any())
+                    {
+                        <div class="table-responsive">
+                            <table class="table table-hover mb-0">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th>Tipologia</th>
+                                        <th>Stato</th>
+                                        <th>Data Attivazione</th>
+                                        <th>Anno Riattivazione</th>
+                                        <th class="text-center">Azioni</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var tipologia in Model)
+                                    {
+                                        <tr>
+                                            <td>
+                                                <strong>@tipologia.Tipologia</strong>
+                                            </td>
+                                            <td>
+                                                @if (tipologia.Attivo)
+                                                {
+                                                    <span class="badge bg-success">
+                                                        <i class="fas fa-check me-1"></i>Attiva
+                                                    </span>
+                                                }
+                                                else
+                                                {
+                                                    <span class="badge bg-warning text-dark">
+                                                        <i class="fas fa-pause me-1"></i>Cessata
+                                                    </span>
+                                                }
+                                            </td>
+                                            <td>
+                                                <small class="text-muted">
+                                                    <i class="fas fa-calendar me-1"></i>
+                                                    @tipologia.DataAttivazione.ToString("dd/MM/yyyy")
+                                                </small>
+                                            </td>
+                                            <td>
+                                                @if (tipologia.AnnoFiscaleRiattivazione != null)
+                                                {
+                                                    <span class="badge bg-info">
+                                                        @tipologia.AnnoFiscaleRiattivazione.Anno
+                                                    </span>
+                                                }
+                                                else
+                                                {
+                                                    <span class="text-muted">-</span>
+                                                }
+                                            </td>
+                                            <td class="text-center">
+                                                <div class="btn-group" role="group">
+                                                    <a asp-action="Details" asp-route-id="@tipologia.IdTipologiaInps" 
+                                                       class="btn btn-sm btn-outline-info" title="Visualizza">
+                                                        <i class="fas fa-eye"></i>
+                                                    </a>
+                                                    <a asp-action="Edit" asp-route-id="@tipologia.IdTipologiaInps" 
+                                                       class="btn btn-sm btn-outline-primary" title="Modifica">
+                                                        <i class="fas fa-edit"></i>
+                                                    </a>
+                                                    
+                                                    @* Pulsante Cessa/Riattiva *@
+                                                    <form asp-action="ToggleStatus" asp-route-id="@tipologia.IdTipologiaInps" 
+                                                          method="post" class="d-inline">
+                                                        @Html.AntiForgeryToken()
+                                                        <button type="submit" 
+                                                                class="btn btn-sm btn-outline-@(tipologia.Attivo ? "warning" : "success")" 
+                                                                title="@(tipologia.Attivo ? "Cessa" : "Riattiva")"
+                                                                onclick="return confirm('@(tipologia.Attivo ? "Vuoi davvero cessare questa tipologia INPS?" : "Vuoi davvero riattivare questa tipologia INPS?")')">
+                                                            <i class="fas fa-@(tipologia.Attivo ? "pause" : "play")"></i>
+                                                        </button>
+                                                    </form>
+                                                    
+                                                    @* Pulsante Elimina *@
+                                                    <form asp-action="DeleteConfirmed" asp-route-id="@tipologia.IdTipologiaInps" 
+                                                          method="post" class="d-inline">
+                                                        @Html.AntiForgeryToken()
+                                                        <button type="submit" 
+                                                                class="btn btn-sm btn-outline-danger" 
+                                                                title="Elimina"
+                                                                onclick="return confirm('Vuoi davvero eliminare questa tipologia INPS? Questa azione non può essere annullata.')">
+                                                            <i class="fas fa-trash"></i>
+                                                        </button>
+                                                    </form>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <!-- Paginazione -->
+                        @if (totalPages > 1)
+                        {
+                            <div class="card-footer">
+                                <nav aria-label="Paginazione tipologie">
+                                    <ul class="pagination pagination-sm justify-content-center mb-0">
+                                        @if (currentPage > 1)
+                                        {
+                                            <li class="page-item">
+                                                <a class="page-link" asp-action="Index" asp-route-page="@(currentPage - 1)" asp-route-searchString="@currentFilter">
+                                                    <i class="fas fa-chevron-left"></i>
+                                                </a>
+                                            </li>
+                                        }
+
+                                        @for (int i = Math.Max(1, currentPage - 2); i <= Math.Min(totalPages, currentPage + 2); i++)
+                                        {
+                                            <li class="page-item @(i == currentPage ? "active" : "")">
+                                                <a class="page-link" asp-action="Index" asp-route-page="@i" asp-route-searchString="@currentFilter">@i</a>
+                                            </li>
+                                        }
+
+                                        @if (currentPage < totalPages)
+                                        {
+                                            <li class="page-item">
+                                                <a class="page-link" asp-action="Index" asp-route-page="@(currentPage + 1)" asp-route-searchString="@currentFilter">
+                                                    <i class="fas fa-chevron-right"></i>
+                                                </a>
+                                            </li>
+                                        }
+                                    </ul>
+                                </nav>
+                            </div>
+                        }
+                    }
+                    else
+                    {
+                        <div class="text-center p-4">
+                            <i class="fas fa-id-card fa-3x text-muted mb-3"></i>
+                            <h5 class="text-muted">Nessuna tipologia INPS trovata</h5>
+                            @if (!string.IsNullOrEmpty(currentFilter))
+                            {
+                                <p class="text-muted">Prova a modificare i criteri di ricerca</p>
+                                <a href="@Url.Action("Index")" class="btn btn-outline-primary">
+                                    <i class="fas fa-times me-1"></i>Pulisci filtri
+                                </a>
+                            }
+                            else
+                            {
+                                <p class="text-muted">Inizia creando la prima tipologia INPS</p>
+                                <a asp-action="Create" class="btn btn-success">
+                                    <i class="fas fa-plus me-1"></i>Crea Prima Tipologia
+                                </a>
+                            }
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        // Auto-hide success alerts
+        setTimeout(function() {
+            $('.alert-success').fadeOut('slow');
+        }, 5000);
+    </script>
+}
+
+
+
+
+
+

@@ -1,0 +1,193 @@
+@model ConsultingGroup.ViewModels.UserPermissionsViewModel
+
+@{
+    ViewData["Title"] = "Modifica Permessi Utente";
+}
+
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h4 class="mb-0">
+                        <i class="fas fa-user-shield me-2"></i>
+                        Modifica Permessi - @Model.FullName
+                    </h4>
+                    <a asp-action="Index" class="btn btn-secondary btn-sm">
+                        <i class="fas fa-arrow-left me-1"></i>
+                        Torna alla Lista
+                    </a>
+                </div>
+
+                <div class="card-body">
+                    <!-- Informazioni Utente -->
+                    <div class="alert alert-info">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <strong><i class="fas fa-user me-1"></i> Nome:</strong> @Model.FullName
+                            </div>
+                            <div class="col-md-6">
+                                <strong><i class="fas fa-envelope me-1"></i> Email:</strong> @Model.Email
+                            </div>
+                        </div>
+                        <div class="row mt-2">
+                            <div class="col-md-6">
+                                <strong><i class="fas fa-id-badge me-1"></i> Username:</strong> @Model.UserName
+                            </div>
+                            <div class="col-md-6">
+                                <strong><i class="fas fa-shield-alt me-1"></i> Ruolo:</strong> 
+                                <span class="badge bg-primary">@Model.Role</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Form Permessi Semplificato -->
+                    <form asp-action="Edit" method="post">
+                        <input asp-for="UserId" type="hidden" />
+                        <input asp-for="UserName" type="hidden" />
+                        <input asp-for="Email" type="hidden" />
+                        <input asp-for="Role" type="hidden" />
+                        <input asp-for="FullName" type="hidden" />
+
+                        <div class="row">
+                            <div class="col-12">
+                                <h5 class="mb-4">
+                                    <i class="fas fa-cogs me-2"></i>
+                                    Permessi Sistema Semplificato
+                                </h5>
+                                
+                                <div class="alert alert-warning">
+                                    <i class="fas fa-info-circle me-2"></i>
+                                    <strong>Sistema Semplificato:</strong> I permessi sono ora gestiti principalmente tramite ruoli. 
+                                    Usa queste impostazioni solo per personalizzazioni specifiche.
+                                </div>
+
+                                <!-- Layout compatto a griglia -->
+                                <div class="card">
+                                    <div class="card-body">
+                                        <div class="row g-3">
+                                            <!-- Prima riga -->
+                                            <div class="col-md-6">
+                                                <div class="border rounded p-3 h-100">
+                                                    <div class="form-check form-switch">
+                                                        <input asp-for="GestioneAttivita" class="form-check-input" />
+                                                        <label asp-for="GestioneAttivita" class="form-check-label">
+                                                            <i class="fas fa-tasks me-2 text-dark"></i>
+                                                            <strong>Gestione Attività</strong>
+                                                        </label>
+                                                    </div>
+                                                    <small class="text-muted">Attività Redditi, IVA e Contabili</small>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <div class="border rounded p-3 h-100">
+                                                    <div class="form-check form-switch">
+                                                        <input asp-for="CanAccessAnagrafiche" class="form-check-input" />
+                                                        <label asp-for="CanAccessAnagrafiche" class="form-check-label">
+                                                            <i class="fas fa-address-book me-2 text-success"></i>
+                                                            <strong>Anagrafiche</strong>
+                                                        </label>
+                                                    </div>
+                                                    <small class="text-muted">Gestione Anagrafe Clienti e Fornitori</small>
+                                                </div>
+                                            </div>
+
+                                            <!-- Seconda riga -->
+                                            <div class="col-md-6">
+                                                <div class="border rounded p-3 h-100">
+                                                    <div class="form-check form-switch">
+                                                        <input asp-for="CanAccessDatiUtenzaGenerale" class="form-check-input" />
+                                                        <label asp-for="CanAccessDatiUtenzaGenerale" class="form-check-label">
+                                                            <i class="fas fa-folder-open me-2 text-info"></i>
+                                                            <strong>Dati Generali</strong>
+                                                        </label>
+                                                    </div>
+                                                    <small class="text-muted">Cancelleria, Utenti PC, Entratel</small>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <!-- Spazio vuoto per layout simmetrico -->
+                                            </div>
+
+                                            <!-- Terza riga - Permessi avanzati -->
+                                            <div class="col-md-6">
+                                                <div class="border rounded p-3 h-100 bg-light">
+                                                    <div class="form-check form-switch">
+                                                        <input asp-for="CanAccessDatiUtenzaRiservata" class="form-check-input" />
+                                                        <label asp-for="CanAccessDatiUtenzaRiservata" class="form-check-label">
+                                                            <i class="fas fa-lock me-2 text-danger"></i>
+                                                            <strong>Dati Riservati</strong>
+                                                        </label>
+                                                    </div>
+                                                    <small class="text-muted">Banche, Carte, Mail, Utenze <span class="badge bg-danger">Admin+Senior</span></small>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <div class="border rounded p-3 h-100 bg-light">
+                                                    <div class="form-check form-switch">
+                                                        <input asp-for="CanAccessAreaAmministrativa" class="form-check-input" />
+                                                        <label asp-for="CanAccessAreaAmministrativa" class="form-check-label">
+                                                            <i class="fas fa-shield-alt me-2 text-warning"></i>
+                                                            <strong>Area Amministrativa</strong>
+                                                        </label>
+                                                    </div>
+                                                    <small class="text-muted">Gestione Amministrativa <span class="badge bg-warning">Admin+Senior</span></small>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Informazioni aggiornamento -->
+                        @if (Model.LastModified != default(DateTime))
+                        {
+                            <div class="alert alert-light mt-4">
+                                <small class="text-muted">
+                                    <i class="fas fa-clock me-1"></i>
+                                    Ultima modifica: @Model.LastModified.ToString("dd/MM/yyyy HH:mm") da @Model.ModifiedBy
+                                </small>
+                            </div>
+                        }
+
+                        <!-- Pulsanti azione -->
+                        <div class="row mt-4">
+                            <div class="col-12">
+                                <div class="d-flex justify-content-between">
+                                    <div>
+                                        <button type="submit" class="btn btn-success me-2">
+                                            <i class="fas fa-save me-1"></i>
+                                            Salva Modifiche
+                                        </button>
+                                        <a asp-action="Index" class="btn btn-secondary">
+                                            <i class="fas fa-times me-1"></i>
+                                            Annulla
+                                        </a>
+                                    </div>
+                                    <div>
+                                        <a asp-action="ResetToDefault" asp-route-id="@Model.UserId" 
+                                           class="btn btn-warning"
+                                           onclick="return confirm('Sei sicuro di voler ripristinare i permessi di default?')">
+                                            <i class="fas fa-undo me-1"></i>
+                                            Ripristina Default
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        // Tooltip per migliore usabilità
+        $(document).ready(function() {
+            $('[data-bs-toggle="tooltip"]').tooltip();
+        });
+    </script>
+}

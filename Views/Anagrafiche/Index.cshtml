@@ -1,0 +1,260 @@
+@model ConsultingGroup.ViewModels.AnagraficheIndexViewModel
+@{
+    ViewData["Title"] = "Gestione Anagrafiche";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <!-- Header Section -->
+            <div class="card shadow mb-4">
+                <div class="card-header bg-gradient-primary text-white">
+                    <h3 class="mb-0">
+                        <i class="fas fa-address-book me-2"></i>
+                        Gestione Anagrafiche
+                    </h3>
+                </div>
+            </div>
+
+            <!-- Dashboard Cards Grid -->
+            <div class="row g-3 mb-4">
+                <!-- 1. STUDIO -->
+                <div class="col-xl-3 col-lg-4 col-md-6">
+                    <div class="card h-100 shadow-sm border-0 studio-card">
+                        <div class="card-body text-center p-3">
+                            <div class="feature-icon bg-primary bg-gradient text-white rounded-3 mb-2">
+                                <i class="fas fa-building fa-lg"></i>
+                            </div>
+                            <h5 class="fw-bold text-primary mb-2">Studio</h5>
+                            <div class="row text-center mt-2">
+                                <div class="col">
+                                    <div class="h6 mb-0 text-success">@Model.StudiosAttivi</div>
+                                    <small class="text-muted">Attivi</small>
+                                </div>
+                                <div class="col">
+                                    <div class="h6 mb-0 text-danger">@Model.StudiosCessati</div>
+                                    <small class="text-muted">Cessati</small>
+                                </div>
+                                @if (Model.StudiosRiattivati > 0)
+                                {
+                                    <div class="col">
+                                        <div class="h6 mb-0 text-warning">@Model.StudiosRiattivati</div>
+                                        <small class="text-muted">Riattivati</small>
+                                    </div>
+                                }
+                            </div>
+                            <a asp-controller="Studio" asp-action="Index" class="btn btn-primary btn-sm mt-2 w-100">
+                                <i class="fas fa-arrow-right me-1"></i> Gestisci
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 2. PROGRAMMI -->
+                <div class="col-xl-3 col-lg-4 col-md-6">
+                    <div class="card h-100 shadow-sm border-0 programmi-card">
+                        <div class="card-body text-center p-3">
+                            <div class="feature-icon bg-purple bg-gradient text-white rounded-3 mb-2">
+                                <i class="fas fa-laptop-code fa-lg"></i>
+                            </div>
+                            <h5 class="fw-bold text-purple mb-2">Programmi</h5>
+                            <div class="row text-center mt-2">
+                                <div class="col">
+                                    <div class="h6 mb-0 text-success">@Model.ProgrammiAttivi</div>
+                                    <small class="text-muted">Attivi</small>
+                                </div>
+                                <div class="col">
+                                    <div class="h6 mb-0 text-danger">@Model.ProgrammiCessati</div>
+                                    <small class="text-muted">Cessati</small>
+                                </div>
+                            </div>
+                            <a asp-controller="Programmi" asp-action="Index" class="btn btn-purple btn-sm mt-2 w-100">
+                                <i class="fas fa-arrow-right me-1"></i> Gestisci
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 3. PROFESSIONISTI -->
+                <div class="col-xl-3 col-lg-4 col-md-6">
+                    <div class="card h-100 shadow-sm border-0 professionisti-card">
+                        <div class="card-body text-center p-3">
+                            <div class="feature-icon bg-success bg-gradient text-white rounded-3 mb-2">
+                                <i class="fas fa-user-tie fa-lg"></i>
+                            </div>
+                            <h5 class="fw-bold text-success mb-2">Professionisti</h5>
+                            <div class="row text-center mt-2">
+                                <div class="col">
+                                    <div class="h6 mb-0 text-success">@Model.ProfessionistiAttivi</div>
+                                    <small class="text-muted">Attivi</small>
+                                </div>
+                                <div class="col">
+                                    <div class="h6 mb-0 text-danger">@Model.ProfessionistiCessati</div>
+                                    <small class="text-muted">Cessati</small>
+                                </div>
+                                @if (Model.ProfessionistiRiattivati > 0)
+                                {
+                                    <div class="col">
+                                        <div class="h6 mb-0 text-warning">@Model.ProfessionistiRiattivati</div>
+                                        <small class="text-muted">Riattivati</small>
+                                    </div>
+                                }
+                            </div>
+                            <a asp-controller="Professionisti" asp-action="Index" class="btn btn-success btn-sm mt-2 w-100">
+                                <i class="fas fa-arrow-right me-1"></i> Gestisci
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 4. ANNI FISCALI -->
+                <div class="col-xl-3 col-lg-4 col-md-6">
+                    <div class="card h-100 shadow-sm border-0 anni-card">
+                        <div class="card-body text-center p-3">
+                            <div class="feature-icon bg-warning bg-gradient text-white rounded-3 mb-2">
+                                <i class="fas fa-calendar-alt fa-lg"></i>
+                            </div>
+                            <h5 class="fw-bold text-warning mb-2">Anni Fiscali</h5>
+                            <div class="row text-center mt-2">
+                                <div class="col">
+                                    <div class="h6 mb-0 text-success">@Model.AnniFiscaliAttivi</div>
+                                    <small class="text-muted">Attivi</small>
+                                </div>
+                                <div class="col">
+                                    <div class="h6 mb-0 text-danger">@Model.AnniFiscaliCessati</div>
+                                    <small class="text-muted">Cessati</small>
+                                </div>
+                            </div>
+                            <a asp-controller="AnniFiscali" asp-action="Index" class="btn btn-warning btn-sm mt-2 w-100">
+                                <i class="fas fa-arrow-right me-1"></i> Gestisci
+                            </a>
+                            <div class="mt-1">
+                                <span class="badge bg-warning text-dark small">@Model.AnnoFiscaleCorrente</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 5. CLIENTI -->
+                <div class="col-xl-3 col-lg-4 col-md-6">
+                    <div class="card h-100 shadow-sm border-0 clienti-card">
+                        <div class="card-body text-center p-3">
+                            <div class="feature-icon bg-info bg-gradient text-white rounded-3 mb-2">
+                                <i class="fas fa-users fa-lg"></i>
+                            </div>
+                            <h5 class="fw-bold text-info mb-2">Clienti</h5>
+                            <div class="row text-center mt-2">
+                                <div class="col">
+                                    <div class="h6 mb-0 text-success">@Model.ClientiAttivi</div>
+                                    <small class="text-muted">Attivi</small>
+                                </div>
+                                <div class="col">
+                                    <div class="h6 mb-0 text-danger">@Model.ClientiCessati</div>
+                                    <small class="text-muted">Cessati</small>
+                                </div>
+                                @if (Model.ClientiRiattivati > 0)
+                                {
+                                    <div class="col">
+                                        <div class="h6 mb-0 text-warning">@Model.ClientiRiattivati</div>
+                                        <small class="text-muted">Riattivati</small>
+                                    </div>
+                                }
+                            </div>
+                            <a asp-controller="Clienti" asp-action="Index" class="btn btn-info btn-sm mt-2 w-100">
+                                <i class="fas fa-arrow-right me-1"></i> Gestisci
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 6. REGIMI CONTABILI -->
+                <div class="col-xl-3 col-lg-4 col-md-6">
+                    <div class="card h-100 shadow-sm border-0 regimi-card">
+                        <div class="card-body text-center p-3">
+                            <div class="feature-icon bg-indigo bg-gradient text-white rounded-3 mb-2">
+                                <i class="fas fa-chart-bar fa-lg"></i>
+                            </div>
+                            <h5 class="fw-bold text-indigo mb-2">Regimi Contabili</h5>
+                            <div class="row text-center mt-2">
+                                <div class="col">
+                                    <div class="h6 mb-0 text-success">@Model.RegimiContabiliAttivi</div>
+                                    <small class="text-muted">Attivi</small>
+                                </div>
+                                <div class="col">
+                                    <div class="h6 mb-0 text-danger">@Model.RegimiContabiliCessati</div>
+                                    <small class="text-muted">Cessati</small>
+                                </div>
+                            </div>
+                            <a asp-controller="RegimiContabili" asp-action="Index" class="btn btn-indigo btn-sm mt-2 w-100">
+                                <i class="fas fa-arrow-right me-1"></i> Gestisci
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 7. INPS -->
+                <div class="col-xl-3 col-lg-4 col-md-6">
+                    <div class="card h-100 shadow-sm border-0 inps-card">
+                        <div class="card-body text-center p-3">
+                            <div class="feature-icon bg-pink bg-gradient text-white rounded-3 mb-2">
+                                <i class="fas fa-landmark fa-lg"></i>
+                            </div>
+                            <h5 class="fw-bold text-pink mb-2">Tipologie INPS</h5>
+                            <div class="row text-center mt-2">
+                                <div class="col">
+                                    <div class="h6 mb-0 text-success">@Model.TipologieInpsAttive</div>
+                                    <small class="text-muted">Attive</small>
+                                </div>
+                                <div class="col">
+                                    <div class="h6 mb-0 text-danger">@Model.TipologieInpsCessate</div>
+                                    <small class="text-muted">Cessate</small>
+                                </div>
+                            </div>
+                            <a asp-controller="TipologieInps" asp-action="Index" class="btn btn-pink btn-sm mt-2 w-100">
+                                <i class="fas fa-arrow-right me-1"></i> Gestisci
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+
+        </div>
+    </div>
+</div>
+
+<style>
+.feature-icon {
+    width: 3rem;
+    height: 3rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto;
+}
+
+.bg-purple { background-color: #6f42c1 !important; }
+.text-purple { color: #6f42c1 !important; }
+.btn-purple { background-color: #6f42c1; border-color: #6f42c1; color: white; }
+.btn-purple:hover { background-color: #5a32a3; border-color: #5a32a3; color: white; }
+
+.bg-indigo { background-color: #6610f2 !important; }
+.text-indigo { color: #6610f2 !important; }
+.btn-indigo { background-color: #6610f2; border-color: #6610f2; color: white; }
+.btn-indigo:hover { background-color: #550bd1; border-color: #550bd1; color: white; }
+
+.bg-pink { background-color: #e83e8c !important; }
+.text-pink { color: #e83e8c !important; }
+.btn-pink { background-color: #e83e8c; border-color: #e83e8c; color: white; }
+.btn-pink:hover { background-color: #e21b70; border-color: #e21b70; color: white; }
+
+.card:hover {
+    transform: translateY(-2px);
+    transition: transform 0.2s ease-in-out;
+}
+
+.bg-gradient-primary {
+    background: linear-gradient(135deg, #007bff 0%, #0056b3 100%) !important;
+}
+</style>

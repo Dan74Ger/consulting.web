@@ -1,0 +1,244 @@
+@{
+    ViewData["Title"] = "Gestione Attività";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="container-fluid">
+    <!-- Header -->
+    <div class="row mb-4">
+        <div class="col">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <h1 class="h3 mb-3">
+                        <i class="fas fa-tasks text-primary me-2"></i>
+                        Gestione Attività
+                    </h1>
+                    <p class="text-muted">Gestione completa delle attività fiscali, tributarie e contabili</p>
+                </div>
+                <div>
+                    <a href="@Url.Action("Index", "Clienti")" 
+                       class="btn btn-outline-primary btn-sm">
+                        <i class="fas fa-users me-1"></i>Gestione Clienti
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Cards delle sezioni principali -->
+    <div class="row g-4">
+        <!-- 1. ATTIVITÀ REDDITI -->
+        <div class="col-xl-4 col-lg-6">
+            <div class="card h-100 shadow-sm border-0">
+                <div class="card-header bg-success text-white">
+                    <h5 class="card-title mb-0">
+                        <i class="fas fa-file-invoice-dollar me-2"></i>
+                        Attività Redditi
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <p class="card-text text-muted mb-3">
+                        Gestione dichiarazioni dei redditi e modelli fiscali
+                    </p>
+                    
+                    <div class="row g-2 mb-3">
+                        <div class="col-6">
+                            <a href="@Url.Action("Index", "Attivita730")" class="btn btn-outline-success btn-sm w-100">
+                                <i class="fas fa-file-alt me-1"></i>Mod. 730
+                            </a>
+                        </div>
+                        <div class="col-6">
+                            <a href="@Url.Action("Index", "Attivita740")" class="btn btn-outline-success btn-sm w-100">
+                                <i class="fas fa-file-alt me-1"></i>Mod. 740
+                            </a>
+                        </div>
+                        <div class="col-6">
+                            <a href="@Url.Action("Index", "Attivita750")" class="btn btn-outline-success btn-sm w-100">
+                                <i class="fas fa-file-alt me-1"></i>Mod. 750
+                            </a>
+                        </div>
+                        <div class="col-6">
+                            <a href="@Url.Action("Index", "Attivita760")" class="btn btn-outline-success btn-sm w-100">
+                                <i class="fas fa-file-alt me-1"></i>Mod. 760
+                            </a>
+                        </div>
+                        <div class="col-6">
+                            <a href="@Url.Action("Index", "AttivitaEnc")" class="btn btn-outline-success btn-sm w-100">
+                                <i class="fas fa-file-alt me-1"></i>Mod. ENC
+                            </a>
+                        </div>
+                        <div class="col-6">
+                            <a href="@Url.Action("Attivita770", "AttivitaRedditi")" class="btn btn-outline-success btn-sm w-100">
+                                <i class="fas fa-file-alt me-1"></i>Mod. 770
+                            </a>
+                        </div>
+                        <div class="col-6">
+                            <a href="@Url.Action("AttivitaIRAP", "AttivitaRedditi")" class="btn btn-outline-success btn-sm w-100">
+                                <i class="fas fa-file-alt me-1"></i>Mod. IRAP
+                            </a>
+                        </div>
+                        <div class="col-6">
+                            <a href="@Url.Action("AttivitaCU", "AttivitaRedditi")" class="btn btn-outline-success btn-sm w-100">
+                                <i class="fas fa-file-alt me-1"></i>Mod. CU
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 2. ATTIVITÀ IVA -->
+        <div class="col-xl-4 col-lg-6">
+            <div class="card h-100 shadow-sm border-0">
+                <div class="card-header bg-warning text-dark">
+                    <h5 class="card-title mb-0">
+                        <i class="fas fa-percent me-2"></i>
+                        Attività IVA
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <p class="card-text text-muted mb-3">
+                        Gestione dichiarazioni IVA e adempimenti correlati
+                    </p>
+                    
+                    <div class="row g-2 mb-3">
+                        <div class="col-12">
+                            <a href="@Url.Action("AttivitaDRIVA", "AttivitaIva")" class="btn btn-outline-warning btn-sm w-100">
+                                <i class="fas fa-file-invoice me-1"></i>DR IVA
+                            </a>
+                        </div>
+                        <div class="col-12">
+                            <a href="@Url.Action("AttivitaLipe", "AttivitaIva")" class="btn btn-outline-warning btn-sm w-100">
+                                <i class="fas fa-file-invoice me-1"></i>LIPE
+                            </a>
+                        </div>
+                        <div class="col-12">
+                            <a href="@Url.Action("AttivitaTRIVA", "AttivitaIva")" class="btn btn-outline-warning btn-sm w-100">
+                                <i class="fas fa-file-invoice me-1"></i>TR IVA
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 3. ATTIVITÀ CONTABILE -->
+        <div class="col-xl-4 col-lg-6">
+            <div class="card h-100 shadow-sm border-0">
+                <div class="card-header" style="background-color: #1e3a8a; color: white;">
+                    <h5 class="card-title mb-0">
+                        <i class="fas fa-calculator me-2"></i>
+                        Attività Contabile
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <p class="card-text text-muted mb-3">
+                        Gestione contabilità e adempimenti amministrativi
+                    </p>
+                    
+                    <div class="row g-2 mb-3">
+                        <div class="col-6">
+                            <a href="@Url.Action("ContabilitaTrimestrale", "AttivitaContabile")" class="btn btn-sm w-100 text-truncate" style="background-color: #1e3a8a; color: white;">
+                                <i class="fas fa-calendar-check me-1"></i>Trimestrali
+                            </a>
+                        </div>
+                        <div class="col-6">
+                            <a href="@Url.Action("ContabilitaMensile", "AttivitaContabile")" class="btn btn-sm w-100 text-truncate" style="background-color: #1e3a8a; color: white;">
+                                <i class="fas fa-calendar-alt me-1"></i>Mensili
+                            </a>
+                        </div>
+                        <div class="col-6">
+                            <a href="@Url.Action("CassettoFiscale", "AttivitaContabile")" class="btn btn-sm w-100 text-truncate" style="background-color: #1e3a8a; color: white;">
+                                <i class="fas fa-folder me-1"></i>Cassetto
+                            </a>
+                        </div>
+                        <div class="col-6">
+                            <a href="@Url.Action("FatturazioneElettronica", "AttivitaContabile")" class="btn btn-sm w-100 text-truncate" style="background-color: #1e3a8a; color: white;">
+                                <i class="fas fa-file-invoice me-1"></i>FE
+                            </a>
+                        </div>
+                        <div class="col-6">
+                            <a href="@Url.Action("ConservazioneElettronica", "AttivitaContabile")" class="btn btn-sm w-100 text-truncate" style="background-color: #1e3a8a; color: white;">
+                                <i class="fas fa-archive me-1"></i>Conservazione
+                            </a>
+                        </div>
+                        <div class="col-6">
+                            <a href="@Url.Action("FirmaDigitale", "AttivitaContabile")" class="btn btn-sm w-100 text-truncate" style="background-color: #1e3a8a; color: white;">
+                                <i class="fas fa-signature me-1"></i>Firma Digitale
+                            </a>
+                        </div>
+                        <div class="col-6">
+                            <a href="@Url.Action("AttivitaINPS", "AttivitaContabile")" class="btn btn-sm w-100 text-truncate" style="background-color: #1e3a8a; color: white;">
+                                <i class="fas fa-user-shield me-1"></i>INPS
+                            </a>
+                        </div>
+                        <div class="col-6">
+                            <a href="@Url.Action("AttivitaINAIL", "AttivitaContabile")" class="btn btn-sm w-100 text-truncate" style="background-color: #1e3a8a; color: white;">
+                                <i class="fas fa-hard-hat me-1"></i>INAIL
+                            </a>
+                        </div>
+                        <div class="col-6">
+                            <a href="@Url.Action("ModIntrastat", "AttivitaContabile")" class="btn btn-sm w-100 text-truncate" style="background-color: #1e3a8a; color: white;">
+                                <i class="fas fa-globe me-1"></i>Intrastat
+                            </a>
+                        </div>
+                        <div class="col-6">
+                            <a href="@Url.Action("RegistroIva", "AttivitaContabile")" class="btn btn-sm w-100 text-truncate" style="background-color: #1e3a8a; color: white;">
+                                <i class="fas fa-book me-1"></i>Reg. IVA
+                            </a>
+                        </div>
+                        <div class="col-6">
+                            <a href="@Url.Action("RegistroCespiti", "AttivitaContabile")" class="btn btn-sm w-100 text-truncate" style="background-color: #1e3a8a; color: white;">
+                                <i class="fas fa-tools me-1"></i>Cespiti
+                            </a>
+                        </div>
+                        <div class="col-6">
+                            <a href="@Url.Action("Inventari", "AttivitaContabile")" class="btn btn-sm w-100 text-truncate" style="background-color: #1e3a8a; color: white;">
+                                <i class="fas fa-list me-1"></i>Inventari
+                            </a>
+                        </div>
+                        <div class="col-6">
+                            <a href="@Url.Action("LibroGiornale", "AttivitaContabile")" class="btn btn-sm w-100 text-truncate" style="background-color: #1e3a8a; color: white;">
+                                <i class="fas fa-journal-whills me-1"></i>Giornale
+                            </a>
+                        </div>
+                        <div class="col-6">
+                            <a href="@Url.Action("LettereIntento", "AttivitaContabile")" class="btn btn-sm w-100 text-truncate" style="background-color: #1e3a8a; color: white;">
+                                <i class="fas fa-envelope me-1"></i>Lettere Intento
+                            </a>
+                        </div>
+                        <div class="col-6">
+                            <a href="@Url.Action("AttivitaIMU", "AttivitaContabile")" class="btn btn-sm w-100 text-truncate" style="background-color: #1e3a8a; color: white;">
+                                <i class="fas fa-home me-1"></i>IMU
+                            </a>
+                        </div>
+                        <div class="col-6">
+                            <a href="@Url.Action("TitolariEffettivi", "AttivitaContabile")" class="btn btn-sm w-100 text-truncate" style="background-color: #1e3a8a; color: white;">
+                                <i class="fas fa-users me-1"></i>Titolari Effettivi
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<style>
+.card {
+    transition: transform 0.2s;
+}
+
+.card:hover {
+    transform: translateY(-2px);
+}
+
+.btn:hover {
+    transform: scale(1.02);
+}
+
+.text-truncate {
+    font-size: 0.85rem;
+}
+</style>

@@ -1,0 +1,665 @@
+@model IEnumerable<ConsultingGroup.Models.Cliente>
+
+@{
+    ViewData["Title"] = "Clienti";
+    var currentPage = ViewBag.CurrentPage ?? 1;
+    var totalPages = ViewBag.TotalPages ?? 1;
+    var currentFilter = ViewBag.CurrentFilter ?? "";
+    var statusFilter = ViewBag.StatusFilter ?? "";
+    var dichiarazioniFilterArray = ViewBag.DichiarazioniFilter ?? new string[0];
+    var dichiarazioniFilter = ((string[])dichiarazioniFilterArray).ToList();
+}
+
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <div>
+                    <h2><i class="fas fa-users me-2 text-secondary"></i>Clienti</h2>
+                    <p class="text-muted mb-0">Gestione dei clienti con attività e servizi associati</p>
+                </div>
+                <div class="d-flex gap-2">
+                    <a asp-action="Statistiche" class="btn btn-outline-primary">
+                        <i class="fas fa-chart-bar me-1"></i>Statistiche
+                    </a>
+                    <a asp-action="ListaClientiFiltro" class="btn btn-outline-info">
+                        <i class="fas fa-filter me-1"></i>Lista Clienti per Filtro
+                    </a>
+                    <a asp-action="MigrateExistingActivities" class="btn btn-outline-warning">
+                        <i class="fas fa-exchange-alt me-1"></i>Migrazione Attività
+                    </a>
+                    <a asp-action="Create" class="btn btn-success">
+                        <i class="fas fa-plus me-1"></i>Nuovo Cliente
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+
+    <!-- Pannello Filtri -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header bg-light">
+                    <h6 class="mb-0">
+                        <button class="btn btn-sm btn-link p-0 me-2" type="button" data-bs-toggle="collapse" data-bs-target="#filtriPanel" aria-expanded="false" aria-controls="filtriPanel">
+                            <i class="fas fa-chevron-down"></i>
+                        </button>
+                        <i class="fas fa-filter me-2"></i>
+                        Filtri di Ricerca
+                    </h6>
+                </div>
+                <div class="collapse" id="filtriPanel">
+                    <div class="card-body">
+                        <form method="get" asp-action="Index" id="filtriForm">
+                            <div class="row g-3">
+                                <!-- Ricerca testuale -->
+                                <div class="col-md-4">
+                                    <label for="searchString" class="form-label">Ricerca Testuale</label>
+                <div class="input-group">
+                                        <input type="text" name="searchString" id="searchString" value="@currentFilter" class="form-control" placeholder="Nome, email, ATECO...">
+                    <button class="btn btn-outline-secondary" type="submit">
+                        <i class="fas fa-search"></i>
+                    </button>
+                                    </div>
+                                </div>
+
+                                <!-- Filtro Stato -->
+                                <div class="col-md-4">
+                                    <label for="statusFilter" class="form-label">Stato Cliente</label>
+                                    <select name="statusFilter" id="statusFilter" class="form-select">
+                                        <option value="">Tutti i clienti</option>
+                                        <option value="attivi" selected="@(statusFilter == "attivi")">Solo Attivi</option>
+                                        <option value="cessati" selected="@(statusFilter == "cessati")">Solo Cessati</option>
+                                        <option value="riattivati" selected="@(statusFilter == "riattivati")">Solo Riattivati</option>
+                                    </select>
+                                </div>
+
+                                <!-- Pulsanti Azione -->
+                                <div class="col-md-4">
+                                    <label class="form-label">&nbsp;</label>
+                                    <div class="btn-group w-100">
+                                        <button type="submit" class="btn btn-primary" onclick="chiudiFiltriDopoSubmit()">
+                                            <i class="fas fa-search me-1"></i>Filtra
+                                        </button>
+                                        <a href="@Url.Action("Index")" class="btn btn-outline-secondary">
+                                            <i class="fas fa-times me-1"></i>Reset
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Filtri Dichiarazioni/Attività -->
+                            <hr class="my-4">
+                            <div class="row">
+                                <div class="col-12">
+                                    <div class="mb-3">
+                                        <label class="form-label fw-bold mb-1">Filtra per Dichiarazioni/Attività</label>
+                                        <p class="text-muted small mb-3">Seleziona le dichiarazioni per mostrare i clienti che hanno almeno una di quelle attività</p>
+                                        <!-- Campo nascosto per modalità OR fissa -->
+                                        <input type="hidden" name="filterMode" value="OR">
+                                    </div>
+                                    
+                                    <!-- Attività Redditi -->
+                                    <div class="mb-3">
+                                        <h6 class="text-danger fw-bold mb-2">
+                                            <i class="fas fa-file-alt me-1"></i>Attività Redditi
+                                        </h6>
+                                        <div class="row">
+                                            <div class="col-md-3">
+                                                <div class="form-check">
+                                                    <input class="form-check-input" type="checkbox" name="dichiarazioni" value="mod730" id="mod730" @(dichiarazioniFilter.Contains("mod730") ? "checked" : "")>
+                                                    <label class="form-check-label" for="mod730">Mod. 730</label>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-3">
+                                                <div class="form-check">
+                                                    <input class="form-check-input" type="checkbox" name="dichiarazioni" value="mod740" id="mod740" @(dichiarazioniFilter.Contains("mod740") ? "checked" : "")>
+                                                    <label class="form-check-label" for="mod740">Mod. 740</label>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-3">
+                                                <div class="form-check">
+                                                    <input class="form-check-input" type="checkbox" name="dichiarazioni" value="mod750" id="mod750" @(dichiarazioniFilter.Contains("mod750") ? "checked" : "")>
+                                                    <label class="form-check-label" for="mod750">Mod. 750</label>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-3">
+                                                <div class="form-check">
+                                                    <input class="form-check-input" type="checkbox" name="dichiarazioni" value="mod760" id="mod760" @(dichiarazioniFilter.Contains("mod760") ? "checked" : "")>
+                                                    <label class="form-check-label" for="mod760">Mod. 760</label>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="row mt-2">
+                                            <div class="col-md-3">
+                                                <div class="form-check">
+                                                    <input class="form-check-input" type="checkbox" name="dichiarazioni" value="mod770" id="mod770" @(dichiarazioniFilter.Contains("mod770") ? "checked" : "")>
+                                                    <label class="form-check-label" for="mod770">Mod. 770</label>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-3">
+                                                <div class="form-check">
+                                                    <input class="form-check-input" type="checkbox" name="dichiarazioni" value="modcu" id="modcu" @(dichiarazioniFilter.Contains("modcu") ? "checked" : "")>
+                                                    <label class="form-check-label" for="modcu">Mod. CU</label>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-3">
+                                                <div class="form-check">
+                                                    <input class="form-check-input" type="checkbox" name="dichiarazioni" value="modenc" id="modenc" @(dichiarazioniFilter.Contains("modenc") ? "checked" : "")>
+                                                    <label class="form-check-label" for="modenc">Mod. ENC</label>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-3">
+                                                <div class="form-check">
+                                                    <input class="form-check-input" type="checkbox" name="dichiarazioni" value="modirap" id="modirap" @(dichiarazioniFilter.Contains("modirap") ? "checked" : "")>
+                                                    <label class="form-check-label" for="modirap">Mod. IRAP</label>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- Attività IVA -->
+                                    <div class="mb-3">
+                                        <h6 class="text-warning fw-bold mb-2">
+                                            <i class="fas fa-percentage me-1"></i>Attività IVA
+                                        </h6>
+                                        <div class="row">
+                                            <div class="col-md-4">
+                                                <div class="form-check">
+                                                    <input class="form-check-input" type="checkbox" name="dichiarazioni" value="driva" id="driva" @(dichiarazioniFilter.Contains("driva") ? "checked" : "")>
+                                                    <label class="form-check-label" for="driva">DRIVA</label>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-4">
+                                                <div class="form-check">
+                                                    <input class="form-check-input" type="checkbox" name="dichiarazioni" value="lipe" id="lipe" @(dichiarazioniFilter.Contains("lipe") ? "checked" : "")>
+                                                    <label class="form-check-label" for="lipe">LIPE</label>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-4">
+                                                <div class="form-check">
+                                                    <input class="form-check-input" type="checkbox" name="dichiarazioni" value="modtriva" id="modtriva" @(dichiarazioniFilter.Contains("modtriva") ? "checked" : "")>
+                                                    <label class="form-check-label" for="modtriva">Mod. TR IVA</label>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- Attività Contabile -->
+                                    <div class="mb-3">
+                                        <h6 class="text-success fw-bold mb-2">
+                                            <i class="fas fa-calculator me-1"></i>Attività Contabile
+                                        </h6>
+                                        <div class="row">
+                                            <div class="col-md-3">
+                                                <div class="form-check">
+                                                    <input class="form-check-input" type="checkbox" name="dichiarazioni" value="inail" id="inail" @(dichiarazioniFilter.Contains("inail") ? "checked" : "")>
+                                                    <label class="form-check-label" for="inail">INAIL</label>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-3">
+                                                <div class="form-check">
+                                                    <input class="form-check-input" type="checkbox" name="dichiarazioni" value="cassettofiscale" id="cassettofiscale" @(dichiarazioniFilter.Contains("cassettofiscale") ? "checked" : "")>
+                                                    <label class="form-check-label" for="cassettofiscale">Cassetto Fiscale</label>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-3">
+                                                <div class="form-check">
+                                                    <input class="form-check-input" type="checkbox" name="dichiarazioni" value="fatturazioneelettronica" id="fatturazioneelettronica" @(dichiarazioniFilter.Contains("fatturazioneelettronica") ? "checked" : "")>
+                                                    <label class="form-check-label" for="fatturazioneelettronica">Fatt. Elettronica</label>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-3">
+                                                <div class="form-check">
+                                                    <input class="form-check-input" type="checkbox" name="dichiarazioni" value="conservazione" id="conservazione" @(dichiarazioniFilter.Contains("conservazione") ? "checked" : "")>
+                                                    <label class="form-check-label" for="conservazione">Conservazione</label>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="row mt-2">
+                                            <div class="col-md-3">
+                                                <div class="form-check">
+                                                    <input class="form-check-input" type="checkbox" name="dichiarazioni" value="imu" id="imu" @(dichiarazioniFilter.Contains("imu") ? "checked" : "")>
+                                                    <label class="form-check-label" for="imu">IMU</label>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-3">
+                                                <div class="form-check">
+                                                    <input class="form-check-input" type="checkbox" name="dichiarazioni" value="regiva" id="regiva" @(dichiarazioniFilter.Contains("regiva") ? "checked" : "")>
+                                                    <label class="form-check-label" for="regiva">Registro IVA</label>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-3">
+                                                <div class="form-check">
+                                                    <input class="form-check-input" type="checkbox" name="dichiarazioni" value="regcespiti" id="regcespiti" @(dichiarazioniFilter.Contains("regcespiti") ? "checked" : "")>
+                                                    <label class="form-check-label" for="regcespiti">Reg. Cespiti</label>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-3">
+                                                <div class="form-check">
+                                                    <input class="form-check-input" type="checkbox" name="dichiarazioni" value="inventari" id="inventari" @(dichiarazioniFilter.Contains("inventari") ? "checked" : "")>
+                                                    <label class="form-check-label" for="inventari">Inventari</label>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="row mt-2">
+                                            <div class="col-md-3">
+                                                <div class="form-check">
+                                                    <input class="form-check-input" type="checkbox" name="dichiarazioni" value="librogiornale" id="librogiornale" @(dichiarazioniFilter.Contains("librogiornale") ? "checked" : "")>
+                                                    <label class="form-check-label" for="librogiornale">Libro Giornale</label>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-3">
+                                                <div class="form-check">
+                                                    <input class="form-check-input" type="checkbox" name="dichiarazioni" value="lettereintento" id="lettereintento" @(dichiarazioniFilter.Contains("lettereintento") ? "checked" : "")>
+                                                    <label class="form-check-label" for="lettereintento">Lettere d'Intento</label>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-3">
+                                                <div class="form-check">
+                                                    <input class="form-check-input" type="checkbox" name="dichiarazioni" value="modintrastat" id="modintrastat" @(dichiarazioniFilter.Contains("modintrastat") ? "checked" : "")>
+                                                    <label class="form-check-label" for="modintrastat">Mod. INTRASTAT</label>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-3">
+                                                <div class="form-check">
+                                                    <input class="form-check-input" type="checkbox" name="dichiarazioni" value="firmadigitale" id="firmadigitale" @(dichiarazioniFilter.Contains("firmadigitale") ? "checked" : "")>
+                                                    <label class="form-check-label" for="firmadigitale">Firma Digitale</label>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="row mt-2">
+                                            <div class="col-md-3">
+                                                <div class="form-check">
+                                                    <input class="form-check-input" type="checkbox" name="dichiarazioni" value="titolareeffettivo" id="titolareeffettivo" @(dichiarazioniFilter.Contains("titolareeffettivo") ? "checked" : "")>
+                                                    <label class="form-check-label" for="titolareeffettivo">Titolare Effettivo</label>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    @if (TempData["SuccessMessage"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            <i class="fas fa-check-circle me-2"></i>@TempData["SuccessMessage"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    }
+
+    <!-- Tabella -->
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-body p-0">
+                    @if (Model.Any())
+                    {
+                        <div class="table-responsive">
+                            <table class="table table-hover mb-0">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th>Cliente</th>
+                                        <th>Contatti</th>
+                                        <th>Professionista</th>
+                                        <th>Attività</th>
+                                        <th>Stato</th>
+                                        <th class="text-center">Azioni</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var cliente in Model)
+                                    {
+                                        <tr>
+                                            <td>
+                                                <div>
+                                                    <strong>@cliente.NomeCliente</strong>
+                                                    @if (!string.IsNullOrEmpty(cliente.CodiceAteco))
+                                                    {
+                                                        <br><small class="text-muted">ATECO: @cliente.CodiceAteco</small>
+                                                    }
+                                                </div>
+                                            </td>
+                                            <td>
+                                                @if (!string.IsNullOrEmpty(cliente.MailCliente))
+                                                {
+                                                    <small><i class="fas fa-envelope me-1"></i>@cliente.MailCliente</small>
+                                                }
+                                                else
+                                                {
+                                                    <span class="text-muted">-</span>
+                                                }
+                                            </td>
+                                            <td>
+                                                @if (cliente.Professionista != null)
+                                                {
+                                                    <span class="badge bg-info">
+                                                        @cliente.Professionista.Nome @cliente.Professionista.Cognome
+                                                    </span>
+                                                }
+                                                else
+                                                {
+                                                    <span class="text-muted">Non assegnato</span>
+                                                }
+                                            </td>
+                                            <td>
+                                                <div class="d-flex flex-column gap-1">
+                                                    <!-- ATTIVITÀ REDDITI -->
+                                                    @{
+                                                        var hasRedditi = cliente.Mod730 || cliente.Mod740 || cliente.Mod750 || cliente.Mod760 || cliente.Mod770 || cliente.ModCu || cliente.ModEnc || cliente.ModIrap;
+                                                    }
+                                                    @if (hasRedditi)
+                                                    {
+                                                        <div class="mb-1">
+                                                            <small class="text-danger fw-bold d-block">REDDITI:</small>
+                                                            <div class="d-flex flex-wrap gap-1">
+                                                                @if (cliente.Mod730) { <span class="badge bg-danger badge-sm">730</span> }
+                                                                @if (cliente.Mod740) { <span class="badge bg-danger badge-sm">740</span> }
+                                                                @if (cliente.Mod750) { <span class="badge bg-danger badge-sm">750</span> }
+                                                                @if (cliente.Mod760) { <span class="badge bg-danger badge-sm">760</span> }
+                                                                @if (cliente.Mod770) { <span class="badge bg-danger badge-sm">770</span> }
+                                                                @if (cliente.ModCu) { <span class="badge bg-danger badge-sm">CU</span> }
+                                                                @if (cliente.ModEnc) { <span class="badge bg-danger badge-sm">ENC</span> }
+                                                                @if (cliente.ModIrap) { <span class="badge bg-danger badge-sm">IRAP</span> }
+                                                            </div>
+                                                        </div>
+                                                    }
+
+                                                    <!-- ATTIVITÀ IVA -->
+                                                    @{
+                                                        var hasIva = cliente.Driva || cliente.Lipe || cliente.ModTrIva;
+                                                    }
+                                                    @if (hasIva)
+                                                    {
+                                                        <div class="mb-1">
+                                                            <small class="text-warning fw-bold d-block">IVA:</small>
+                                                            <div class="d-flex flex-wrap gap-1">
+                                                                @if (cliente.Driva) { <span class="badge bg-warning text-dark badge-sm">DRIVA</span> }
+                                                                @if (cliente.Lipe) { <span class="badge bg-warning text-dark badge-sm">LIPE</span> }
+                                                                @if (cliente.ModTrIva) { <span class="badge bg-warning text-dark badge-sm">TR IVA</span> }
+                                                            </div>
+                                                        </div>
+                                                    }
+
+                                                    <!-- ATTIVITÀ CONTABILE -->
+                                                    @{
+                                                        var hasContabile = cliente.Inail || cliente.CassettoFiscale || cliente.FatturazioneElettronicaTs || cliente.Conservazione || cliente.Imu || cliente.RegIva || cliente.RegCespiti || cliente.Inventari || cliente.LibroGiornale || cliente.LettereIntento || cliente.ModIntrastat || cliente.FirmaDigitale || cliente.TitolareEffettivo;
+                                                    }
+                                                    @if (hasContabile)
+                                                    {
+                                                        <div class="mb-1">
+                                                            <small class="text-success fw-bold d-block">CONTABILE:</small>
+                                                            <div class="d-flex flex-wrap gap-1">
+                                                                @if (cliente.Inail) { <span class="badge bg-success badge-sm">INAIL</span> }
+                                                                @if (cliente.CassettoFiscale) { <span class="badge bg-success badge-sm">Cassetto</span> }
+                                                                @if (cliente.FatturazioneElettronicaTs) { <span class="badge bg-success badge-sm">Fatt.Elett</span> }
+                                                                @if (cliente.Conservazione) { <span class="badge bg-success badge-sm">Conserv.</span> }
+                                                                @if (cliente.Imu) { <span class="badge bg-success badge-sm">IMU</span> }
+                                                                @if (cliente.RegIva) { <span class="badge bg-success badge-sm">Reg.IVA</span> }
+                                                                @if (cliente.RegCespiti) { <span class="badge bg-success badge-sm">Cespiti</span> }
+                                                                @if (cliente.Inventari) { <span class="badge bg-success badge-sm">Inventari</span> }
+                                                                @if (cliente.LibroGiornale) { <span class="badge bg-success badge-sm">Libro</span> }
+                                                                @if (cliente.LettereIntento) { <span class="badge bg-success badge-sm">Lettere</span> }
+                                                                @if (cliente.ModIntrastat) { <span class="badge bg-success badge-sm">INTRASTAT</span> }
+                                                                @if (cliente.FirmaDigitale) { <span class="badge bg-success badge-sm">Firma</span> }
+                                                                @if (cliente.TitolareEffettivo) { <span class="badge bg-success badge-sm">Titolare</span> }
+                                                            </div>
+                                                        </div>
+                                                    }
+
+                                                    @if (!hasRedditi && !hasIva && !hasContabile)
+                                                    {
+                                                        <span class="text-muted fst-italic">Nessun servizio attivo</span>
+                                                    }
+                                                </div>
+                                            </td>
+                                            <td>
+                                                @if (cliente.Attivo)
+                                                {
+                                                    <span class="badge bg-success">
+                                                        <i class="fas fa-check me-1"></i>Attivo
+                                                    </span>
+                                                }
+                                                else
+                                                {
+                                                    <span class="badge bg-warning text-dark">
+                                                        <i class="fas fa-pause me-1"></i>Cessato
+                                                    </span>
+                                                }
+                                            </td>
+                                            <td class="text-center">
+                                                <div class="btn-group" role="group">
+                                                    <a asp-action="Details" asp-route-id="@cliente.IdCliente" 
+                                                       class="btn btn-sm btn-outline-info" title="Visualizza">
+                                                        <i class="fas fa-eye"></i>
+                                                    </a>
+                                                    <a asp-action="Edit" asp-route-id="@cliente.IdCliente" 
+                                                       class="btn btn-sm btn-outline-primary" title="Modifica">
+                                                        <i class="fas fa-edit"></i>
+                                                    </a>
+                                                    
+                                                    @* Pulsante Cessa/Riattiva *@
+                                                    <form asp-action="ToggleStatus" asp-route-id="@cliente.IdCliente" 
+                                                          method="post" class="d-inline">
+                                                        @Html.AntiForgeryToken()
+                                                        <button type="submit" 
+                                                                class="btn btn-sm btn-outline-@(cliente.Attivo ? "warning" : "success")" 
+                                                                title="@(cliente.Attivo ? "Cessa" : "Riattiva")"
+                                                                onclick="return confirm('@(cliente.Attivo ? "Vuoi davvero cessare questo cliente?" : "Vuoi davvero riattivare questo cliente?")')">
+                                                            <i class="fas fa-@(cliente.Attivo ? "pause" : "play")"></i>
+                                                        </button>
+                                                    </form>
+                                                    
+                                                    @* Pulsante Elimina *@
+                                                    <form asp-action="DeleteConfirmed" asp-route-id="@cliente.IdCliente" 
+                                                          method="post" class="d-inline">
+                                                        @Html.AntiForgeryToken()
+                                                        <button type="submit" 
+                                                                class="btn btn-sm btn-outline-danger" 
+                                                                title="Elimina"
+                                                                onclick="return confirm('Vuoi davvero eliminare questo cliente? Questa azione non può essere annullata.')">
+                                                            <i class="fas fa-trash"></i>
+                                                        </button>
+                                                    </form>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <!-- Paginazione -->
+                        @if (totalPages > 1)
+                        {
+                            <div class="card-footer">
+                                <nav aria-label="Paginazione clienti">
+                                    <ul class="pagination pagination-sm justify-content-center mb-0">
+                                        @if (currentPage > 1)
+                                        {
+                                            <li class="page-item">
+                                                <a class="page-link" asp-action="Index" asp-route-page="@(currentPage - 1)" asp-route-searchString="@currentFilter" asp-route-statusFilter="@statusFilter" asp-route-dichiarazioni="@string.Join(",", dichiarazioniFilterArray)">
+                                                    <i class="fas fa-chevron-left"></i>
+                                                </a>
+                                            </li>
+                                        }
+
+                                        @for (int i = Math.Max(1, currentPage - 2); i <= Math.Min(totalPages, currentPage + 2); i++)
+                                        {
+                                            <li class="page-item @(i == currentPage ? "active" : "")">
+                                                <a class="page-link" asp-action="Index" asp-route-page="@i" asp-route-searchString="@currentFilter" asp-route-statusFilter="@statusFilter" asp-route-dichiarazioni="@string.Join(",", dichiarazioniFilterArray)">@i</a>
+                                            </li>
+                                        }
+
+                                        @if (currentPage < totalPages)
+                                        {
+                                            <li class="page-item">
+                                                <a class="page-link" asp-action="Index" asp-route-page="@(currentPage + 1)" asp-route-searchString="@currentFilter" asp-route-statusFilter="@statusFilter" asp-route-dichiarazioni="@string.Join(",", dichiarazioniFilterArray)">
+                                                    <i class="fas fa-chevron-right"></i>
+                                                </a>
+                                            </li>
+                                        }
+                                    </ul>
+                                </nav>
+                            </div>
+                        }
+                    }
+                    else
+                    {
+                        <div class="text-center p-4">
+                            <i class="fas fa-users fa-3x text-muted mb-3"></i>
+                            <h5 class="text-muted">Nessun cliente trovato</h5>
+                            @if (!string.IsNullOrEmpty(currentFilter) || !string.IsNullOrEmpty(statusFilter) || dichiarazioniFilter.Count > 0)
+                            {
+                                <p class="text-muted">Prova a modificare i criteri di ricerca</p>
+                                <a href="@Url.Action("Index")" class="btn btn-outline-primary">
+                                    <i class="fas fa-times me-1"></i>Pulisci filtri
+                                </a>
+                            }
+                            else
+                            {
+                                <p class="text-muted">Inizia creando il primo cliente</p>
+                                <a asp-action="Create" class="btn btn-success">
+                                    <i class="fas fa-plus me-1"></i>Crea Primo Cliente
+                                </a>
+                            }
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Styles {
+    <style>
+        /* Badge servizi più grandi e visibili */
+        .badge-sm {
+            font-size: 0.8em;
+            padding: 0.4em 0.6em;
+            font-weight: 600;
+            border-radius: 4px;
+            margin: 1px;
+        }
+        
+        /* Colonna attività più larga */
+        .table th:nth-child(4),
+        .table td:nth-child(4) {
+            min-width: 280px;
+            max-width: 350px;
+        }
+        
+        /* Etichette sezioni più visibili */
+        .text-danger.fw-bold,
+        .text-warning.fw-bold,
+        .text-success.fw-bold {
+            font-size: 0.85em;
+            margin-bottom: 3px;
+        }
+        
+        /* Migliore spaziatura tra sezioni */
+        .mb-1 {
+            margin-bottom: 0.5rem !important;
+        }
+
+        /* Checkbox con contorni neri più visibili */
+        .form-check-input {
+            border: 2px solid #000 !important;
+            border-radius: 4px;
+        }
+        
+        .form-check-input:checked {
+            background-color: #0d6efd;
+            border-color: #000 !important;
+        }
+        
+        .form-check-input:focus {
+            border-color: #000 !important;
+            box-shadow: 0 0 0 0.25rem rgba(0, 0, 0, 0.25);
+        }
+
+        /* Migliore visibilità per le etichette delle checkbox */
+        .form-check-label {
+            font-weight: 500;
+            color: #333;
+        }
+
+
+    </style>
+}
+
+@section Scripts {
+    <script>
+        // Auto-hide success alerts
+        setTimeout(function() {
+            $('.alert-success').fadeOut('slow');
+        }, 5000);
+
+        // Auto-submit form quando cambia il filtro stato
+        document.getElementById('statusFilter').addEventListener('change', function() {
+            chiudiFiltriDopoSubmit();
+            document.getElementById('filtriForm').submit();
+        });
+
+
+
+        // Funzione per chiudere i filtri dopo il submit
+        function chiudiFiltriDopoSubmit() {
+            // Aggiungi un flag per chiudere i filtri dopo il submit
+            sessionStorage.setItem('chiudiFiltriDopoCaricamento', 'true');
+        }
+
+        // Gestione apertura/chiusura filtri e indicatori
+        document.addEventListener('DOMContentLoaded', function() {
+            const hasFilters = '@(!string.IsNullOrEmpty(statusFilter) || dichiarazioniFilter.Count > 0)' === 'True';
+            const filterHeader = document.querySelector('#filtriPanel .card-header h6');
+            const filtriPanel = document.getElementById('filtriPanel');
+            
+            // Aggiunge indicatore di filtri attivi
+            if (hasFilters) {
+                const badge = document.createElement('span');
+                badge.className = 'badge bg-primary ms-2';
+                badge.textContent = 'Filtri attivi';
+                filterHeader.appendChild(badge);
+                
+                // Se ci sono filtri attivi, mostra il pannello brevemente poi lo chiude
+                if (sessionStorage.getItem('chiudiFiltriDopoCaricamento') === 'true') {
+                    // Rimuovi il flag
+                    sessionStorage.removeItem('chiudiFiltriDopoCaricamento');
+                    // Mantieni chiuso
+                } else {
+                    // Se ci sono filtri ma non è un reload dopo submit, apri il pannello
+                    var collapse = new bootstrap.Collapse(filtriPanel, { show: true });
+                }
+            }
+
+            // Gestione dell'icona del pulsante toggle
+            const toggleButton = document.querySelector('[data-bs-target="#filtriPanel"]');
+            const toggleIcon = toggleButton.querySelector('i');
+            
+            filtriPanel.addEventListener('show.bs.collapse', function () {
+                toggleIcon.className = 'fas fa-chevron-up';
+            });
+            
+            filtriPanel.addEventListener('hide.bs.collapse', function () {
+                toggleIcon.className = 'fas fa-chevron-down';
+            });
+        });
+
+        // Seleziona/Deseleziona tutte le checkbox di una categoria
+        function toggleCategoryCheckboxes(categoryName) {
+            const checkboxes = document.querySelectorAll(`input[name="dichiarazioni"][value*="${categoryName}"]`);
+            const allChecked = Array.from(checkboxes).every(cb => cb.checked);
+            checkboxes.forEach(cb => cb.checked = !allChecked);
+        }
+    </script>
+}

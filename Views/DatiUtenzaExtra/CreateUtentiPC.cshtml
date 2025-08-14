@@ -1,0 +1,78 @@
+@model ConsultingGroup.Models.UtentiPC
+@{
+    ViewData["Title"] = "Aggiungi Utente PC";
+}
+
+<div class="container-fluid">
+    <div class="d-sm-flex align-items-center justify-content-between mb-4">
+        <h1 class="h3 mb-0 text-gray-800">
+            <i class="fas fa-desktop me-2"></i>
+            Aggiungi Utente PC
+        </h1>
+        <a href="@Url.Action("UtentiPC")" class="btn btn-secondary btn-sm">
+            <i class="fas fa-arrow-left me-1"></i>
+            Torna all'Elenco
+        </a>
+    </div>
+
+    <div class="card shadow">
+        <div class="card-header py-3">
+            <h6 class="m-0 font-weight-bold text-primary">
+                <i class="fas fa-plus-circle me-2"></i>
+                Credenziali Utente PC
+            </h6>
+        </div>
+        <div class="card-body">
+            <form asp-action="CreateUtentiPC" method="post">
+                <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label asp-for="NomePC" class="form-label">Nome PC *</label>
+                        <input asp-for="NomePC" class="form-control" placeholder="Es: PC-UFFICIO-01, LAPTOP-MARIO..." />
+                        <span asp-validation-for="NomePC" class="text-danger"></span>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label asp-for="Utente" class="form-label">Nome Utente *</label>
+                        <input asp-for="Utente" class="form-control" placeholder="Username di login" />
+                        <span asp-validation-for="Utente" class="text-danger"></span>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label asp-for="Password" class="form-label">Password *</label>
+                        <input asp-for="Password" type="text" class="form-control" placeholder="Password di accesso" />
+                        <span asp-validation-for="Password" class="text-danger"></span>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label asp-for="IndirizzoRete" class="form-label">Indirizzo Rete</label>
+                        <input asp-for="IndirizzoRete" class="form-control" placeholder="Es: 192.168.1.100" />
+                        <span asp-validation-for="IndirizzoRete" class="text-danger"></span>
+                    </div>
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="Note" class="form-label">Note</label>
+                    <textarea asp-for="Note" class="form-control" rows="3" placeholder="Note aggiuntive su configurazione, software installato, ecc..."></textarea>
+                    <span asp-validation-for="Note" class="text-danger"></span>
+                </div>
+
+                <div class="d-flex justify-content-between">
+                    <a href="@Url.Action("UtentiPC")" class="btn btn-secondary">
+                        <i class="fas fa-times me-1"></i>
+                        Annulla
+                    </a>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-save me-1"></i>
+                        Salva Utente PC
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

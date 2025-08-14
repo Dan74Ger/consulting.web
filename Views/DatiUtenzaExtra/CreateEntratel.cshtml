@@ -1,0 +1,117 @@
+@model ConsultingGroup.Models.Entratel
+@{
+    ViewData["Title"] = "Aggiungi Accesso ENTRATEL";
+}
+
+<div class="container-fluid">
+    <div class="d-sm-flex align-items-center justify-content-between mb-4">
+        <h1 class="h3 mb-0 text-gray-800">
+            <i class="fas fa-landmark me-2"></i>
+            Aggiungi Accesso ENTRATEL
+        </h1>
+        <a href="@Url.Action("Entratel")" class="btn btn-secondary btn-sm">
+            <i class="fas fa-arrow-left me-1"></i>
+            Torna all'Elenco
+        </a>
+    </div>
+
+    <div class="card shadow">
+        <div class="card-header py-3">
+            <h6 class="m-0 font-weight-bold text-secondary">
+                <i class="fas fa-plus-circle me-2"></i>
+                Credenziali ENTRATEL
+            </h6>
+        </div>
+        <div class="card-body">
+            <form asp-action="CreateEntratel" method="post">
+                <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+
+                <!-- Credenziali Base -->
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label asp-for="Sito" class="form-label">Sito ENTRATEL *</label>
+                        <input asp-for="Sito" class="form-control" placeholder="https://entratel.agenziaentrate.gov.it" />
+                        <span asp-validation-for="Sito" class="text-danger"></span>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label asp-for="Utente" class="form-label">Utente *</label>
+                        <input asp-for="Utente" class="form-control" placeholder="Codice fiscale o username" />
+                        <span asp-validation-for="Utente" class="text-danger"></span>
+                    </div>
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="Password" class="form-label">Password *</label>
+                    <input asp-for="Password" type="text" class="form-control" placeholder="Password di accesso" />
+                    <span asp-validation-for="Password" class="text-danger"></span>
+                </div>
+
+                <hr class="my-4">
+                <h6 class="font-weight-bold text-secondary mb-3">
+                    <i class="fas fa-key me-2"></i>
+                    Codici PIN
+                </h6>
+
+                <!-- PIN Section -->
+                <div class="row">
+                    <div class="col-md-4 mb-3">
+                        <label asp-for="PinDatiCatastali" class="form-label">PIN Dati Catastali</label>
+                        <input asp-for="PinDatiCatastali" class="form-control" placeholder="PIN per dati catastali" />
+                        <span asp-validation-for="PinDatiCatastali" class="text-danger"></span>
+                    </div>
+                    <div class="col-md-4 mb-3">
+                        <label asp-for="PinDelegheCassettoFiscale" class="form-label">PIN Deleghe Cassetto</label>
+                        <input asp-for="PinDelegheCassettoFiscale" class="form-control" placeholder="PIN per cassetto fiscale" />
+                        <span asp-validation-for="PinDelegheCassettoFiscale" class="text-danger"></span>
+                    </div>
+                    <div class="col-md-4 mb-3">
+                        <label asp-for="PinCompleto" class="form-label">PIN Completo</label>
+                        <input asp-for="PinCompleto" class="form-control" placeholder="PIN per tutte le funzioni" />
+                        <span asp-validation-for="PinCompleto" class="text-danger"></span>
+                    </div>
+                </div>
+
+                <hr class="my-4">
+                <h6 class="font-weight-bold text-secondary mb-3">
+                    <i class="fas fa-desktop me-2"></i>
+                    Desktop Telematico
+                </h6>
+
+                <!-- Desktop Telematico Section -->
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label asp-for="DesktopTelematicoUtente" class="form-label">Utente Desktop Telematico</label>
+                        <input asp-for="DesktopTelematicoUtente" class="form-control" placeholder="Username Desktop Telematico" />
+                        <span asp-validation-for="DesktopTelematicoUtente" class="text-danger"></span>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label asp-for="DesktopTelematicoPassword" class="form-label">Password Desktop Telematico</label>
+                        <input asp-for="DesktopTelematicoPassword" type="text" class="form-control" placeholder="Password Desktop Telematico" />
+                        <span asp-validation-for="DesktopTelematicoPassword" class="text-danger"></span>
+                    </div>
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="Note" class="form-label">Note</label>
+                    <textarea asp-for="Note" class="form-control" rows="3" placeholder="Note aggiuntive su configurazione, scadenze, limitazioni..."></textarea>
+                    <span asp-validation-for="Note" class="text-danger"></span>
+                </div>
+
+                <div class="d-flex justify-content-between">
+                    <a href="@Url.Action("Entratel")" class="btn btn-secondary">
+                        <i class="fas fa-times me-1"></i>
+                        Annulla
+                    </a>
+                    <button type="submit" class="btn btn-secondary">
+                        <i class="fas fa-save me-1"></i>
+                        Salva Accesso ENTRATEL
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

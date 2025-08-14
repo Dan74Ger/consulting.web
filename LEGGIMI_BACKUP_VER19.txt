@@ -1,0 +1,62 @@
+=== BACKUP CONSULTING GROUP - VERSIONE 19 ===
+Data backup: 14 agosto 2025 09:34
+
+CONTENUTO DEL BACKUP:
+✅ Codice sorgente completo (269 file copiati)
+✅ Database Consulting (backup completo NON compresso - 12.5 MB)
+✅ Script di ripristino automatico (RIPRISTINA_SU_ALTRO_PC.ps1)
+
+STRUTTURA BACKUP:
+📁 D:\dev\vprova_backup_ver19_codice\
+   - Codice sorgente completo del progetto ASP.NET Core MVC
+   - Escluse cartelle: bin, obj, packages, .vs, .git, node_modules, temp*
+   - Include: Controllers, Models, Views, Services, Migrations, ecc.
+
+📁 D:\dev\vprova_backup_ver19_database\
+   - Consulting_VER19_[timestamp].bak (backup SQL Server)
+   - RIPRISTINA_SU_ALTRO_PC.ps1 (script di ripristino)
+   - Questo file di istruzioni
+
+COME RIPRISTINARE SU ALTRO PC:
+1. Copiare ENTRAMBE le cartelle sul PC di destinazione
+2. Installare prerequisiti:
+   - .NET 8 SDK
+   - SQL Server Express (o superiore)
+   - IIS (opzionale)
+3. Eseguire RIPRISTINA_SU_ALTRO_PC.ps1 come Administrator
+4. Lo script farà tutto automaticamente!
+
+UTENTI DI TEST INCLUSI:
+- admin/123456 (Administrator - accesso completo)
+- senior/123456 (UserSenior - reports avanzati) 
+- user/123456 (User - accesso limitato)
+
+PORTE E CONFIGURAZIONE:
+- Sviluppo: http://localhost:5000
+- Produzione: http://192.168.1.112 (configurabile)
+- Database: SQL Server Express con Windows Authentication
+
+CARATTERISTICHE SISTEMA:
+✅ Sistema di autorizzazione a 3 livelli
+✅ Gestione clienti, professionisti, attività fiscali
+✅ Moduli: 730, 740, 750, 760, ENC
+✅ Dati utenza e configurazioni studio
+✅ Reports e statistiche
+
+IMPORTANTE - DRIVA:
+⚠️  La scadenza si chiama DRIVA (NON DIVA!)
+⚠️  Non impostare scadenze automaticamente
+⚠️  Non mostrare tasto "Imposta Date Standard"
+
+SUPPORTO TECNICO:
+- Verificare README files nel codice sorgente
+- Consultare DEPLOY_GUIDA_COMPLETA.md per deployment IIS
+- File di configurazione: appsettings.json
+
+PORTABILITÀ CONFERMATA:
+✅ Backup completo e portabile
+✅ Script di ripristino automatico incluso
+✅ Tutti i prerequisiti documentati
+✅ Funziona su qualsiasi PC Windows con SQL Server
+
+=== BACKUP VERIFICATO E PRONTO PER TRASFERIMENTO ===

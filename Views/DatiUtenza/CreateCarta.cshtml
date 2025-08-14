@@ -1,0 +1,97 @@
+@model ConsultingGroup.Models.CarteCredito
+@{
+    ViewData["Title"] = "Aggiungi Nuova Carta di Credito";
+}
+
+<div class="container-fluid">
+    <div class="d-sm-flex align-items-center justify-content-between mb-4">
+        <h1 class="h3 mb-0 text-gray-800">
+            <i class="fas fa-credit-card me-2"></i>
+            Aggiungi Nuova Carta di Credito
+        </h1>
+        <a href="@Url.Action("CarteCredito")" class="btn btn-secondary btn-sm">
+            <i class="fas fa-arrow-left me-1"></i>
+            Torna all'Elenco
+        </a>
+    </div>
+
+    <div class="card shadow">
+        <div class="card-header py-3">
+            <h6 class="m-0 font-weight-bold text-success">
+                <i class="fas fa-plus-circle me-2"></i>
+                Dati Carta di Credito
+            </h6>
+        </div>
+        <div class="card-body">
+            <form asp-action="CreateCarta" method="post">
+                <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label asp-for="NumeroCarta" class="form-label">Numero Carta *</label>
+                        <input asp-for="NumeroCarta" class="form-control" placeholder="1234 5678 9012 3456" maxlength="20" />
+                        <span asp-validation-for="NumeroCarta" class="text-danger"></span>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label asp-for="Intestazione" class="form-label">Intestazione *</label>
+                        <input asp-for="Intestazione" class="form-control" placeholder="Nome del titolare della carta" />
+                        <span asp-validation-for="Intestazione" class="text-danger"></span>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-4 mb-3">
+                        <label asp-for="MeseScadenza" class="form-label">Mese Scadenza *</label>
+                        <select asp-for="MeseScadenza" class="form-control">
+                            <option value="">Seleziona mese</option>
+                            @for (int i = 1; i <= 12; i++)
+                            {
+                                <option value="@i">@i.ToString("00")</option>
+                            }
+                        </select>
+                        <span asp-validation-for="MeseScadenza" class="text-danger"></span>
+                    </div>
+                    <div class="col-md-4 mb-3">
+                        <label asp-for="AnnoScadenza" class="form-label">Anno Scadenza *</label>
+                        <select asp-for="AnnoScadenza" class="form-control">
+                            <option value="">Seleziona anno</option>
+                            @for (int i = DateTime.Now.Year; i <= DateTime.Now.Year + 10; i++)
+                            {
+                                <option value="@i">@i</option>
+                            }
+                        </select>
+                        <span asp-validation-for="AnnoScadenza" class="text-danger"></span>
+                    </div>
+                    <div class="col-md-4 mb-3">
+                        <label asp-for="PIN" class="form-label">PIN *</label>
+                        <input asp-for="PIN" type="text" class="form-control" placeholder="PIN della carta" maxlength="10" />
+                        <span asp-validation-for="PIN" class="text-danger"></span>
+                    </div>
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="Note" class="form-label">Note</label>
+                    <textarea asp-for="Note" class="form-control" rows="3" placeholder="Note aggiuntive sulla carta..."></textarea>
+                    <span asp-validation-for="Note" class="text-danger"></span>
+                </div>
+
+                <div class="d-flex justify-content-between">
+                    <a href="@Url.Action("CarteCredito")" class="btn btn-secondary">
+                        <i class="fas fa-times me-1"></i>
+                        Annulla
+                    </a>
+                    <button type="submit" class="btn btn-success">
+                        <i class="fas fa-save me-1"></i>
+                        Salva Carta
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}
