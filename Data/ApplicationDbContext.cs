@@ -38,6 +38,7 @@ namespace ConsultingGroup.Data
         public DbSet<Attivita740> Attivita740 { get; set; } = default!;
         public DbSet<Attivita750> Attivita750 { get; set; } = default!;
         public DbSet<Attivita760> Attivita760 { get; set; } = default!;
+        public DbSet<Attivita770> Attivita770 { get; set; } = default!;
         public DbSet<AttivitaEnc> AttivitaEnc { get; set; } = default!;
 
 

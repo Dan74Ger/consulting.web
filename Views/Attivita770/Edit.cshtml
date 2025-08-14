@@ -1,0 +1,224 @@
+@model ConsultingGroup.Models.Attivita770
+
+@{
+    ViewData["Title"] = "Modifica Attività 770";
+}
+
+<div class="row">
+    <div class="col-md-8 mx-auto">
+        <div class="card">
+            <div class="card-header bg-primary text-white">
+                <h4 class="mb-0">
+                    <i class="fas fa-edit me-2"></i>@ViewData["Title"]
+                </h4>
+                <small>Cliente: @Html.DisplayFor(model => model.Cliente.NomeCliente) - Anno @Html.DisplayFor(model => model.AnnoFiscale.Anno)</small>
+            </div>
+            
+            <div class="card-body">
+                <form asp-action="Edit" method="post">
+                    <div asp-validation-summary="ModelOnly" class="alert alert-danger"></div>
+                    
+                    @Html.HiddenFor(model => model.IdAttivita770)
+                    @Html.HiddenFor(model => model.CreatedAt)
+                    
+                    <!-- Dati Principali -->
+                    <div class="row mb-4">
+                        <div class="col-md-6">
+                            <div class="form-group mb-3">
+                                <label asp-for="IdAnno" class="form-label">Anno Fiscale *</label>
+                                <select asp-for="IdAnno" class="form-select" asp-items="ViewBag.IdAnno" disabled>
+                                    <option value="">-- Seleziona Anno --</option>
+                                </select>
+                                @Html.HiddenFor(model => model.IdAnno)
+                                <span asp-validation-for="IdAnno" class="text-danger"></span>
+                                <small class="form-text text-muted">Anno fiscale non modificabile</small>
+                            </div>
+                        </div>
+                        
+                        <div class="col-md-6">
+                            <div class="form-group mb-3">
+                                <label asp-for="IdCliente" class="form-label">Cliente *</label>
+                                <select asp-for="IdCliente" class="form-select" asp-items="ViewBag.IdCliente" disabled>
+                                    <option value="">-- Seleziona Cliente --</option>
+                                </select>
+                                @Html.HiddenFor(model => model.IdCliente)
+                                <span asp-validation-for="IdCliente" class="text-danger"></span>
+                                <small class="form-text text-muted">Cliente non modificabile</small>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="row mb-4">
+                        <div class="col-md-6">
+                            <div class="form-group mb-3">
+                                <label asp-for="IdProfessionista" class="form-label">Professionista</label>
+                                <select asp-for="IdProfessionista" class="form-select" asp-items="ViewBag.IdProfessionista">
+                                    <option value="">-- Nessun Professionista --</option>
+                                </select>
+                                <span asp-validation-for="IdProfessionista" class="text-danger"></span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Tipo MOD 770 -->
+                    <div class="card mb-4">
+                        <div class="card-header bg-info text-white">
+                            <h6 class="mb-0"><i class="fas fa-file-alt me-2"></i>Tipo MOD 770</h6>
+                        </div>
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="form-check mb-3">
+                                        <input asp-for="Mod770LavAutonomo" class="form-check-input" style="accent-color: black; border: 2px solid black;" type="checkbox" />
+                                        <label asp-for="Mod770LavAutonomo" class="form-check-label">
+                                            MOD 770 Lavoro Autonomo
+                                        </label>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-check mb-3">
+                                        <input asp-for="Mod770Ordinario" class="form-check-input" style="accent-color: black; border: 2px solid black;" type="checkbox" />
+                                        <label asp-for="Mod770Ordinario" class="form-check-label">
+                                            MOD 770 Ordinario
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Stati Lavorazione -->
+                    <div class="card mb-4">
+                        <div class="card-header bg-warning text-dark">
+                            <h6 class="mb-0"><i class="fas fa-tasks me-2"></i>Stati Lavorazione</h6>
+                        </div>
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="form-check mb-3">
+                                        <input asp-for="InserimentoDatiDr" class="form-check-input" style="accent-color: black; border: 2px solid black;" type="checkbox" />
+                                        <label asp-for="InserimentoDatiDr" class="form-check-label">
+                                            Inserimento Dati DR
+                                        </label>
+                                    </div>
+                                    
+                                    <div class="form-check mb-3">
+                                        <input asp-for="DrInvio" class="form-check-input" style="accent-color: black; border: 2px solid black;" type="checkbox" />
+                                        <label asp-for="DrInvio" class="form-check-label">
+                                            DR Invio
+                                        </label>
+                                    </div>
+                                </div>
+                                
+                                <div class="col-md-6">
+                                    <div class="form-check mb-3">
+                                        <input asp-for="Ricevuta" class="form-check-input" style="accent-color: black; border: 2px solid black;" type="checkbox" />
+                                        <label asp-for="Ricevuta" class="form-check-label">
+                                            Ricevuta
+                                        </label>
+                                    </div>
+                                    
+                                    <div class="form-check mb-3">
+                                        <input asp-for="PecInvioDr" class="form-check-input" style="accent-color: black; border: 2px solid black;" type="checkbox" />
+                                        <label asp-for="PecInvioDr" class="form-check-label">
+                                            PEC Invio DR
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- MOD CU -->
+                    <div class="card mb-4">
+                        <div class="card-header bg-secondary text-white">
+                            <h6 class="mb-0"><i class="fas fa-file-alt me-2"></i>MOD CU</h6>
+                        </div>
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="form-check mb-3">
+                                        <input asp-for="ModCuFatte" class="form-check-input" style="accent-color: black; border: 2px solid black;" type="checkbox" />
+                                        <label asp-for="ModCuFatte" class="form-check-label">
+                                            MOD CU Fatte
+                                        </label>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-check mb-3">
+                                        <input asp-for="CuUtiliPresenti" class="form-check-input" style="accent-color: black; border: 2px solid black;" type="checkbox" />
+                                        <label asp-for="CuUtiliPresenti" class="form-check-label">
+                                            CU Utili Presenti <small class="text-muted">(per MOD 770 ordinari)</small>
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Note -->
+                    <div class="form-group mb-4">
+                        <label asp-for="Note" class="form-label">Note</label>
+                        <textarea asp-for="Note" class="form-control" rows="4" placeholder="Note aggiuntive..."></textarea>
+                        <span asp-validation-for="Note" class="text-danger"></span>
+                    </div>
+                    
+                    <!-- Info aggiuntive -->
+                    <div class="row mb-4">
+                        <div class="col-md-6">
+                            <small class="text-muted">
+                                <i class="fas fa-calendar me-1"></i>Creata: @Html.DisplayFor(model => model.CreatedAt)
+                            </small>
+                        </div>
+                        <div class="col-md-6">
+                            <small class="text-muted">
+                                <i class="fas fa-edit me-1"></i>Ultima modifica: @Html.DisplayFor(model => model.UpdatedAt)
+                            </small>
+                        </div>
+                    </div>
+                    
+                    <!-- Pulsanti -->
+                    <div class="d-flex justify-content-between">
+                        <a href="@Url.Action("Index")" class="btn btn-outline-secondary">
+                            <i class="fas fa-arrow-left me-1"></i>Torna all'Elenco
+                        </a>
+                        
+                        <div class="d-flex gap-2">
+                            <a href="@Url.Action("Details", new { id = Model.IdAttivita770 })" class="btn btn-outline-info">
+                                <i class="fas fa-eye me-1"></i>Dettagli
+                            </a>
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-save me-1"></i>Salva Modifiche
+                            </button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}
+
+<style>
+.form-check-input:checked {
+    background-color: #000 !important;
+    border-color: #000 !important;
+}
+
+.card-header {
+    border-bottom: 2px solid rgba(255,255,255,0.2);
+}
+
+.form-control:focus, .form-select:focus {
+    border-color: #0d6efd;
+    box-shadow: 0 0 0 0.2rem rgba(13, 110, 253, 0.25);
+}
+
+.form-select:disabled {
+    background-color: #e9ecef;
+    opacity: 1;
+}
+</style>

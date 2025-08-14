@@ -1,0 +1,624 @@
+@model IEnumerable<ConsultingGroup.Models.Attivita770>
+
+@{
+    var annoSelezionato = ViewData["AnnoSelezionato"] as int?;
+    var annoFiscale = ViewData["AnnoFiscale"] as ConsultingGroup.Models.AnnoFiscale;
+    var title = ViewData["Title"] as string ?? "Gestione Attività 770";
+}
+
+<!-- Header con filtro anno -->
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h2 class="mb-1">
+            <i class="fas fa-file-alt me-2 text-primary"></i>@title
+        </h2>
+        <p class="text-muted mb-0">Gestione dichiarazioni Mod. 770</p>
+    </div>
+    
+    <div class="d-flex gap-2 align-items-center">
+        <!-- Pulsante Torna a Gestione Attività -->
+        <a href="@Url.Action("Index", "GestioneAttivita")" 
+           class="btn btn-outline-secondary btn-sm">
+            <i class="fas fa-arrow-left me-1"></i>Torna a Gestione Attività
+        </a>
+        
+        <!-- Link Gestione Clienti -->
+        <a href="@Url.Action("Index", "Clienti")" 
+           class="btn btn-outline-primary btn-sm">
+            <i class="fas fa-users me-1"></i>Gestione Clienti
+        </a>
+        
+        <!-- Filtro Anno -->
+        @using (Html.BeginForm("Index", "Attivita770", FormMethod.Get, new { @class = "d-flex gap-2 align-items-center" }))
+        {
+            <label class="form-label mb-0 text-nowrap">Anno:</label>
+            @Html.DropDownList("annoSelezionato", ViewData["AnniFiscali"] as SelectList, 
+                new { @class = "form-select form-select-sm", @style = "width: 150px;", 
+                @onchange = "this.form.submit();" })
+        }
+    </div>
+</div>
+
+<!-- Scadenza del 770 -->
+@if (annoFiscale?.Scadenza770.HasValue == true)
+{
+    var scadenza = annoFiscale.Scadenza770.Value;
+    var giorniRimanenti = (scadenza - DateTime.Today).Days;
+    var alertClass = giorniRimanenti <= 30 ? "danger" : (giorniRimanenti <= 60 ? "warning" : "info");
+    
+    <div class="alert alert-@alertClass mb-4">
+        <i class="fas fa-calendar-alt me-2"></i>
+        <strong>Scadenza MOD 770:</strong> @scadenza.ToString("dd/MM/yyyy")
+        @if (giorniRimanenti > 0)
+        {
+            <span class="ms-2">
+                (@giorniRimanenti giorni rimanenti)
+            </span>
+        }
+        else if (giorniRimanenti == 0)
+        {
+            <span class="ms-2 fw-bold text-danger">(SCADENZA OGGI!)</span>
+        }
+        else
+        {
+            <span class="ms-2 fw-bold text-danger">(SCADENZA SUPERATA di @Math.Abs(giorniRimanenti) giorni)</span>
+        }
+    </div>
+}
+
+<!-- Tabella Attività - Modifica Inline -->
+<div class="card">
+    <div class="card-header bg-primary text-white">
+        <h5 class="mb-0">
+            <i class="fas fa-list me-2"></i>Elenco Attività 770 - @(annoFiscale?.AnnoDescrizione ?? $"Anno {annoSelezionato}")
+        </h5>
+    </div>
+    <div class="card-body p-0">
+        @if (Model.Any())
+        {
+            <form id="bulkUpdateForm" method="post" action="@Url.Action("BulkUpdate")">
+                @Html.AntiForgeryToken()
+                <input type="hidden" name="annoSelezionato" value="@annoSelezionato" />
+                
+                <!-- Filtri e Pulsanti -->
+                <div class="mb-3">
+                    <div class="d-flex flex-wrap gap-3 align-items-center mb-2">
+                        <div class="d-flex align-items-center gap-2">
+                            <label for="filtroNomeCliente" class="form-label mb-0 fw-bold">Cliente:</label>
+                            <input type="text" id="filtroNomeCliente" class="form-control form-control-sm" style="width: 180px;" placeholder="Cerca per nome...">
+                        </div>
+                        
+                        <div class="d-flex align-items-center gap-2">
+                            <label for="filtroProfessionista" class="form-label mb-0 fw-bold">Professionista:</label>
+                            <select id="filtroProfessionista" class="form-select form-select-sm" style="width: auto;">
+                                <option value="">Tutti</option>
+                                @{
+                                    var professionistiFiltro = ViewBag.Professionisti as IEnumerable<Microsoft.AspNetCore.Mvc.Rendering.SelectListItem>;
+                                }
+                                @if (professionistiFiltro != null)
+                                {
+                                    @foreach (var prof in professionistiFiltro)
+                                    {
+                                        <option value="@prof.Value">@prof.Text</option>
+                                    }
+                                }
+                            </select>
+                        </div>
+                        
+                        <div class="d-flex align-items-center gap-2">
+                            <label for="filtroTipoMod770" class="form-label mb-0 fw-bold">Tipo MOD 770:</label>
+                            <select id="filtroTipoMod770" class="form-select form-select-sm" style="width: auto;">
+                                <option value="">Tutti</option>
+                                <option value="lav_autonomo">Lav. Autonomo</option>
+                                <option value="ordinario">Ordinario</option>
+                                <option value="entrambi">Entrambi</option>
+                                <option value="nessuno">Non Specificato</option>
+                            </select>
+                        </div>
+                        
+                        <div class="d-flex align-items-center gap-2">
+                            <label for="filtroStato" class="form-label mb-0 fw-bold">Stato:</label>
+                            <select id="filtroStato" class="form-select form-select-sm" style="width: auto;">
+                                <option value="">Tutti</option>
+                                <option value="dr_invio">DR Inviate</option>
+                                <option value="ricevuta">Con Ricevuta</option>
+                                <option value="complete">Complete</option>
+                                <option value="incomplete">Incomplete</option>
+                            </select>
+                        </div>
+                        
+                        <div class="d-flex align-items-center gap-2">
+                            <label class="form-label mb-0 fw-bold">Mostra:</label>
+                            <div class="form-check form-check-inline">
+                                <input class="form-check-input" type="checkbox" id="mostraSoloAttivi" checked>
+                                <label class="form-check-label" for="mostraSoloAttivi">Solo Attivi</label>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Seconda riga con pulsanti di azione -->
+                    <div class="d-flex flex-wrap justify-content-between align-items-center mt-2 gap-2">
+                        <div class="d-flex gap-2">
+                            <button type="button" class="btn btn-outline-primary btn-sm" onclick="filterTable()">
+                                <i class="fas fa-filter me-1"></i>Applica Filtri
+                            </button>
+                            <button type="button" class="btn btn-outline-secondary btn-sm" onclick="resetFilters()">
+                                <i class="fas fa-times me-1"></i>Reset
+                            </button>
+                        </div>
+                        
+                        <div class="d-flex flex-wrap gap-2">
+                            <button type="submit" class="btn btn-primary btn-sm">
+                                <i class="fas fa-save me-1"></i>Salva Tutto
+                            </button>
+                            <a href="@Url.Action("ExportExcel", new { anno = annoSelezionato })" class="btn btn-warning btn-sm">
+                                <i class="fas fa-file-excel me-1"></i>Export Excel
+                            </a>
+                            <button type="button" class="btn btn-danger btn-sm" onclick="confermaEliminazioneAnno()">
+                                <i class="fas fa-trash-alt me-1"></i>Elimina tutti gli inserimenti dell'anno
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Tabella con intestazioni fisse -->
+                <div class="table-container" style="max-height: 70vh; overflow-y: auto; border: 1px solid #dee2e6; border-radius: 0.375rem;">
+                    <table class="table table-sm table-hover mb-0" id="attivita770Table">
+                        <!-- Header fisso -->
+                        <thead class="table-primary sticky-top">
+                            <tr>
+                                <th style="width: 200px; min-width: 200px;" class="border-end">
+                                    <i class="fas fa-user me-1"></i>Cliente
+                                </th>
+                                <th style="width: 80px; min-width: 80px;" class="text-center border-end">
+                                    <i class="fas fa-code me-1"></i>ATECO
+                                </th>
+                                <th style="width: 150px; min-width: 150px;" class="text-center border-end">
+                                    <i class="fas fa-user-tie me-1"></i>Professionista
+                                </th>
+                                <th style="width: 100px; min-width: 100px;" class="text-center border-end bg-info">
+                                    <i class="fas fa-file-alt me-1"></i>MOD 770<br/>Lav.Aut.
+                                </th>
+                                <th style="width: 100px; min-width: 100px;" class="text-center border-end bg-info">
+                                    <i class="fas fa-file-alt me-1"></i>MOD 770<br/>Ord.
+                                </th>
+                                <th style="width: 100px; min-width: 100px;" class="text-center border-end bg-warning">
+                                    <i class="fas fa-edit me-1"></i>Inserim.<br/>Dati DR
+                                </th>
+                                <th style="width: 100px; min-width: 100px;" class="text-center border-end bg-warning">
+                                    <i class="fas fa-paper-plane me-1"></i>DR<br/>Invio
+                                </th>
+                                <th style="width: 100px; min-width: 100px;" class="text-center border-end bg-success">
+                                    <i class="fas fa-receipt me-1"></i>Ricevuta
+                                </th>
+                                <th style="width: 100px; min-width: 100px;" class="text-center border-end bg-success">
+                                    <i class="fas fa-envelope me-1"></i>PEC<br/>Invio
+                                </th>
+                                <th style="width: 100px; min-width: 100px;" class="text-center border-end bg-secondary">
+                                    <i class="fas fa-file-alt me-1"></i>MOD CU<br/>Fatte
+                                </th>
+                                <th style="width: 100px; min-width: 100px;" class="text-center border-end bg-secondary">
+                                    <i class="fas fa-coins me-1"></i>CU Utili<br/>Presenti
+                                </th>
+                                <th style="width: 200px; min-width: 200px;" class="border-end">
+                                    <i class="fas fa-sticky-note me-1"></i>Note
+                                </th>
+                                <th style="width: 50px; min-width: 50px;" class="text-center">
+                                    <i class="fas fa-trash me-1"></i>Azioni
+                                </th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @{
+                                var index = 0;
+                            }
+                            @foreach (var item in Model)
+                            {
+                                <tr class="activity-row" data-cliente-attivo="@(item.Cliente?.Attivo == true ? "true" : "false")">
+                                    <!-- Cliente -->
+                                    <td class="border-end">
+                                        <div class="d-flex align-items-center">
+                                            @if (item.Cliente?.Attivo != true)
+                                            {
+                                                <span class="badge bg-secondary me-2" title="Cliente non più attivo">
+                                                    <i class="fas fa-ban"></i>
+                                                </span>
+                                            }
+                                            <div>
+                                                <strong>@Html.DisplayFor(modelItem => item.Cliente.NomeCliente)</strong>
+                                                @if (!string.IsNullOrEmpty(item.Cliente?.CodiceAteco))
+                                                {
+                                                    <small class="text-muted d-block">@item.Cliente.CodiceAteco</small>
+                                                }
+                                            </div>
+                                        </div>
+                                        @Html.HiddenFor(m => Model.ElementAt(index).IdAttivita770, new { Name = $"attivita[{index}].IdAttivita770" })
+                                        @Html.HiddenFor(m => Model.ElementAt(index).IdAnno, new { Name = $"attivita[{index}].IdAnno" })
+                                        @Html.HiddenFor(m => Model.ElementAt(index).IdCliente, new { Name = $"attivita[{index}].IdCliente" })
+                                        @Html.HiddenFor(m => Model.ElementAt(index).CreatedAt, new { Name = $"attivita[{index}].CreatedAt" })
+                                    </td>
+
+                                    <!-- ATECO -->
+                                    <td class="text-center border-end">
+                                        <small class="text-muted">@Html.DisplayFor(modelItem => item.Cliente.CodiceAteco)</small>
+                                    </td>
+
+                                    <!-- Professionista (Dropdown inline) -->
+                                    <td class="text-center border-end">
+                                        @Html.DropDownListFor(m => Model.ElementAt(index).IdProfessionista, 
+                                            ViewBag.Professionisti as SelectList, 
+                                            "Seleziona...", 
+                                            new { 
+                                                @class = "form-select form-select-sm", 
+                                                Name = $"attivita[{index}].IdProfessionista" 
+                                            })
+                                    </td>
+
+                                    <!-- MOD 770 Lav. Autonomo -->
+                                    <td class="text-center border-end bg-light">
+                                        <div class="form-check d-flex justify-content-center">
+                                            @Html.CheckBoxFor(m => Model.ElementAt(index).Mod770LavAutonomo, 
+                                                new { 
+                                                    @class = "form-check-input", 
+                                                    Name = $"attivita[{index}].Mod770LavAutonomo",
+                                                    @style = "accent-color: black; border: 2px solid black;"
+                                                })
+                                        </div>
+                                    </td>
+
+                                    <!-- MOD 770 Ordinario -->
+                                    <td class="text-center border-end bg-light">
+                                        <div class="form-check d-flex justify-content-center">
+                                            @Html.CheckBoxFor(m => Model.ElementAt(index).Mod770Ordinario, 
+                                                new { 
+                                                    @class = "form-check-input", 
+                                                    Name = $"attivita[{index}].Mod770Ordinario",
+                                                    @style = "accent-color: black; border: 2px solid black;"
+                                                })
+                                        </div>
+                                    </td>
+
+                                    <!-- Inserimento Dati DR -->
+                                    <td class="text-center border-end bg-light">
+                                        <div class="form-check d-flex justify-content-center">
+                                            @Html.CheckBoxFor(m => Model.ElementAt(index).InserimentoDatiDr, 
+                                                new { 
+                                                    @class = "form-check-input", 
+                                                    Name = $"attivita[{index}].InserimentoDatiDr",
+                                                    @style = "accent-color: black; border: 2px solid black;"
+                                                })
+                                        </div>
+                                    </td>
+
+                                    <!-- DR Invio -->
+                                    <td class="text-center border-end bg-light">
+                                        <div class="form-check d-flex justify-content-center">
+                                            @Html.CheckBoxFor(m => Model.ElementAt(index).DrInvio, 
+                                                new { 
+                                                    @class = "form-check-input", 
+                                                    Name = $"attivita[{index}].DrInvio",
+                                                    @style = "accent-color: black; border: 2px solid black;"
+                                                })
+                                        </div>
+                                    </td>
+
+                                    <!-- Ricevuta -->
+                                    <td class="text-center border-end bg-light">
+                                        <div class="form-check d-flex justify-content-center">
+                                            @Html.CheckBoxFor(m => Model.ElementAt(index).Ricevuta, 
+                                                new { 
+                                                    @class = "form-check-input", 
+                                                    Name = $"attivita[{index}].Ricevuta",
+                                                    @style = "accent-color: black; border: 2px solid black;"
+                                                })
+                                        </div>
+                                    </td>
+
+                                    <!-- PEC Invio DR -->
+                                    <td class="text-center border-end bg-light">
+                                        <div class="form-check d-flex justify-content-center">
+                                            @Html.CheckBoxFor(m => Model.ElementAt(index).PecInvioDr, 
+                                                new { 
+                                                    @class = "form-check-input", 
+                                                    Name = $"attivita[{index}].PecInvioDr",
+                                                    @style = "accent-color: black; border: 2px solid black;"
+                                                })
+                                        </div>
+                                    </td>
+
+                                    <!-- MOD CU Fatte -->
+                                    <td class="text-center border-end bg-light">
+                                        <div class="form-check d-flex justify-content-center">
+                                            @Html.CheckBoxFor(m => Model.ElementAt(index).ModCuFatte, 
+                                                new { 
+                                                    @class = "form-check-input", 
+                                                    Name = $"attivita[{index}].ModCuFatte",
+                                                    @style = "accent-color: black; border: 2px solid black;"
+                                                })
+                                        </div>
+                                    </td>
+
+                                    <!-- CU Utili Presenti -->
+                                    <td class="text-center border-end bg-light">
+                                        <div class="form-check d-flex justify-content-center">
+                                            @Html.CheckBoxFor(m => Model.ElementAt(index).CuUtiliPresenti, 
+                                                new { 
+                                                    @class = "form-check-input", 
+                                                    Name = $"attivita[{index}].CuUtiliPresenti",
+                                                    @style = "accent-color: black; border: 2px solid black;"
+                                                })
+                                        </div>
+                                    </td>
+
+                                    <!-- Note -->
+                                    <td class="border-end">
+                                        @Html.TextAreaFor(m => Model.ElementAt(index).Note, 
+                                            new { 
+                                                @class = "form-control form-control-sm", 
+                                                @rows = "2", 
+                                                @placeholder = "Note...",
+                                                Name = $"attivita[{index}].Note"
+                                            })
+                                    </td>
+
+                                    <!-- Azioni -->
+                                    <td class="text-center">
+                                        <button type="button" class="btn btn-outline-danger btn-sm" 
+                                                onclick="eliminaSingolaAttivita(@item.IdAttivita770, '@item.Cliente?.NomeCliente')" 
+                                                title="Elimina attività">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                    </td>
+                                </tr>
+                                index++;
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </form>
+        }
+        else
+        {
+            <div class="text-center py-5">
+                <i class="fas fa-exclamation-circle text-warning fa-3x mb-3"></i>
+                <h5>Nessuna attività 770 trovata per l'anno @annoSelezionato</h5>
+                <p class="text-muted">
+                    Le attività vengono create automaticamente per i clienti che hanno attivato il servizio MOD 770 nella gestione clienti.
+                </p>
+                <a href="@Url.Action("Index", "Clienti")" class="btn btn-primary">
+                    <i class="fas fa-users me-1"></i>Vai alla Gestione Clienti
+                </a>
+            </div>
+        }
+    </div>
+</div>
+
+<!-- Scripts per le funzionalità della tabella -->
+<script>
+// Auto-save functionality
+let autoSaveTimer;
+const AUTO_SAVE_DELAY = 3000; // 3 secondi
+
+$(document).ready(function() {
+    // Auto-save quando l'utente modifica i campi
+    $('#bulkUpdateForm input, #bulkUpdateForm select, #bulkUpdateForm textarea').on('change input', function() {
+        clearTimeout(autoSaveTimer);
+        autoSaveTimer = setTimeout(function() {
+            autoSave();
+        }, AUTO_SAVE_DELAY);
+    });
+});
+
+function autoSave() {
+    var formData = $('#bulkUpdateForm').serialize();
+    
+    $.ajax({
+        url: '@Url.Action("BulkUpdate")',
+        type: 'POST',
+        data: formData,
+        success: function(response) {
+            if (response.success) {
+                console.log('Auto-save completato: ' + response.message);
+                // Mostra notifica discreta
+                showNotification('success', 'Salvato automaticamente');
+            }
+        },
+        error: function() {
+            console.log('Errore durante auto-save');
+        }
+    });
+}
+
+function showNotification(type, message) {
+    var alertClass = type === 'success' ? 'alert-success' : 'alert-danger';
+    var notification = `<div class="alert ${alertClass} alert-dismissible fade show position-fixed" 
+                            style="top: 20px; right: 20px; z-index: 9999; min-width: 300px;">
+                            ${message}
+                            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                        </div>`;
+    
+    $('body').append(notification);
+    
+    // Auto-remove dopo 3 secondi
+    setTimeout(function() {
+        $('.alert').fadeOut();
+    }, 3000);
+}
+
+// Filtri tabella
+function filterTable() {
+    var nomeCliente = document.getElementById('filtroNomeCliente').value.toLowerCase();
+    var professionista = document.getElementById('filtroProfessionista').value;
+    var tipoMod770 = document.getElementById('filtroTipoMod770').value;
+    var stato = document.getElementById('filtroStato').value;
+    var mostraSoloAttivi = document.getElementById('mostraSoloAttivi').checked;
+    
+    var table = document.getElementById('attivita770Table');
+    var rows = table.getElementsByTagName('tbody')[0].getElementsByTagName('tr');
+    
+    for (var i = 0; i < rows.length; i++) {
+        var row = rows[i];
+        var show = true;
+        
+        // Filtro nome cliente
+        if (nomeCliente && !row.cells[0].textContent.toLowerCase().includes(nomeCliente)) {
+            show = false;
+        }
+        
+        // Filtro professionista
+        if (professionista && row.querySelector('select[name*="IdProfessionista"]').value !== professionista) {
+            show = false;
+        }
+        
+        // Filtro tipo MOD 770
+        if (tipoMod770) {
+            var lavAutonomo = row.querySelector('input[name*="Mod770LavAutonomo"]').checked;
+            var ordinario = row.querySelector('input[name*="Mod770Ordinario"]').checked;
+            
+            switch(tipoMod770) {
+                case 'lav_autonomo':
+                    if (!lavAutonomo || ordinario) show = false;
+                    break;
+                case 'ordinario':
+                    if (!ordinario || lavAutonomo) show = false;
+                    break;
+                case 'entrambi':
+                    if (!lavAutonomo || !ordinario) show = false;
+                    break;
+                case 'nessuno':
+                    if (lavAutonomo || ordinario) show = false;
+                    break;
+            }
+        }
+        
+        // Filtro stato
+        if (stato) {
+            var drInvio = row.querySelector('input[name*="DrInvio"]').checked;
+            var ricevuta = row.querySelector('input[name*="Ricevuta"]').checked;
+            
+            switch(stato) {
+                case 'dr_invio':
+                    if (!drInvio) show = false;
+                    break;
+                case 'ricevuta':
+                    if (!ricevuta) show = false;
+                    break;
+                case 'complete':
+                    if (!drInvio || !ricevuta) show = false;
+                    break;
+                case 'incomplete':
+                    if (drInvio && ricevuta) show = false;
+                    break;
+            }
+        }
+        
+        // Filtro solo attivi
+        if (mostraSoloAttivi) {
+            var clienteAttivo = row.getAttribute('data-cliente-attivo') === 'true';
+            if (!clienteAttivo) {
+                show = false;
+            }
+        }
+        
+        row.style.display = show ? '' : 'none';
+    }
+}
+
+function resetFilters() {
+    document.getElementById('filtroNomeCliente').value = '';
+    document.getElementById('filtroProfessionista').value = '';
+    document.getElementById('filtroTipoMod770').value = '';
+    document.getElementById('filtroStato').value = '';
+    document.getElementById('mostraSoloAttivi').checked = true;
+    
+    filterTable();
+}
+
+// Eliminazione singola attività
+function eliminaSingolaAttivita(id, nomeCliente) {
+    if (confirm(`Sei sicuro di voler eliminare l'attività MOD 770 per il cliente "${nomeCliente}"?\n\nQuesta azione non può essere annullata.`)) {
+        $.ajax({
+            url: '@Url.Action("DeleteSingle")',
+            type: 'POST',
+            data: {
+                id: id,
+                __RequestVerificationToken: $('input[name="__RequestVerificationToken"]').val()
+            },
+            success: function(response) {
+                if (response.success) {
+                    showNotification('success', response.message);
+                    location.reload();
+                } else {
+                    alert('Errore: ' + response.message);
+                }
+            },
+            error: function() {
+                alert('Errore durante l\'eliminazione');
+            }
+        });
+    }
+}
+
+// Eliminazione di massa
+function confermaEliminazioneAnno() {
+    var anno = @(annoSelezionato ?? 0);
+    if (confirm(`ATTENZIONE!\n\nStai per eliminare TUTTI gli inserimenti MOD 770 dell'anno ${anno}.\n\nQuesta operazione è IRREVERSIBILE.\n\nSei sicuro di voler continuare?`)) {
+        if (confirm(`CONFERMA FINALE:\n\nElimina definitivamente tutti i dati MOD 770 dell'anno ${anno}?`)) {
+            $.ajax({
+                url: '@Url.Action("DeleteAllForYear")',
+                type: 'POST',
+                data: {
+                    anno: anno,
+                    __RequestVerificationToken: $('input[name="__RequestVerificationToken"]').val()
+                },
+                success: function(response) {
+                    if (response.success) {
+                        alert(response.message);
+                        location.reload();
+                    } else {
+                        alert('Errore: ' + response.message);
+                    }
+                },
+                error: function() {
+                    alert('Errore durante l\'eliminazione');
+                }
+            });
+        }
+    }
+}
+</script>
+
+<style>
+/* Stili per le intestazioni fisse */
+.table-container {
+    position: relative;
+}
+
+.sticky-top {
+    position: sticky;
+    top: 0;
+    z-index: 10;
+}
+
+/* Stili per le checkbox con memory delle preferenze utente */
+.form-check-input:checked {
+    background-color: #000 !important;
+    border-color: #000 !important;
+}
+
+/* Evidenziazione righe al hover */
+.table-hover tbody tr:hover {
+    background-color: rgba(0, 0, 0, 0.05);
+}
+
+/* Stili per clienti non attivi */
+.activity-row[data-cliente-attivo="false"] {
+    opacity: 0.7;
+    background-color: #f8f9fa;
+}
+
+/* Notifiche */
+.alert {
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+</style>
