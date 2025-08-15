@@ -399,6 +399,11 @@ namespace ConsultingGroup.Controllers
                             var count = await _context.Attivita770.CountAsync(a => a.IdCliente == cliente.IdCliente && a.IdAnno == annoCorrente.IdAnno);
                             if (count > 0) checkboxRimosse.Add(("MOD 770", "attivita_770", count));
                         }
+                        if (cliente.ModCu && !viewModel.ModCu)
+                        {
+                            var count = await _context.AttivitaCu.CountAsync(a => a.IdCliente == cliente.IdCliente && a.IdAnno == annoCorrente.IdAnno);
+                            if (count > 0) checkboxRimosse.Add(("MOD CU", "attivita_cu", count));
+                        }
                         if (cliente.ModEnc && !viewModel.ModEnc)
                         {
                             var count = await _context.AttivitaEnc.CountAsync(a => a.IdCliente == cliente.IdCliente && a.IdAnno == annoCorrente.IdAnno);
@@ -1956,6 +1961,13 @@ namespace ConsultingGroup.Controllers
                             .Where(a => a.IdCliente == idCliente && a.IdAnno == idAnno)
                             .ToListAsync();
                         _context.AttivitaIrap.RemoveRange(attivitaIrap);
+                        break;
+
+                    case "attivita_cu":
+                        var attivitaCu = await _context.AttivitaCu
+                            .Where(a => a.IdCliente == idCliente && a.IdAnno == idAnno)
+                            .ToListAsync();
+                        _context.AttivitaCu.RemoveRange(attivitaCu);
                         break;
                 }
             }

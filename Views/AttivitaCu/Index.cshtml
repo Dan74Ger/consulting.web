@@ -1,0 +1,497 @@
+@model IEnumerable<ConsultingGroup.Models.AttivitaCu>
+@{
+    ViewData["Title"] = "Mod. CU";
+    var annoSelezionato = ViewBag.AnnoSelezionato as int? ?? DateTime.Now.Year;
+    var annoFiscale = ViewBag.AnnoFiscale as ConsultingGroup.Models.AnnoFiscale;
+}
+
+<!-- Filtro Anno -->
+<div class="row mb-4">
+    <div class="col-md-12">
+        <div class="card border-primary">
+            <div class="card-header bg-primary text-white">
+                <h5 class="mb-0">
+                    <i class="fas fa-calendar-alt me-2"></i>Anno di Riferimento
+                </h5>
+            </div>
+            <div class="card-body">
+                <form method="get" class="d-flex align-items-center gap-3">
+                    <label for="annoSelezionato" class="form-label mb-0 fw-bold">Seleziona Anno:</label>
+                    <select name="annoSelezionato" id="annoSelezionato" class="form-select w-auto" onchange="this.form.submit()">
+                        @{
+                            var anniFiscali = ViewBag.AnniFiscali as IEnumerable<Microsoft.AspNetCore.Mvc.Rendering.SelectListItem>;
+                        }
+                        @if (anniFiscali != null)
+                        {
+                            @foreach (var anno in anniFiscali)
+                            {
+                                @if (anno.Selected)
+                                {
+                                    <option value="@anno.Value" selected>@anno.Text</option>
+                                }
+                                else
+                                {
+                                    <option value="@anno.Value">@anno.Text</option>
+                                }
+                            }
+                        }
+                    </select>
+                    <div class="ms-auto d-flex gap-2">
+                        <a href="@Url.Action("Index", "GestioneAttivita")" class="btn btn-outline-primary btn-sm">
+                            <i class="fas fa-arrow-left me-1"></i>Gestione Attività
+                        </a>
+                        <a href="@Url.Action("Index", "Clienti")" class="btn btn-outline-success btn-sm">
+                            <i class="fas fa-users me-1"></i>Gestione Clienti
+                        </a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Info Anno CU -->
+@if (annoFiscale != null)
+{
+    <div class="alert alert-info mb-4">
+        <i class="fas fa-info-circle me-2"></i>
+        <strong>Anno Fiscale CU:</strong> @annoFiscale.AnnoDescrizione
+        <span class="ms-2">- Gestione Certificazioni Uniche per l'anno @annoFiscale.Anno</span>
+    </div>
+}
+
+<!-- Tabella Attività CU - Modifica Inline -->
+<div class="card">
+    <div class="card-header bg-primary text-white">
+        <h5 class="mb-0">
+            <i class="fas fa-list me-2"></i>Elenco Attività CU - @(annoFiscale?.AnnoDescrizione ?? $"Anno {annoSelezionato}")
+        </h5>
+    </div>
+    <div class="card-body p-0">
+        @if (Model.Any())
+        {
+            <!-- ✅ COMPORTAMENTO CORRETTO CU:
+                 • Attivando ModCu in anagrafica → Cliente appare automaticamente
+                 • Disattivando ModCu in anagrafica → Cliente viene rimosso automaticamente (con conferma)
+                 • Nessun tasto elimina individuale - solo gestione da anagrafica -->
+            <form id="bulkUpdateForm" method="post" action="@Url.Action("BulkUpdate")">
+                @Html.AntiForgeryToken()
+                <input type="hidden" name="annoSelezionato" value="@annoSelezionato" />
+                
+                <!-- Filtri e Pulsanti -->
+                <div class="mb-3">
+                    <!-- Prima riga filtri -->
+                    <div class="d-flex flex-wrap gap-3 align-items-center mb-2">
+                        <div class="d-flex align-items-center gap-2">
+                            <label for="filtroNomeCliente" class="form-label mb-0 fw-bold">Cliente:</label>
+                            <input type="text" id="filtroNomeCliente" class="form-control form-control-sm" style="width: 180px;" placeholder="Cerca per nome...">
+                        </div>
+                        
+                        <div class="d-flex align-items-center gap-2">
+                            <label for="filtroProfessionista" class="form-label mb-0 fw-bold">Professionista:</label>
+                            <select id="filtroProfessionista" class="form-select form-select-sm" style="width: auto;">
+                                <option value="">Tutti</option>
+                                @{
+                                    var professionistiFiltro = ViewBag.Professionisti as IEnumerable<Microsoft.AspNetCore.Mvc.Rendering.SelectListItem>;
+                                }
+                                @if (professionistiFiltro != null)
+                                {
+                                    @foreach (var prof in professionistiFiltro)
+                                    {
+                                        <option value="@prof.Value">@prof.Text</option>
+                                    }
+                                }
+                            </select>
+                        </div>
+                        
+                        <div class="d-flex align-items-center gap-2">
+                            <label for="filtroTipoCu" class="form-label mb-0 fw-bold">Tipo CU:</label>
+                            <select id="filtroTipoCu" class="form-select form-select-sm" style="width: auto;">
+                                <option value="">Tutti</option>
+                                <option value="lav_autonomo">Lav. Autonomo</option>
+                                <option value="utili">Utili</option>
+                                <option value="entrambi">Entrambi</option>
+                                <option value="nessuno">Nessuno</option>
+                            </select>
+                        </div>
+                        
+                        <div class="d-flex align-items-center gap-2">
+                            <label for="filtroStatoCu" class="form-label mb-0 fw-bold">Stato CU:</label>
+                            <select id="filtroStatoCu" class="form-select form-select-sm" style="width: auto;">
+                                <option value="">Tutti</option>
+                                <option value="preparato">CU Preparato</option>
+                                <option value="inviato">Invio CU</option>
+                                <option value="ricevuto">Ricevuta CU</option>
+                                <option value="completato">Completato</option>
+                                <option value="in_attesa">In Attesa</option>
+                            </select>
+                        </div>
+                        
+                        <div class="d-flex align-items-center gap-2">
+                            <label for="filtroCompletamento" class="form-label mb-0 fw-bold">Completamento:</label>
+                            <select id="filtroCompletamento" class="form-select form-select-sm" style="width: auto;">
+                                <option value="">Tutti</option>
+                                <option value="0-25">0-25%</option>
+                                <option value="26-50">26-50%</option>
+                                <option value="51-75">51-75%</option>
+                                <option value="76-99">76-99%</option>
+                                <option value="100">100%</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <!-- Seconda riga con pulsanti di azione -->
+                    <div class="d-flex flex-wrap justify-content-between align-items-center mt-2 gap-2">
+                        <div class="d-flex gap-2">
+                            <button type="button" class="btn btn-outline-primary btn-sm" onclick="filterTable()">
+                                <i class="fas fa-filter me-1"></i>Applica Filtri
+                            </button>
+                            <button type="button" class="btn btn-outline-secondary btn-sm" onclick="resetFilters()">
+                                <i class="fas fa-times me-1"></i>Reset
+                            </button>
+                        </div>
+                        
+                        <div class="d-flex flex-wrap gap-2">
+                            <button type="submit" class="btn btn-primary btn-sm">
+                                <i class="fas fa-save me-1"></i>Salva Tutto
+                            </button>
+                            <a href="@Url.Action("ExportExcel", new { anno = annoSelezionato })" class="btn btn-warning btn-sm">
+                                <i class="fas fa-file-excel me-1"></i>Export Excel
+                            </a>
+                            <button type="button" class="btn btn-danger btn-sm" onclick="confermaEliminazioneAnno()">
+                                <i class="fas fa-trash-alt me-1"></i>Elimina tutti gli inserimenti dell'anno
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Tabella con intestazioni fisse CU -->
+                <div class="table-container" style="max-height: 70vh; overflow-y: auto; border: 1px solid #dee2e6; border-radius: 0.375rem;">
+                    <table class="table table-striped table-hover mb-0">
+                        <thead class="table-dark sticky-top">
+                            <tr>
+                                <th style="width: 160px;">Cliente</th>
+                                <th style="width: 140px;">Professionista</th>
+                                <th style="width: 120px;" class="text-center">CU Lav. Autonomo</th>
+                                <th style="width: 100px;" class="text-center">CU Utili</th>
+                                <th style="width: 100px;" class="text-center">Invio CU</th>
+                                <th style="width: 100px;" class="text-center">Numero CU</th>
+                                <th style="width: 110px;" class="text-center">Ricevuta CU</th>
+                                <th style="width: 120px;" class="text-center">Invio Cliente Mail</th>
+                                <th style="width: 180px;">Note</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @{int index = 0;}
+                            @foreach (var item in Model)
+                            {
+                                <tr>
+                                    <input type="hidden" name="[@index].IdAttivitaCu" value="@item.IdAttivitaCu" />
+                                    <input type="hidden" name="[@index].IdAnno" value="@item.IdAnno" />
+                                    <input type="hidden" name="[@index].IdCliente" value="@item.IdCliente" />
+                                    <input type="hidden" name="[@index].CreatedAt" value="@item.CreatedAt.ToString("yyyy-MM-ddTHH:mm:ss")" />
+                                    <input type="hidden" name="[@index].UpdatedAt" value="@DateTime.UtcNow.ToString("yyyy-MM-ddTHH:mm:ss")" />
+                                    
+                                    <!-- Cliente -->
+                                    <td class="align-middle" style="width: 160px;">
+                                        <div>
+                                            <strong>@item.Cliente!.NomeCliente</strong><br/>
+                                            <small class="text-muted">@item.Cliente!.CodiceAteco</small>
+                                        </div>
+                                    </td>
+                                    
+                                    <!-- Professionista -->
+                                    <td class="align-middle" style="width: 140px;">
+                                        <select name="[@index].IdProfessionista" class="form-select form-select-sm">
+                                            <option value="">-- Nessuno --</option>
+                                            @{
+                                                var professionisti = ViewBag.Professionisti as IEnumerable<Microsoft.AspNetCore.Mvc.Rendering.SelectListItem>;
+                                            }
+                                            @if (professionisti != null)
+                                            {
+                                                @foreach (var prof in professionisti)
+                                                {
+                                                    @if (prof.Value == item.IdProfessionista?.ToString())
+                                                    {
+                                                        <option value="@prof.Value" selected>@prof.Text</option>
+                                                    }
+                                                    else
+                                                    {
+                                                        <option value="@prof.Value">@prof.Text</option>
+                                                    }
+                                                }
+                                            }
+                                        </select>
+                                    </td>
+                                    
+                                    <!-- CU Lav. Autonomo -->
+                                    <td class="text-center align-middle" style="width: 120px;">
+                                        <div class="form-check d-flex justify-content-center">
+                                            <input type="checkbox" name="[@index].CuLavAutonomo" value="true" @(item.CuLavAutonomo ? "checked" : "") class="form-check-input" style="accent-color: black; border: 2px solid black;">
+                                            <input type="hidden" name="[@index].CuLavAutonomo" value="false">
+                                        </div>
+                                    </td>
+                                    
+                                    <!-- CU Utili -->
+                                    <td class="text-center align-middle" style="width: 100px;">
+                                        <div class="form-check d-flex justify-content-center">
+                                            <input type="checkbox" name="[@index].CuUtili" value="true" @(item.CuUtili ? "checked" : "") class="form-check-input" style="accent-color: black; border: 2px solid black;">
+                                            <input type="hidden" name="[@index].CuUtili" value="false">
+                                        </div>
+                                    </td>
+                                    
+                                    <!-- Invio CU -->
+                                    <td class="text-center align-middle" style="width: 100px;">
+                                        <div class="form-check d-flex justify-content-center">
+                                            <input type="checkbox" name="[@index].InvioCu" value="true" @(item.InvioCu ? "checked" : "") class="form-check-input" style="accent-color: black; border: 2px solid black;">
+                                            <input type="hidden" name="[@index].InvioCu" value="false">
+                                        </div>
+                                    </td>
+                                    
+                                    <!-- Numero CU -->
+                                    <td class="text-center align-middle" style="width: 100px;">
+                                        <input type="number" name="[@index].NumCu" value="@item.NumCu" class="form-control form-control-sm text-center" min="0" placeholder="N°">
+                                    </td>
+                                    
+                                    <!-- Ricevuta CU -->
+                                    <td class="text-center align-middle" style="width: 110px;">
+                                        <div class="form-check d-flex justify-content-center">
+                                            <input type="checkbox" name="[@index].RicevutaCu" value="true" @(item.RicevutaCu ? "checked" : "") class="form-check-input" style="accent-color: black; border: 2px solid black;">
+                                            <input type="hidden" name="[@index].RicevutaCu" value="false">
+                                        </div>
+                                    </td>
+                                    
+                                    <!-- Invio Cliente Mail -->
+                                    <td class="text-center align-middle" style="width: 120px;">
+                                        <div class="form-check d-flex justify-content-center mb-1">
+                                            <input type="checkbox" name="[@index].InvioClienteMail" value="true" @(item.InvioClienteMail ? "checked" : "") class="form-check-input" style="accent-color: black; border: 2px solid black;">
+                                            <input type="hidden" name="[@index].InvioClienteMail" value="false">
+                                        </div>
+                                        @if (item.InvioClienteMailData.HasValue)
+                                        {
+                                            <small class="text-muted d-block">@item.InvioClienteMailData.Value.ToString("dd/MM/yy")</small>
+                                        }
+                                        <input type="date" name="[@index].InvioClienteMailData" value="@item.InvioClienteMailData?.ToString("yyyy-MM-dd")" class="form-control form-control-sm mt-1" style="font-size: 0.75rem;">
+                                    </td>
+                                    
+                                    <!-- Note -->
+                                    <td class="align-middle" style="width: 180px;">
+                                        <textarea name="[@index].Note" class="form-control form-control-sm" rows="2" style="resize: vertical; font-size: 0.8rem;">@item.Note</textarea>
+                                    </td>
+                                </tr>
+                                index++;
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </form>
+        }
+        else
+        {
+            <div class="text-center py-5">
+                <i class="fas fa-inbox fa-3x text-muted mb-3"></i>
+                <h5 class="text-muted">Nessuna attività CU trovata per l'anno @annoSelezionato</h5>
+                <p class="text-muted">Attiva la checkbox "Mod CU" nell'anagrafica dei clienti per popolare automaticamente questa lista.</p>
+                <a href="@Url.Action("Index", "Clienti")" class="btn btn-primary">
+                    <i class="fas fa-users me-1"></i>Vai a Gestione Clienti
+                </a>
+            </div>
+        }
+    </div>
+</div>
+
+<style>
+/* Intestazioni fisse per tabella CU */
+.table-container {
+    position: relative;
+}
+
+.sticky-top {
+    position: sticky;
+    top: 0;
+    z-index: 10;
+}
+
+/* Stile personalizzato checkbox CU */
+.form-check-input:checked {
+    background-color: black !important;
+    border-color: black !important;
+}
+
+.form-check-input {
+    accent-color: black;
+    border: 2px solid black;
+}
+
+/* Responsive per tabella CU */
+@@media (max-width: 1200px) {
+    .table-container {
+        max-height: 60vh;
+    }
+}
+</style>
+
+<script>
+function filterTable() {
+    const nomeCliente = document.getElementById('filtroNomeCliente').value.toLowerCase();
+    const professionista = document.getElementById('filtroProfessionista').value;
+    const tipoCu = document.getElementById('filtroTipoCu').value;
+    const statoCu = document.getElementById('filtroStatoCu').value;
+    const completamento = document.getElementById('filtroCompletamento').value;
+    
+    const tbody = document.querySelector('tbody');
+    const rows = tbody.querySelectorAll('tr');
+    
+    let visibleCount = 0;
+    
+    rows.forEach(row => {
+        let show = true;
+        
+        // Filtro nome cliente
+        if (nomeCliente) {
+            const clienteCell = row.cells[0];
+            const clienteText = clienteCell ? clienteCell.textContent.toLowerCase() : '';
+            if (!clienteText.includes(nomeCliente)) {
+                show = false;
+            }
+        }
+        
+        // Filtro professionista
+        if (professionista) {
+            const profSelect = row.querySelector('select[name*=".IdProfessionista"]');
+            if (!profSelect || profSelect.value !== professionista) {
+                show = false;
+            }
+        }
+        
+        // Filtro tipo CU
+        if (tipoCu) {
+            const cuLavAutonomo = row.querySelector('input[name*=".CuLavAutonomo"]').checked;
+            const cuUtili = row.querySelector('input[name*=".CuUtili"]').checked;
+            
+            switch(tipoCu) {
+                case 'lav_autonomo': if (!cuLavAutonomo) show = false; break;
+                case 'utili': if (!cuUtili) show = false; break;
+                case 'entrambi': if (!cuLavAutonomo || !cuUtili) show = false; break;
+                case 'nessuno': if (cuLavAutonomo || cuUtili) show = false; break;
+            }
+        }
+        
+        // Filtro stato CU
+        if (statoCu) {
+            const cuLavAutonomo = row.querySelector('input[name*=".CuLavAutonomo"]').checked;
+            const cuUtili = row.querySelector('input[name*=".CuUtili"]').checked;
+            const invioCu = row.querySelector('input[name*=".InvioCu"]').checked;
+            const ricevutaCu = row.querySelector('input[name*=".RicevutaCu"]').checked;
+            const invioClienteMail = row.querySelector('input[name*=".InvioClienteMail"]').checked;
+            
+            switch(statoCu) {
+                case 'preparato': if (!cuLavAutonomo && !cuUtili) show = false; break;
+                case 'inviato': if (!invioCu) show = false; break;
+                case 'ricevuto': if (!ricevutaCu) show = false; break;
+                case 'completato': if (!invioClienteMail) show = false; break;
+                case 'in_attesa': if (cuLavAutonomo || cuUtili || invioCu || ricevutaCu || invioClienteMail) show = false; break;
+            }
+        }
+        
+        // Filtro completamento percentuale (calcolato dinamicamente)
+        if (completamento) {
+            // Calcola percentuale dai checkbox
+            const cuLavAutonomo = row.querySelector('input[name*=".CuLavAutonomo"]').checked;
+            const cuUtili = row.querySelector('input[name*=".CuUtili"]').checked;
+            const invioCu = row.querySelector('input[name*=".InvioCu"]').checked;
+            const ricevutaCu = row.querySelector('input[name*=".RicevutaCu"]').checked;
+            const invioClienteMail = row.querySelector('input[name*=".InvioClienteMail"]').checked;
+            const numCu = row.querySelector('input[name*=".NumCu"]').value;
+            
+            let completedSteps = 0;
+            if (cuLavAutonomo) completedSteps++;
+            if (cuUtili) completedSteps++;
+            if (invioCu) completedSteps++;
+            if (ricevutaCu) completedSteps++;
+            if (invioClienteMail) completedSteps++;
+            if (numCu && parseInt(numCu) > 0) completedSteps++;
+            
+            const percent = (completedSteps / 6) * 100;
+            
+            switch(completamento) {
+                case '0-25': if (percent > 25) show = false; break;
+                case '26-50': if (percent < 26 || percent > 50) show = false; break;
+                case '51-75': if (percent < 51 || percent > 75) show = false; break;
+                case '76-99': if (percent < 76 || percent > 99) show = false; break;
+                case '100': if (percent !== 100) show = false; break;
+            }
+        }
+        
+        row.style.display = show ? '' : 'none';
+        if (show) visibleCount++;
+    });
+    
+    console.log(`Filtri CU applicati: ${visibleCount} righe visibili`);
+}
+
+function resetFilters() {
+    document.getElementById('filtroNomeCliente').value = '';
+    document.getElementById('filtroProfessionista').value = '';
+    document.getElementById('filtroTipoCu').value = '';
+    document.getElementById('filtroStatoCu').value = '';
+    document.getElementById('filtroCompletamento').value = '';
+    
+    const tbody = document.querySelector('tbody');
+    const rows = tbody.querySelectorAll('tr');
+    rows.forEach(row => {
+        row.style.display = '';
+    });
+    
+    console.log('Filtri CU resettati');
+}
+
+function confermaEliminazioneAnno() {
+    const anno = @annoSelezionato;
+    if (confirm(`Sei sicuro di voler eliminare TUTTI gli inserimenti CU dell'anno ${anno}?\n\nQuesta operazione è IRREVERSIBILE!`)) {
+        eliminaTuttiInserimenti(anno);
+    }
+}
+
+function eliminaTuttiInserimenti(anno) {
+    fetch('@Url.Action("DeleteAllForYear")', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+            'RequestVerificationToken': document.querySelector('input[name="__RequestVerificationToken"]').value
+        },
+        body: `anno=${anno}`
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            alert(data.message);
+            location.reload();
+        } else {
+            alert('Errore: ' + data.message);
+        }
+    })
+    .catch(error => {
+        console.error('Errore eliminazione CU:', error);
+        alert('Errore durante l\'eliminazione');
+    });
+}
+
+// Event listeners per filtri real-time
+document.addEventListener('DOMContentLoaded', function() {
+    const filtroNomeCliente = document.getElementById('filtroNomeCliente');
+    if (filtroNomeCliente) {
+        filtroNomeCliente.addEventListener('input', filterTable);
+    }
+    
+    const selectFilters = ['filtroProfessionista', 'filtroTipoCu', 'filtroStatoCu', 'filtroCompletamento'];
+    selectFilters.forEach(id => {
+        const element = document.getElementById(id);
+        if (element) {
+            element.addEventListener('change', filterTable);
+        }
+    });
+    
+    console.log('Filtri CU inizializzati');
+});
+</script>
