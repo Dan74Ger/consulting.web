@@ -1,0 +1,604 @@
+@model IEnumerable<ConsultingGroup.Models.AttivitaIrap>
+@{
+    ViewData["Title"] = "Mod. IRAP";
+    var annoSelezionato = ViewBag.AnnoSelezionato as int? ?? DateTime.Now.Year;
+    var annoFiscale = ViewBag.AnnoFiscale as ConsultingGroup.Models.AnnoFiscale;
+}
+
+<!-- Filtro Anno -->
+<div class="row mb-4">
+    <div class="col-md-12">
+        <div class="card border-primary">
+            <div class="card-header bg-primary text-white">
+                <h5 class="mb-0">
+                    <i class="fas fa-calendar-alt me-2"></i>Anno di Riferimento
+                </h5>
+            </div>
+            <div class="card-body">
+                <form method="get" class="d-flex align-items-center gap-3">
+                    <label for="annoSelezionato" class="form-label mb-0 fw-bold">Seleziona Anno:</label>
+                    <select name="annoSelezionato" id="annoSelezionato" class="form-select w-auto" onchange="this.form.submit()">
+                        @{
+                            var anniFiscali = ViewBag.AnniFiscali as IEnumerable<Microsoft.AspNetCore.Mvc.Rendering.SelectListItem>;
+                        }
+                        @if (anniFiscali != null)
+                        {
+                            @foreach (var anno in anniFiscali)
+                            {
+                                @if (anno.Selected)
+                                {
+                                    <option value="@anno.Value" selected>@anno.Text</option>
+                                }
+                                else
+                                {
+                                    <option value="@anno.Value">@anno.Text</option>
+                                }
+                            }
+                        }
+                    </select>
+                    <div class="ms-auto d-flex gap-2">
+                        <a href="@Url.Action("Index", "GestioneAttivita")" class="btn btn-outline-primary btn-sm">
+                            <i class="fas fa-arrow-left me-1"></i>Gestione Attività
+                        </a>
+                        <a href="@Url.Action("Index", "Clienti")" class="btn btn-outline-success btn-sm">
+                            <i class="fas fa-users me-1"></i>Gestione Clienti
+                        </a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Info Anno IRAP -->
+@if (annoFiscale != null)
+{
+    <div class="alert alert-info mb-4">
+        <i class="fas fa-info-circle me-2"></i>
+        <strong>Anno Fiscale IRAP:</strong> @annoFiscale.AnnoDescrizione
+        <span class="ms-2">- Gestione dichiarazioni IRAP per l'anno @annoFiscale.Anno</span>
+    </div>
+}
+
+<!-- Tabella Attività IRAP - Modifica Inline -->
+<div class="card">
+    <div class="card-header bg-primary text-white">
+        <h5 class="mb-0">
+            <i class="fas fa-list me-2"></i>Elenco Attività IRAP - @(annoFiscale?.AnnoDescrizione ?? $"Anno {annoSelezionato}")
+        </h5>
+    </div>
+    <div class="card-body p-0">
+        @if (Model.Any())
+        {
+            <!-- ✅ COMPORTAMENTO CORRETTO IRAP:
+                 • Attivando ModIrap in anagrafica → Cliente appare automaticamente
+                 • Disattivando ModIrap in anagrafica → Cliente viene rimosso automaticamente (con conferma)
+                 • Nessun tasto elimina individuale - solo gestione da anagrafica -->
+            <form id="bulkUpdateForm" method="post" action="@Url.Action("BulkUpdate")">
+                @Html.AntiForgeryToken()
+                <input type="hidden" name="annoSelezionato" value="@annoSelezionato" />
+                
+                <!-- Filtri e Pulsanti -->
+                <div class="mb-3">
+                    <!-- Prima riga filtri -->
+                    <div class="d-flex flex-wrap gap-3 align-items-center mb-2">
+                        <div class="d-flex align-items-center gap-2">
+                            <label for="filtroNomeCliente" class="form-label mb-0 fw-bold">Cliente:</label>
+                            <input type="text" id="filtroNomeCliente" class="form-control form-control-sm" style="width: 180px;" placeholder="Cerca per nome...">
+                        </div>
+                        
+                        <div class="d-flex align-items-center gap-2">
+                            <label for="filtroProfessionista" class="form-label mb-0 fw-bold">Professionista:</label>
+                            <select id="filtroProfessionista" class="form-select form-select-sm" style="width: auto;">
+                                <option value="">Tutti</option>
+                                @{
+                                    var professionistiFiltro = ViewBag.Professionisti as IEnumerable<Microsoft.AspNetCore.Mvc.Rendering.SelectListItem>;
+                                }
+                                @if (professionistiFiltro != null)
+                                {
+                                    @foreach (var prof in professionistiFiltro)
+                                    {
+                                        <option value="@prof.Value">@prof.Text</option>
+                                    }
+                                }
+                            </select>
+                        </div>
+                        
+                        <div class="d-flex align-items-center gap-2">
+                            <label for="filtroRaccoltaDocumenti" class="form-label mb-0 fw-bold">Raccolta Doc.:</label>
+                            <select id="filtroRaccoltaDocumenti" class="form-select form-select-sm" style="width: auto;">
+                                <option value="">Tutti</option>
+                                <option value="da_richiedere">Da Richiedere</option>
+                                <option value="richiesti">Richiesti</option>
+                                <option value="ricevuti">Ricevuti</option>
+                                <option value="completata">Completata</option>
+                            </select>
+                        </div>
+                        
+                        <div class="d-flex align-items-center gap-2">
+                            <label for="filtroStatoIrap" class="form-label mb-0 fw-bold">Stato IRAP:</label>
+                            <select id="filtroStatoIrap" class="form-select form-select-sm" style="width: auto;">
+                                <option value="">Tutti</option>
+                                <option value="file_isa">File ISA</option>
+                                <option value="dr_inserita">DR Inserita</option>
+                                <option value="dr_controllata">DR Controllata</option>
+                                <option value="dr_spedita">DR Spedita</option>
+                                <option value="completato">Completato</option>
+                                <option value="in_attesa">In Attesa</option>
+                            </select>
+                        </div>
+                        
+                        <div class="d-flex align-items-center gap-2">
+                            <label for="filtroCompletamento" class="form-label mb-0 fw-bold">Completamento:</label>
+                            <select id="filtroCompletamento" class="form-select form-select-sm" style="width: auto;">
+                                <option value="">Tutti</option>
+                                <option value="0-25">0-25%</option>
+                                <option value="26-50">26-50%</option>
+                                <option value="51-75">51-75%</option>
+                                <option value="76-99">76-99%</option>
+                                <option value="100">100%</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <!-- Seconda riga con pulsanti di azione -->
+                    <div class="d-flex flex-wrap justify-content-between align-items-center mt-2 gap-2">
+                        <div class="d-flex gap-2">
+                            <button type="button" class="btn btn-outline-primary btn-sm" onclick="filterTable()">
+                                <i class="fas fa-filter me-1"></i>Applica Filtri
+                            </button>
+                            <button type="button" class="btn btn-outline-secondary btn-sm" onclick="resetFilters()">
+                                <i class="fas fa-times me-1"></i>Reset
+                            </button>
+                        </div>
+                        
+                        <div class="d-flex flex-wrap gap-2">
+                            <button type="submit" class="btn btn-primary btn-sm">
+                                <i class="fas fa-save me-1"></i>Salva Tutto
+                            </button>
+                            <a href="@Url.Action("ExportExcel", new { anno = annoSelezionato })" class="btn btn-warning btn-sm">
+                                <i class="fas fa-file-excel me-1"></i>Export Excel
+                            </a>
+                            <button type="button" class="btn btn-danger btn-sm" onclick="confermaEliminazioneAnno()">
+                                <i class="fas fa-trash-alt me-1"></i>Elimina tutti gli inserimenti dell'anno
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Tabella con intestazioni fisse IRAP -->
+                <div class="table-container" style="max-height: 70vh; overflow-y: auto; border: 1px solid #dee2e6; border-radius: 0.375rem;">
+                    <table class="table table-striped table-hover mb-0">
+                        <thead class="table-dark sticky-top">
+                            <tr>
+                                <th style="width: 160px;">Cliente</th>
+                                <th style="width: 140px;">Professionista</th>
+                                <th style="width: 110px;">Codice DR</th>
+                                <th style="width: 120px;">Raccolta Doc.</th>
+                                <th style="width: 90px;" class="text-center">File ISA</th>
+                                <th style="width: 90px;" class="text-center">Ricevuta</th>
+                                <th style="width: 90px;" class="text-center">CCIAA</th>
+                                <th style="width: 110px;" class="text-center">PEC Invio DR</th>
+                                <th style="width: 90px;" class="text-center">DR Firmata</th>
+                                <th style="width: 120px;" class="text-center">DR Inserita</th>
+                                <th style="width: 120px;" class="text-center">ISA DR Inseriti</th>
+                                <th style="width: 120px;" class="text-center">DR Controllata</th>
+                                <th style="width: 120px;" class="text-center">DR Spedita</th>
+                                <th style="width: 120px;" class="text-center">F24</th>
+                                <th style="width: 180px;">Note</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @{int index = 0;}
+                            @foreach (var item in Model)
+                            {
+                                <tr>
+                                    <input type="hidden" name="[@index].IdAttivitaIrap" value="@item.IdAttivitaIrap" />
+                                    <input type="hidden" name="[@index].IdAnno" value="@item.IdAnno" />
+                                    <input type="hidden" name="[@index].IdCliente" value="@item.IdCliente" />
+                                    <input type="hidden" name="[@index].CreatedAt" value="@item.CreatedAt.ToString("yyyy-MM-ddTHH:mm:ss")" />
+                                    <input type="hidden" name="[@index].UpdatedAt" value="@DateTime.UtcNow.ToString("yyyy-MM-ddTHH:mm:ss")" />
+                                    
+                                    <!-- Cliente -->
+                                    <td class="align-middle" style="width: 160px;">
+                                        <div>
+                                            <strong>@item.Cliente!.NomeCliente</strong><br/>
+                                            <small class="text-muted">@item.Cliente!.CodiceAteco</small>
+                                        </div>
+                                    </td>
+                                    
+                                    <!-- Professionista -->
+                                    <td class="align-middle" style="width: 140px;">
+                                        <select name="[@index].IdProfessionista" class="form-select form-select-sm">
+                                            <option value="">-- Nessuno --</option>
+                                            @{
+                                                var professionisti = ViewBag.Professionisti as IEnumerable<Microsoft.AspNetCore.Mvc.Rendering.SelectListItem>;
+                                            }
+                                            @if (professionisti != null)
+                                            {
+                                                @foreach (var prof in professionisti)
+                                                {
+                                                    @if (prof.Value == item.IdProfessionista?.ToString())
+                                                    {
+                                                        <option value="@prof.Value" selected>@prof.Text</option>
+                                                    }
+                                                    else
+                                                    {
+                                                        <option value="@prof.Value">@prof.Text</option>
+                                                    }
+                                                }
+                                            }
+                                        </select>
+                                    </td>
+                                    
+                                    <!-- Codice DR -->
+                                    <td class="align-middle" style="width: 110px;">
+                                        <input type="text" name="[@index].CodiceDr" value="@item.CodiceDr" class="form-control form-control-sm" placeholder="Codice DR">
+                                    </td>
+                                    
+                                    <!-- Raccolta Documenti -->
+                                    <td class="align-middle" style="width: 120px;">
+                                        <select name="[@index].RaccoltaDocumenti" class="form-select form-select-sm">
+                                            @if (item.RaccoltaDocumenti == "da_richiedere")
+                                            {
+                                                <option value="da_richiedere" selected>Da Richiedere</option>
+                                            }
+                                            else
+                                            {
+                                                <option value="da_richiedere">Da Richiedere</option>
+                                            }
+                                            @if (item.RaccoltaDocumenti == "richiesti")
+                                            {
+                                                <option value="richiesti" selected>Richiesti</option>
+                                            }
+                                            else
+                                            {
+                                                <option value="richiesti">Richiesti</option>
+                                            }
+                                            @if (item.RaccoltaDocumenti == "ricevuti")
+                                            {
+                                                <option value="ricevuti" selected>Ricevuti</option>
+                                            }
+                                            else
+                                            {
+                                                <option value="ricevuti">Ricevuti</option>
+                                            }
+                                            @if (item.RaccoltaDocumenti == "completata")
+                                            {
+                                                <option value="completata" selected>Completata</option>
+                                            }
+                                            else
+                                            {
+                                                <option value="completata">Completata</option>
+                                            }
+                                        </select>
+                                    </td>
+                                    
+                                    <!-- File ISA -->
+                                    <td class="text-center align-middle" style="width: 90px;">
+                                        <div class="form-check d-flex justify-content-center">
+                                            <input type="checkbox" name="[@index].FileIsa" value="true" @(item.FileIsa ? "checked" : "") class="form-check-input" style="accent-color: black; border: 2px solid black;">
+                                            <input type="hidden" name="[@index].FileIsa" value="false">
+                                        </div>
+                                    </td>
+                                    
+                                    <!-- Ricevuta -->
+                                    <td class="text-center align-middle" style="width: 90px;">
+                                        <div class="form-check d-flex justify-content-center">
+                                            <input type="checkbox" name="[@index].Ricevuta" value="true" @(item.Ricevuta ? "checked" : "") class="form-check-input" style="accent-color: black; border: 2px solid black;">
+                                            <input type="hidden" name="[@index].Ricevuta" value="false">
+                                        </div>
+                                    </td>
+                                    
+                                    <!-- CCIAA -->
+                                    <td class="text-center align-middle" style="width: 90px;">
+                                        <div class="form-check d-flex justify-content-center">
+                                            <input type="checkbox" name="[@index].Cciaa" value="true" @(item.Cciaa ? "checked" : "") class="form-check-input" style="accent-color: black; border: 2px solid black;">
+                                            <input type="hidden" name="[@index].Cciaa" value="false">
+                                        </div>
+                                    </td>
+                                    
+                                    <!-- PEC Invio DR -->
+                                    <td class="text-center align-middle" style="width: 110px;">
+                                        <div class="form-check d-flex justify-content-center">
+                                            <input type="checkbox" name="[@index].PecInvioDr" value="true" @(item.PecInvioDr ? "checked" : "") class="form-check-input" style="accent-color: black; border: 2px solid black;">
+                                            <input type="hidden" name="[@index].PecInvioDr" value="false">
+                                        </div>
+                                    </td>
+                                    
+                                    <!-- DR Firmata -->
+                                    <td class="text-center align-middle" style="width: 90px;">
+                                        <div class="form-check d-flex justify-content-center">
+                                            <input type="checkbox" name="[@index].DrFirmata" value="true" @(item.DrFirmata ? "checked" : "") class="form-check-input" style="accent-color: black; border: 2px solid black;">
+                                            <input type="hidden" name="[@index].DrFirmata" value="false">
+                                        </div>
+                                    </td>
+                                    
+                                    <!-- DR Inserita -->
+                                    <td class="text-center align-middle" style="width: 120px;">
+                                        <div class="form-check d-flex justify-content-center">
+                                            <input type="checkbox" name="[@index].DrInserita" value="true" @(item.DrInserita ? "checked" : "") class="form-check-input" style="accent-color: black; border: 2px solid black;">
+                                            <input type="hidden" name="[@index].DrInserita" value="false">
+                                        </div>
+                                        @if (item.DrInseritaData.HasValue)
+                                        {
+                                            <small class="text-muted d-block">@item.DrInseritaData.Value.ToString("dd/MM/yy")</small>
+                                        }
+                                    </td>
+                                    
+                                    <!-- ISA DR Inseriti -->
+                                    <td class="text-center align-middle" style="width: 120px;">
+                                        <div class="form-check d-flex justify-content-center">
+                                            <input type="checkbox" name="[@index].IsaDrInseriti" value="true" @(item.IsaDrInseriti ? "checked" : "") class="form-check-input" style="accent-color: black; border: 2px solid black;">
+                                            <input type="hidden" name="[@index].IsaDrInseriti" value="false">
+                                        </div>
+                                        @if (item.IsaDrInseritiData.HasValue)
+                                        {
+                                            <small class="text-muted d-block">@item.IsaDrInseritiData.Value.ToString("dd/MM/yy")</small>
+                                        }
+                                    </td>
+                                    
+                                    <!-- DR Controllata -->
+                                    <td class="text-center align-middle" style="width: 120px;">
+                                        <div class="form-check d-flex justify-content-center">
+                                            <input type="checkbox" name="[@index].DrControllata" value="true" @(item.DrControllata ? "checked" : "") class="form-check-input" style="accent-color: black; border: 2px solid black;">
+                                            <input type="hidden" name="[@index].DrControllata" value="false">
+                                        </div>
+                                        @if (item.DrControllataData.HasValue)
+                                        {
+                                            <small class="text-muted d-block">@item.DrControllataData.Value.ToString("dd/MM/yy")</small>
+                                        }
+                                    </td>
+                                    
+                                    <!-- DR Spedita -->
+                                    <td class="text-center align-middle" style="width: 120px;">
+                                        <div class="form-check d-flex justify-content-center">
+                                            <input type="checkbox" name="[@index].DrSpedita" value="true" @(item.DrSpedita ? "checked" : "") class="form-check-input" style="accent-color: black; border: 2px solid black;">
+                                            <input type="hidden" name="[@index].DrSpedita" value="false">
+                                        </div>
+                                        @if (item.DrSpeditaData.HasValue)
+                                        {
+                                            <small class="text-muted d-block">@item.DrSpeditaData.Value.ToString("dd/MM/yy")</small>
+                                        }
+                                    </td>
+                                    
+                                    <!-- F24 -->
+                                    <td class="align-middle" style="width: 120px;">
+                                        <div class="row g-1">
+                                            <div class="col-12">
+                                                <label class="form-label" style="font-size: 0.7rem;">Rate 1°:</label>
+                                                <input type="number" name="[@index].NumeroRateF24PrimoAccontoSaldo" value="@item.NumeroRateF24PrimoAccontoSaldo" class="form-control form-control-sm" min="0" style="font-size: 0.75rem;">
+                                            </div>
+                                            <div class="col-12">
+                                                <div class="form-check">
+                                                    <input type="checkbox" name="[@index].F24PrimoAccontoSaldoConsegnato" value="true" @(item.F24PrimoAccontoSaldoConsegnato ? "checked" : "") class="form-check-input" id="f24primo_@index" style="accent-color: black; border: 2px solid black;">
+                                                    <input type="hidden" name="[@index].F24PrimoAccontoSaldoConsegnato" value="false">
+                                                    <label class="form-check-label" for="f24primo_@index" style="font-size: 0.7rem;">Consegnato</label>
+                                                </div>
+                                            </div>
+                                            <div class="col-12 mt-1">
+                                                <label class="form-label" style="font-size: 0.7rem;">2° Acc.:</label>
+                                                <input type="number" name="[@index].F24SecondoAcconto" value="@item.F24SecondoAcconto" class="form-control form-control-sm" min="0" style="font-size: 0.75rem;">
+                                            </div>
+                                            <div class="col-12">
+                                                <div class="form-check">
+                                                    <input type="checkbox" name="[@index].F24SecondoAccontoConsegnato" value="true" @(item.F24SecondoAccontoConsegnato ? "checked" : "") class="form-check-input" id="f24secondo_@index" style="accent-color: black; border: 2px solid black;">
+                                                    <input type="hidden" name="[@index].F24SecondoAccontoConsegnato" value="false">
+                                                    <label class="form-check-label" for="f24secondo_@index" style="font-size: 0.7rem;">Consegnato</label>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    
+                                    <!-- Note -->
+                                    <td class="align-middle" style="width: 180px;">
+                                        <textarea name="[@index].Note" class="form-control form-control-sm" rows="2" style="resize: vertical; font-size: 0.8rem;">@item.Note</textarea>
+                                    </td>
+                                </tr>
+                                index++;
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </form>
+        }
+        else
+        {
+            <div class="text-center py-5">
+                <i class="fas fa-inbox fa-3x text-muted mb-3"></i>
+                <h5 class="text-muted">Nessuna attività IRAP trovata per l'anno @annoSelezionato</h5>
+                <p class="text-muted">Attiva la checkbox "Mod IRAP" nell'anagrafica dei clienti per popolare automaticamente questa lista.</p>
+                <a href="@Url.Action("Index", "Clienti")" class="btn btn-primary">
+                    <i class="fas fa-users me-1"></i>Vai a Gestione Clienti
+                </a>
+            </div>
+        }
+    </div>
+</div>
+
+<style>
+/* Intestazioni fisse per tabella IRAP */
+.table-container {
+    position: relative;
+}
+
+.sticky-top {
+    position: sticky;
+    top: 0;
+    z-index: 10;
+}
+
+/* Stile personalizzato checkbox IRAP */
+.form-check-input:checked {
+    background-color: black !important;
+    border-color: black !important;
+}
+
+.form-check-input {
+    accent-color: black;
+    border: 2px solid black;
+}
+
+/* Responsive per tabella IRAP */
+@@media (max-width: 1200px) {
+    .table-container {
+        max-height: 60vh;
+    }
+}
+</style>
+
+<script>
+function filterTable() {
+    const nomeCliente = document.getElementById('filtroNomeCliente').value.toLowerCase();
+    const professionista = document.getElementById('filtroProfessionista').value;
+    const raccoltaDocumenti = document.getElementById('filtroRaccoltaDocumenti').value;
+    const statoIrap = document.getElementById('filtroStatoIrap').value;
+    const completamento = document.getElementById('filtroCompletamento').value;
+    
+    const tbody = document.querySelector('tbody');
+    const rows = tbody.querySelectorAll('tr');
+    
+    let visibleCount = 0;
+    
+    rows.forEach(row => {
+        let show = true;
+        
+        // Filtro nome cliente
+        if (nomeCliente) {
+            const clienteCell = row.cells[0];
+            const clienteText = clienteCell ? clienteCell.textContent.toLowerCase() : '';
+            if (!clienteText.includes(nomeCliente)) {
+                show = false;
+            }
+        }
+        
+        // Filtro professionista
+        if (professionista) {
+            const profSelect = row.querySelector('select[name*=".IdProfessionista"]');
+            if (!profSelect || profSelect.value !== professionista) {
+                show = false;
+            }
+        }
+        
+        // Filtro raccolta documenti
+        if (raccoltaDocumenti) {
+            const raccoltaSelect = row.querySelector('select[name*=".RaccoltaDocumenti"]');
+            if (!raccoltaSelect || raccoltaSelect.value !== raccoltaDocumenti) {
+                show = false;
+            }
+        }
+        
+        // Filtro stato IRAP
+        if (statoIrap) {
+            const fileIsa = row.querySelector('input[name*=".FileIsa"]').checked;
+            const drInserita = row.querySelector('input[name*=".DrInserita"]').checked;
+            const drControllata = row.querySelector('input[name*=".DrControllata"]').checked;
+            const drSpedita = row.querySelector('input[name*=".DrSpedita"]').checked;
+            
+            switch(statoIrap) {
+                case 'file_isa': if (!fileIsa) show = false; break;
+                case 'dr_inserita': if (!drInserita) show = false; break;
+                case 'dr_controllata': if (!drControllata) show = false; break;
+                case 'dr_spedita': if (!drSpedita) show = false; break;
+                case 'completato': if (!drSpedita) show = false; break;
+                case 'in_attesa': if (fileIsa || drInserita || drControllata || drSpedita) show = false; break;
+            }
+        }
+        
+        // Filtro completamento percentuale (calcolato dinamicamente)
+        if (completamento) {
+            // Calcola percentuale dai checkbox
+            const fileIsa = row.querySelector('input[name*=".FileIsa"]').checked;
+            const ricevuta = row.querySelector('input[name*=".Ricevuta"]').checked;
+            const cciaa = row.querySelector('input[name*=".Cciaa"]').checked;
+            const drSpedita = row.querySelector('input[name*=".DrSpedita"]').checked;
+            
+            let completedSteps = 0;
+            if (fileIsa) completedSteps++;
+            if (ricevuta) completedSteps++;
+            if (cciaa) completedSteps++;
+            if (drSpedita) completedSteps++;
+            
+            const percent = (completedSteps / 4) * 100;
+            
+            switch(completamento) {
+                case '0-25': if (percent > 25) show = false; break;
+                case '26-50': if (percent < 26 || percent > 50) show = false; break;
+                case '51-75': if (percent < 51 || percent > 75) show = false; break;
+                case '76-99': if (percent < 76 || percent > 99) show = false; break;
+                case '100': if (percent !== 100) show = false; break;
+            }
+        }
+        
+        row.style.display = show ? '' : 'none';
+        if (show) visibleCount++;
+    });
+    
+    console.log(`Filtri IRAP applicati: ${visibleCount} righe visibili`);
+}
+
+function resetFilters() {
+    document.getElementById('filtroNomeCliente').value = '';
+    document.getElementById('filtroProfessionista').value = '';
+    document.getElementById('filtroRaccoltaDocumenti').value = '';
+    document.getElementById('filtroStatoIrap').value = '';
+    document.getElementById('filtroCompletamento').value = '';
+    
+    const tbody = document.querySelector('tbody');
+    const rows = tbody.querySelectorAll('tr');
+    rows.forEach(row => {
+        row.style.display = '';
+    });
+    
+    console.log('Filtri IRAP resettati');
+}
+
+function confermaEliminazioneAnno() {
+    const anno = @annoSelezionato;
+    if (confirm(`Sei sicuro di voler eliminare TUTTI gli inserimenti IRAP dell'anno ${anno}?\n\nQuesta operazione è IRREVERSIBILE!`)) {
+        eliminaTuttiInserimenti(anno);
+    }
+}
+
+function eliminaTuttiInserimenti(anno) {
+    fetch('@Url.Action("DeleteAllForYear")', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+            'RequestVerificationToken': document.querySelector('input[name="__RequestVerificationToken"]').value
+        },
+        body: `anno=${anno}`
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            alert(data.message);
+            location.reload();
+        } else {
+            alert('Errore: ' + data.message);
+        }
+    })
+    .catch(error => {
+        console.error('Errore eliminazione IRAP:', error);
+        alert('Errore durante l\'eliminazione');
+    });
+}
+
+// Event listeners per filtri real-time
+document.addEventListener('DOMContentLoaded', function() {
+    const filtroNomeCliente = document.getElementById('filtroNomeCliente');
+    if (filtroNomeCliente) {
+        filtroNomeCliente.addEventListener('input', filterTable);
+    }
+    
+    const selectFilters = ['filtroProfessionista', 'filtroRaccoltaDocumenti', 'filtroStatoIrap', 'filtroCompletamento'];
+    selectFilters.forEach(id => {
+        const element = document.getElementById(id);
+        if (element) {
+            element.addEventListener('change', filterTable);
+        }
+    });
+    
+    console.log('Filtri IRAP inizializzati');
+});
+</script>

@@ -404,6 +404,11 @@ namespace ConsultingGroup.Controllers
                             var count = await _context.AttivitaEnc.CountAsync(a => a.IdCliente == cliente.IdCliente && a.IdAnno == annoCorrente.IdAnno);
                             if (count > 0) checkboxRimosse.Add(("MOD ENC", "attivita_enc", count));
                         }
+                        if (cliente.ModIrap && !viewModel.ModIrap)
+                        {
+                            var count = await _context.AttivitaIrap.CountAsync(a => a.IdCliente == cliente.IdCliente && a.IdAnno == annoCorrente.IdAnno);
+                            if (count > 0) checkboxRimosse.Add(("MOD IRAP", "attivita_irap", count));
+                        }
                     }
 
                     // Se ci sono checkbox rimosse, richiedi conferma
@@ -1944,6 +1949,13 @@ namespace ConsultingGroup.Controllers
                             .Where(a => a.IdCliente == idCliente && a.IdAnno == idAnno)
                             .ToListAsync();
                         _context.AttivitaEnc.RemoveRange(attivitaEnc);
+                        break;
+
+                    case "attivita_irap":
+                        var attivitaIrap = await _context.AttivitaIrap
+                            .Where(a => a.IdCliente == idCliente && a.IdAnno == idAnno)
+                            .ToListAsync();
+                        _context.AttivitaIrap.RemoveRange(attivitaIrap);
                         break;
                 }
             }

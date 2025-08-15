@@ -1,0 +1,35 @@
+-- TABELLA: attivita_irap
+CREATE TABLE attivita_irap (
+    id_attivita_irap INT IDENTITY(1,1) PRIMARY KEY,
+    id_anno INT NOT NULL,
+    id_cliente INT NOT NULL,
+    id_professionista INT NULL,
+    appuntamento_data_ora DATETIME2 NULL,
+    codice_dr NVARCHAR(20) NULL,
+    -- Nota: codice_ateco viene recuperato tramite JOIN con tabella clienti
+    raccolta_documenti NVARCHAR(20) DEFAULT 'da_richiedere',
+    file_isa BIT DEFAULT 0,
+    ricevuta BIT DEFAULT 0,
+    cciaa BIT DEFAULT 0,
+    pec_invio_dr BIT DEFAULT 0,
+    dr_firmata BIT DEFAULT 0,
+    dr_inserita BIT DEFAULT 0,
+    dr_inserita_data DATE NULL,
+    isa_dr_inseriti BIT DEFAULT 0,
+    isa_dr_inseriti_data DATE NULL,
+    dr_controllata BIT DEFAULT 0,
+    dr_controllata_data DATE NULL,
+    dr_spedita BIT DEFAULT 0,
+    dr_spedita_data DATE NULL,
+    numero_rate_f24_primo_acconto_saldo INT DEFAULT 0,
+    f24_primo_acconto_saldo_consegnato BIT DEFAULT 0,
+    f24_secondo_acconto INT DEFAULT 0,
+    f24_secondo_acconto_consegnato BIT DEFAULT 0,
+    note NVARCHAR(500) NULL,
+    created_at DATETIME2 DEFAULT GETDATE(),
+    updated_at DATETIME2 DEFAULT GETDATE(),
+    
+    FOREIGN KEY (id_anno) REFERENCES anni_fiscali(id_anno),
+    FOREIGN KEY (id_cliente) REFERENCES clienti(id_cliente),
+    FOREIGN KEY (id_professionista) REFERENCES professionisti(id_professionista)
+);

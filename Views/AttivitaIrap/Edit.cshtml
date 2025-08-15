@@ -1,0 +1,229 @@
+@model ConsultingGroup.Models.AttivitaIrap
+@{
+    ViewData["Title"] = "Modifica Attività IRAP";
+}
+
+<div class="row">
+    <div class="col-md-12">
+        <div class="card">
+            <div class="card-header bg-primary text-white">
+                <h5 class="mb-0">
+                    <i class="fas fa-edit me-2"></i>Modifica Attività IRAP - @Model.Cliente!.NomeCliente
+                </h5>
+            </div>
+            <div class="card-body">
+                <form asp-action="Edit" method="post">
+                    @Html.AntiForgeryToken()
+                    <input type="hidden" asp-for="IdAttivitaIrap" />
+                    <input type="hidden" asp-for="IdAnno" />
+                    <input type="hidden" asp-for="IdCliente" />
+                    <input type="hidden" asp-for="CreatedAt" />
+                    
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label">Cliente</label>
+                                <input type="text" class="form-control" value="@Model.Cliente!.NomeCliente" readonly>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label asp-for="IdProfessionista" class="form-label">Professionista</label>
+                                <select asp-for="IdProfessionista" class="form-select" asp-items="ViewBag.Professionisti">
+                                    <option value="">-- Seleziona Professionista --</option>
+                                </select>
+                                <span asp-validation-for="IdProfessionista" class="text-danger"></span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label asp-for="CodiceDr" class="form-label">Codice DR</label>
+                                <input asp-for="CodiceDr" class="form-control" placeholder="Inserisci codice DR">
+                                <span asp-validation-for="CodiceDr" class="text-danger"></span>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label asp-for="RaccoltaDocumenti" class="form-label">Raccolta Documenti</label>
+                                <select asp-for="RaccoltaDocumenti" class="form-select">
+                                    <option value="da_richiedere">Da Richiedere</option>
+                                    <option value="richiesti">Richiesti</option>
+                                    <option value="ricevuti">Ricevuti</option>
+                                    <option value="completata">Completata</option>
+                                </select>
+                                <span asp-validation-for="RaccoltaDocumenti" class="text-danger"></span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Stati IRAP -->
+                    <div class="card mb-3">
+                        <div class="card-header">
+                            <h6 class="mb-0">Stati IRAP</h6>
+                        </div>
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-md-3">
+                                    <div class="form-check mb-2">
+                                        <input asp-for="FileIsa" class="form-check-input" style="accent-color: black; border: 2px solid black;">
+                                        <label asp-for="FileIsa" class="form-check-label">File ISA</label>
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="form-check mb-2">
+                                        <input asp-for="Ricevuta" class="form-check-input" style="accent-color: black; border: 2px solid black;">
+                                        <label asp-for="Ricevuta" class="form-check-label">Ricevuta</label>
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="form-check mb-2">
+                                        <input asp-for="Cciaa" class="form-check-input" style="accent-color: black; border: 2px solid black;">
+                                        <label asp-for="Cciaa" class="form-check-label">CCIAA</label>
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="form-check mb-2">
+                                        <input asp-for="PecInvioDr" class="form-check-input" style="accent-color: black; border: 2px solid black;">
+                                        <label asp-for="PecInvioDr" class="form-check-label">PEC Invio DR</label>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-3">
+                                    <div class="form-check mb-2">
+                                        <input asp-for="DrFirmata" class="form-check-input" style="accent-color: black; border: 2px solid black;">
+                                        <label asp-for="DrFirmata" class="form-check-label">DR Firmata</label>
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="form-check mb-2">
+                                        <input asp-for="DrInserita" class="form-check-input" style="accent-color: black; border: 2px solid black;">
+                                        <label asp-for="DrInserita" class="form-check-label">DR Inserita</label>
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="form-check mb-2">
+                                        <input asp-for="IsaDrInseriti" class="form-check-input" style="accent-color: black; border: 2px solid black;">
+                                        <label asp-for="IsaDrInseriti" class="form-check-label">ISA DR Inseriti</label>
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="form-check mb-2">
+                                        <input asp-for="DrControllata" class="form-check-input" style="accent-color: black; border: 2px solid black;">
+                                        <label asp-for="DrControllata" class="form-check-label">DR Controllata</label>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-3">
+                                    <div class="form-check mb-2">
+                                        <input asp-for="DrSpedita" class="form-check-input" style="accent-color: black; border: 2px solid black;">
+                                        <label asp-for="DrSpedita" class="form-check-label">DR Spedita</label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- F24 -->
+                    <div class="card mb-3">
+                        <div class="card-header">
+                            <h6 class="mb-0">F24</h6>
+                        </div>
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-md-3">
+                                    <div class="mb-3">
+                                        <label asp-for="NumeroRateF24PrimoAccontoSaldo" class="form-label">N° Rate F24 Primo Acconto/Saldo</label>
+                                        <input asp-for="NumeroRateF24PrimoAccontoSaldo" class="form-control" type="number" min="0">
+                                        <span asp-validation-for="NumeroRateF24PrimoAccontoSaldo" class="text-danger"></span>
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="mb-3">
+                                        <div class="form-check mt-4">
+                                            <input asp-for="F24PrimoAccontoSaldoConsegnato" class="form-check-input" style="accent-color: black; border: 2px solid black;">
+                                            <label asp-for="F24PrimoAccontoSaldoConsegnato" class="form-check-label">F24 Primo Acconto/Saldo Consegnato</label>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="mb-3">
+                                        <label asp-for="F24SecondoAcconto" class="form-label">F24 Secondo Acconto</label>
+                                        <input asp-for="F24SecondoAcconto" class="form-control" type="number" min="0">
+                                        <span asp-validation-for="F24SecondoAcconto" class="text-danger"></span>
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="mb-3">
+                                        <div class="form-check mt-4">
+                                            <input asp-for="F24SecondoAccontoConsegnato" class="form-check-input" style="accent-color: black; border: 2px solid black;">
+                                            <label asp-for="F24SecondoAccontoConsegnato" class="form-check-label">F24 Secondo Acconto Consegnato</label>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="mb-3">
+                                <label asp-for="Note" class="form-label">Note</label>
+                                <textarea asp-for="Note" class="form-control" rows="3" placeholder="Note aggiuntive..."></textarea>
+                                <span asp-validation-for="Note" class="text-danger"></span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Stato e Statistiche -->
+                    <div class="card mb-3">
+                        <div class="card-header">
+                            <h6 class="mb-0">Stato Attuale</h6>
+                        </div>
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-md-4">
+                                    <div class="text-center">
+                                        <h4 class="@Model.StatoCssClass">@Model.StatoIcona</h4>
+                                        <p class="mb-0"><strong>@Model.StatoLavorazione</strong></p>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="text-center">
+                                        <h4 class="text-primary">@Model.PercentualeCompletamento%</h4>
+                                        <p class="mb-0">Completamento</p>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="text-center">
+                                        <small class="text-muted">
+                                            Creato: @Model.CreatedAt.ToString("dd/MM/yyyy HH:mm")<br/>
+                                            Aggiornato: @Model.UpdatedAt.ToString("dd/MM/yyyy HH:mm")
+                                        </small>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="d-flex justify-content-between">
+                        <a asp-action="Index" class="btn btn-secondary">
+                            <i class="fas fa-arrow-left me-1"></i>Torna all'Elenco
+                        </a>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-save me-1"></i>Salva Modifiche
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}
