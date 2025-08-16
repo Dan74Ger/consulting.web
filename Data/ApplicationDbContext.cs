@@ -42,6 +42,7 @@ namespace ConsultingGroup.Data
         public DbSet<AttivitaIrap> AttivitaIrap { get; set; } = default!;
         public DbSet<AttivitaCu> AttivitaCu { get; set; } = default!;
         public DbSet<AttivitaEnc> AttivitaEnc { get; set; } = default!;
+        public DbSet<AttivitaDriva> AttivitaDriva { get; set; } = default!;
 
 
         protected override void OnModelCreating(ModelBuilder builder)

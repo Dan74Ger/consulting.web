@@ -505,8 +505,9 @@
 @section Scripts {
     <script>
         $(document).ready(function() {
-            // Memorizza i valori iniziali delle attività redditi
+            // Memorizza i valori iniziali di tutte le attività (redditi, IVA e contabili)
             var initialActivityValues = {
+                // Attività Redditi
                 Mod730: $('#Mod730').is(':checked'),
                 Mod740: $('#Mod740').is(':checked'),
                 Mod750: $('#Mod750').is(':checked'),
@@ -514,7 +515,25 @@
                 Mod770: $('#Mod770').is(':checked'),
                 ModCu: $('#ModCu').is(':checked'),
                 ModEnc: $('#ModEnc').is(':checked'),
-                ModIrap: $('#ModIrap').is(':checked')
+                ModIrap: $('#ModIrap').is(':checked'),
+                // Attività IVA
+                Driva: $('#Driva').is(':checked'),
+                Lipe: $('#Lipe').is(':checked'),
+                ModTrIva: $('#ModTrIva').is(':checked'),
+                // Attività Contabili
+                Inail: $('#Inail').is(':checked'),
+                CassettoFiscale: $('#CassettoFiscale').is(':checked'),
+                FatturazioneElettronicaTs: $('#FatturazioneElettronicaTs').is(':checked'),
+                Conservazione: $('#Conservazione').is(':checked'),
+                Imu: $('#Imu').is(':checked'),
+                RegIva: $('#RegIva').is(':checked'),
+                RegCespiti: $('#RegCespiti').is(':checked'),
+                Inventari: $('#Inventari').is(':checked'),
+                LibroGiornale: $('#LibroGiornale').is(':checked'),
+                LettereIntento: $('#LettereIntento').is(':checked'),
+                ModIntrastat: $('#ModIntrastat').is(':checked'),
+                FirmaDigitale: $('#FirmaDigitale').is(':checked'),
+                TitolareEffettivo: $('#TitolareEffettivo').is(':checked')
             };
             
             // Funzione per controllare se ci sono cambiamenti
@@ -538,8 +557,8 @@
                 }
             }
             
-            // Event listener per tutte le checkbox delle attività redditi
-            $('#Mod730, #Mod740, #Mod750, #Mod760, #Mod770, #ModCu, #ModEnc, #ModIrap').change(function() {
+            // Event listener per tutte le checkbox delle attività (redditi, IVA e contabili)
+            $('#Mod730, #Mod740, #Mod750, #Mod760, #Mod770, #ModCu, #ModEnc, #ModIrap, #Driva, #Lipe, #ModTrIva, #Inail, #CassettoFiscale, #FatturazioneElettronicaTs, #Conservazione, #Imu, #RegIva, #RegCespiti, #Inventari, #LibroGiornale, #LettereIntento, #ModIntrastat, #FirmaDigitale, #TitolareEffettivo').change(function() {
                 var checkboxName = this.id;
                 var isChecked = $(this).is(':checked');
                 var wasInitiallyChecked = initialActivityValues[checkboxName];
@@ -562,6 +581,7 @@
             // Funzione per ottenere il nome visualizzato del servizio
             function getServiceDisplayName(checkboxId) {
                 const serviceNames = {
+                    // Attività Redditi
                     'Mod730': 'Mod. 730',
                     'Mod740': 'Mod. 740', 
                     'Mod750': 'Mod. 750',
@@ -569,7 +589,25 @@
                     'Mod770': 'Mod. 770',
                     'ModCu': 'Mod. CU',
                     'ModEnc': 'Mod. ENC',
-                    'ModIrap': 'Mod. IRAP'
+                    'ModIrap': 'Mod. IRAP',
+                    // Attività IVA
+                    'Driva': 'DRIVA',
+                    'Lipe': 'LIPE',
+                    'ModTrIva': 'Mod. TR IVA',
+                    // Attività Contabili
+                    'Inail': 'INAIL',
+                    'CassettoFiscale': 'Cassetto Fiscale',
+                    'FatturazioneElettronicaTs': 'Fatturazione Elettronica TS',
+                    'Conservazione': 'Conservazione',
+                    'Imu': 'IMU',
+                    'RegIva': 'Registro IVA',
+                    'RegCespiti': 'Registro Cespiti',
+                    'Inventari': 'Inventari',
+                    'LibroGiornale': 'Libro Giornale',
+                    'LettereIntento': 'Lettere d\'Intento',
+                    'ModIntrastat': 'Mod. INTRASTAT',
+                    'FirmaDigitale': 'Firma Digitale',
+                    'TitolareEffettivo': 'Titolare Effettivo'
                 };
                 return serviceNames[checkboxId] || checkboxId;
             }

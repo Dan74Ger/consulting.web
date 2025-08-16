@@ -1,0 +1,738 @@
+@model IEnumerable<ConsultingGroup.Models.AttivitaDriva>
+@{
+    ViewData["Title"] = "DRIVA";
+    var annoSelezionato = ViewBag.AnnoSelezionato as int? ?? DateTime.Now.Year;
+    var annoFiscale = ViewBag.AnnoFiscale as ConsultingGroup.Models.AnnoFiscale;
+}
+
+<!-- Filtro Anno -->
+<div class="row mb-4">
+    <div class="col-md-12">
+        <div class="card border-primary">
+            <div class="card-header bg-primary text-white">
+                <h5 class="mb-0">
+                    <i class="fas fa-calendar-alt me-2"></i>Anno di Riferimento
+                </h5>
+            </div>
+            <div class="card-body">
+                <form method="get" class="d-flex align-items-center gap-3">
+                    <label for="annoSelezionato" class="form-label mb-0 fw-bold">Seleziona Anno:</label>
+                    <select name="annoSelezionato" id="annoSelezionato" class="form-select w-auto" onchange="this.form.submit()">
+                        @{
+                            var anniFiscali = ViewBag.AnniFiscali as IEnumerable<Microsoft.AspNetCore.Mvc.Rendering.SelectListItem>;
+                        }
+                        @if (anniFiscali != null)
+                        {
+                            @foreach (var anno in anniFiscali)
+                            {
+                                @if (anno.Selected)
+                                {
+                                    <option value="@anno.Value" selected>@anno.Text</option>
+                                }
+                                else
+                                {
+                                    <option value="@anno.Value">@anno.Text</option>
+                                }
+                            }
+                        }
+                    </select>
+                    <div class="ms-auto d-flex gap-2">
+                        <a href="@Url.Action("Index", "GestioneAttivita")" class="btn btn-outline-primary btn-sm">
+                            <i class="fas fa-arrow-left me-1"></i>Gestione Attività
+                        </a>
+                        <a href="@Url.Action("Index", "Clienti")" class="btn btn-outline-success btn-sm">
+                            <i class="fas fa-users me-1"></i>Gestione Clienti
+                        </a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Scadenza DRIVA -->
+@if (annoFiscale?.ScadenzaDIVA.HasValue == true)
+{
+    var scadenza = annoFiscale.ScadenzaDIVA.Value;
+    var giorniRimanenti = (scadenza - DateTime.Today).Days;
+    var alertClass = giorniRimanenti <= 30 ? "danger" : (giorniRimanenti <= 60 ? "warning" : "info");
+    
+    <div class="alert alert-@alertClass mb-4">
+        <i class="fas fa-calendar-alt me-2"></i>
+        <strong>Scadenza DRIVA:</strong> @scadenza.ToString("dd/MM/yyyy")
+        @if (giorniRimanenti > 0)
+        {
+            <span class="ms-2">(@giorniRimanenti giorni rimanenti)</span>
+        }
+        else if (giorniRimanenti == 0)
+        {
+            <span class="ms-2 fw-bold">(SCADE OGGI!)</span>
+        }
+        else
+        {
+            <span class="ms-2 fw-bold">(SCADUTO da @(-giorniRimanenti) giorni)</span>
+        }
+    </div>
+}
+
+<!-- Tabella Attività - Modifica Inline -->
+<div class="card">
+    <div class="card-header bg-primary text-white">
+        <h5 class="mb-0">
+            <i class="fas fa-list me-2"></i>Elenco Attività DRIVA - @(annoFiscale?.AnnoDescrizione ?? $"Anno {annoSelezionato}")
+        </h5>
+    </div>
+    <div class="card-body p-0">
+        @if (Model.Any())
+        {
+            <!-- ✅ COMPORTAMENTO CORRETTO:
+                 • Attivando DRIVA in anagrafica → Cliente appare automaticamente
+                 • Disattivando DRIVA in anagrafica → Cliente RIMANE visibile
+                 • Cancellazione → Solo manuale con tasto elimina (🗑️) -->
+            <form id="bulkUpdateForm" method="post" action="@Url.Action("BulkUpdate")">
+                @Html.AntiForgeryToken()
+                <input type="hidden" name="annoSelezionato" value="@annoSelezionato" />
+                
+                <!-- Filtri e Pulsanti -->
+                <div class="mb-3">
+                    <!-- Prima riga filtri -->
+                    <div class="d-flex flex-wrap gap-3 align-items-center mb-2">
+                        <div class="d-flex align-items-center gap-2">
+                            <label for="filtroNomeCliente" class="form-label mb-0 fw-bold">Cliente:</label>
+                            <input type="text" id="filtroNomeCliente" class="form-control form-control-sm" style="width: 180px;" placeholder="Cerca per nome...">
+                        </div>
+                        
+                        <div class="d-flex align-items-center gap-2">
+                            <label for="filtroProfessionista" class="form-label mb-0 fw-bold">Professionista:</label>
+                            <select id="filtroProfessionista" class="form-select form-select-sm" style="width: auto;">
+                                <option value="">Tutti</option>
+                                @{
+                                    var professionistiFiltro = ViewBag.Professionisti as IEnumerable<Microsoft.AspNetCore.Mvc.Rendering.SelectListItem>;
+                                }
+                                @if (professionistiFiltro != null)
+                                {
+                                    @foreach (var prof in professionistiFiltro)
+                                    {
+                                        <option value="@prof.Value">@prof.Text</option>
+                                    }
+                                }
+                            </select>
+                        </div>
+                        
+                        <div class="d-flex align-items-center gap-2">
+                            <label for="filtroRaccoltaDocumenti" class="form-label mb-0 fw-bold">Raccolta Doc.:</label>
+                            <select id="filtroRaccoltaDocumenti" class="form-select form-select-sm" style="width: auto;">
+                                <option value="">Tutti</option>
+                                <option value="da_richiedere">Da Richiedere</option>
+                                <option value="richiesti">Richiesti</option>
+                                <option value="ricevuti">Ricevuti</option>
+                            </select>
+                        </div>
+                        
+                        <div class="d-flex align-items-center gap-2">
+                            <label for="filtroDrivaStatus" class="form-label mb-0 fw-bold">Stato DRIVA:</label>
+                            <select id="filtroDrivaStatus" class="form-select form-select-sm" style="width: auto;">
+                                <option value="">Tutti</option>
+                                <option value="inserita">Solo DRIVA Inserita</option>
+                                <option value="controllata">Solo DRIVA Controllata</option>
+                                <option value="spedita">Solo DRIVA Spedita</option>
+                                <option value="complete">Tutte Complete</option>
+                                <option value="incomplete">Incomplete</option>
+                            </select>
+                        </div>
+                        
+                        <div class="d-flex align-items-center gap-2">
+                            <label for="filtroAccontoStatus" class="form-label mb-0 fw-bold">Acconto IVA:</label>
+                            <select id="filtroAccontoStatus" class="form-select form-select-sm" style="width: auto;">
+                                <option value="">Tutti</option>
+                                <option value="storico">Storico</option>
+                                <option value="analitico">Analitico</option>
+                                <option value="al_20_12">Al 20/12</option>
+                                <option value="missing">Mancanti</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <!-- Seconda riga con pulsanti di azione -->
+                    <div class="d-flex flex-wrap justify-content-between align-items-center mt-2 gap-2">
+                        <div class="d-flex gap-2">
+                            <button type="button" class="btn btn-outline-primary btn-sm" onclick="filterTable()">
+                                <i class="fas fa-filter me-1"></i>Applica Filtri
+                            </button>
+                            <button type="button" class="btn btn-outline-secondary btn-sm" onclick="resetFilters()">
+                                <i class="fas fa-times me-1"></i>Reset
+                            </button>
+                        </div>
+                        
+                        <div class="d-flex flex-wrap gap-2">
+                            <button type="submit" class="btn btn-primary btn-sm">
+                                <i class="fas fa-save me-1"></i>Salva Tutto
+                            </button>
+                            <a href="@Url.Action("ExportExcel", new { anno = annoSelezionato })" class="btn btn-warning btn-sm">
+                                <i class="fas fa-file-excel me-1"></i>Export Excel
+                            </a>
+                            <button type="button" class="btn btn-danger btn-sm" onclick="confermaEliminazioneAnno()">
+                                <i class="fas fa-trash-alt me-1"></i>Elimina tutti gli inserimenti dell'anno
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Tabella con intestazioni fisse -->
+                <div class="table-container" style="max-height: 70vh; overflow-y: auto; border: 1px solid #dee2e6; border-radius: 0.375rem;">
+                    <table class="table table-striped table-hover mb-0">
+                        <thead class="table-dark sticky-top">
+                            <tr>
+                                <th style="width: 160px;">Cliente</th>
+                                <th style="width: 140px;">Professionista</th>
+                                <th style="width: 130px;">Appuntamento</th>
+                                <th style="width: 110px;">Codice DR IVA</th>
+                                <th style="width: 120px;">Raccolta Doc.</th>
+                                <th style="width: 150px;" class="text-center">Acconto IVA</th>
+                                <th style="width: 120px;" class="text-center">DRIVA Inserita</th>
+                                <th style="width: 120px;" class="text-center">DRIVA Controllata</th>
+                                <th style="width: 120px;" class="text-center">DRIVA Spedita</th>
+                                <th style="width: 130px;" class="text-center">Altri Stati</th>
+                                <th style="width: 110px;" class="text-center">F24 & Importi</th>
+                                <th style="width: 100px;" class="text-center">TCG Data</th>
+                                <th style="width: 180px;">Note</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @{int index = 0;}
+                            @foreach (var item in Model)
+                            {
+                                <tr>
+                                    <input type="hidden" name="[@index].IdAttivitaDriva" value="@item.IdAttivitaDriva" />
+                                    <input type="hidden" name="[@index].IdAnno" value="@item.IdAnno" />
+                                    <input type="hidden" name="[@index].IdCliente" value="@item.IdCliente" />
+                                    <input type="hidden" name="[@index].CreatedAt" value="@item.CreatedAt.ToString("yyyy-MM-ddTHH:mm:ss")" />
+                                    
+                                    <!-- Cliente -->
+                                    <td class="align-middle" style="width: 160px;">
+                                        <div>
+                                            <strong>@item.Cliente?.NomeCliente</strong><br/>
+                                            <small class="text-muted">@item.Cliente?.CodiceAteco</small>
+                                        </div>
+                                    </td>
+                                    
+                                    <!-- Professionista -->
+                                    <td class="align-middle" style="width: 140px;">
+                                        <select name="[@index].IdProfessionista" class="form-select form-select-sm">
+                                            <option value="">-- Nessuno --</option>
+                                            @{
+                                                var professionisti = ViewBag.Professionisti as IEnumerable<Microsoft.AspNetCore.Mvc.Rendering.SelectListItem>;
+                                            }
+                                            @if (professionisti != null)
+                                            {
+                                                @foreach (var prof in professionisti)
+                                                {
+                                                    @if (prof.Value == item.IdProfessionista?.ToString())
+                                                    {
+                                                        <option value="@prof.Value" selected>@prof.Text</option>
+                                                    }
+                                                    else
+                                                    {
+                                                        <option value="@prof.Value">@prof.Text</option>
+                                                    }
+                                                }
+                                            }
+                                        </select>
+                                    </td>
+                                    
+                                    <!-- Appuntamento Data/Ora -->
+                                    <td class="align-middle" style="width: 130px;">
+                                        <input type="datetime-local" name="[@index].AppuntamentoDataOra" 
+                                               value="@(item.AppuntamentoDataOra?.ToString("yyyy-MM-ddTHH:mm"))" 
+                                               class="form-control form-control-sm" />
+                                    </td>
+                                    
+                                    <!-- Codice DR IVA -->
+                                    <td class="align-middle" style="width: 110px;">
+                                        <input type="text" name="[@index].CodiceDrIva" value="@item.CodiceDrIva" 
+                                               class="form-control form-control-sm" placeholder="DRIVA123" />
+                                    </td>
+                                    
+                                    <!-- Raccolta Documenti -->
+                                    <td class="align-middle" style="width: 120px;">
+                                        <select name="[@index].RaccoltaDocumenti" class="form-select form-select-sm">
+                                            @if (item.RaccoltaDocumenti == "da_richiedere")
+                                            {
+                                                <option value="da_richiedere" selected>Da Richiedere</option>
+                                            }
+                                            else
+                                            {
+                                                <option value="da_richiedere">Da Richiedere</option>
+                                            }
+                                            @if (item.RaccoltaDocumenti == "richiesti")
+                                            {
+                                                <option value="richiesti" selected>Richiesti</option>
+                                            }
+                                            else
+                                            {
+                                                <option value="richiesti">Richiesti</option>
+                                            }
+                                            @if (item.RaccoltaDocumenti == "ricevuti")
+                                            {
+                                                <option value="ricevuti" selected>Ricevuti</option>
+                                            }
+                                            else
+                                            {
+                                                <option value="ricevuti">Ricevuti</option>
+                                            }
+                                        </select>
+                                    </td>
+                                    
+                                    <!-- Acconto IVA -->
+                                    <td class="text-center align-middle" style="width: 150px;">
+                                        <div class="d-flex flex-column gap-1">
+                                            <select name="[@index].AccontoIvaTipo" class="form-select form-select-sm">
+                                                <option value="">-- Tipo --</option>
+                                                @if (item.AccontoIvaTipo == "storico")
+                                                {
+                                                    <option value="storico" selected>Storico</option>
+                                                }
+                                                else
+                                                {
+                                                    <option value="storico">Storico</option>
+                                                }
+                                                @if (item.AccontoIvaTipo == "analitico")
+                                                {
+                                                    <option value="analitico" selected>Analitico</option>
+                                                }
+                                                else
+                                                {
+                                                    <option value="analitico">Analitico</option>
+                                                }
+                                                @if (item.AccontoIvaTipo == "al_20_12")
+                                                {
+                                                    <option value="al_20_12" selected>Al 20/12</option>
+                                                }
+                                                else
+                                                {
+                                                    <option value="al_20_12">Al 20/12</option>
+                                                }
+                                            </select>
+                                            <select name="[@index].AccontoIvaCreditoDebito" class="form-select form-select-sm">
+                                                @if (item.AccontoIvaCreditoDebito == "zero")
+                                                {
+                                                    <option value="zero" selected>Zero</option>
+                                                }
+                                                else
+                                                {
+                                                    <option value="zero">Zero</option>
+                                                }
+                                                @if (item.AccontoIvaCreditoDebito == "credito")
+                                                {
+                                                    <option value="credito" selected>Credito</option>
+                                                }
+                                                else
+                                                {
+                                                    <option value="credito">Credito</option>
+                                                }
+                                                @if (item.AccontoIvaCreditoDebito == "debito")
+                                                {
+                                                    <option value="debito" selected>Debito</option>
+                                                }
+                                                else
+                                                {
+                                                    <option value="debito">Debito</option>
+                                                }
+                                            </select>
+                                            <input type="number" name="[@index].ImportoAccontoIva" value="@item.ImportoAccontoIva" 
+                                                   class="form-control form-control-sm" placeholder="Importo" step="0.01" />
+                                        </div>
+                                    </td>
+                                    
+                                    <!-- DRIVA Inserita -->
+                                    <td class="text-center align-middle" style="width: 120px;">
+                                        <div class="d-flex flex-column align-items-center gap-1">
+                                            @if (item.DrivaInserita)
+                                            {
+                                                <input type="checkbox" name="[@index].DrivaInserita" value="true" checked class="form-check-input" style="accent-color: black; border: 2px solid black;" />
+                                            }
+                                            else
+                                            {
+                                                <input type="checkbox" name="[@index].DrivaInserita" value="true" class="form-check-input" style="accent-color: black; border: 2px solid black;" />
+                                            }
+                                            <input type="hidden" name="[@index].DrivaInserita" value="false" />
+                                            <input type="date" name="[@index].DrivaInseritaData" value="@(item.DrivaInseritaData?.ToString("yyyy-MM-dd"))" class="form-control form-control-sm" style="font-size: 0.8rem;" />
+                                        </div>
+                                    </td>
+                                    
+                                    <!-- DRIVA Controllata -->
+                                    <td class="text-center align-middle" style="width: 120px;">
+                                        <div class="d-flex flex-column align-items-center gap-1">
+                                            @if (item.DrivaControllata)
+                                            {
+                                                <input type="checkbox" name="[@index].DrivaControllata" value="true" checked class="form-check-input" style="accent-color: black; border: 2px solid black;" />
+                                            }
+                                            else
+                                            {
+                                                <input type="checkbox" name="[@index].DrivaControllata" value="true" class="form-check-input" style="accent-color: black; border: 2px solid black;" />
+                                            }
+                                            <input type="hidden" name="[@index].DrivaControllata" value="false" />
+                                            <input type="date" name="[@index].DrivaControllataData" value="@(item.DrivaControllataData?.ToString("yyyy-MM-dd"))" class="form-control form-control-sm" style="font-size: 0.8rem;" />
+                                        </div>
+                                    </td>
+                                    
+                                    <!-- DRIVA Spedita -->
+                                    <td class="text-center align-middle" style="width: 120px;">
+                                        <div class="d-flex flex-column align-items-center gap-1">
+                                            @if (item.DrivaSpedita)
+                                            {
+                                                <input type="checkbox" name="[@index].DrivaSpedita" value="true" checked class="form-check-input" style="accent-color: black; border: 2px solid black;" />
+                                            }
+                                            else
+                                            {
+                                                <input type="checkbox" name="[@index].DrivaSpedita" value="true" class="form-check-input" style="accent-color: black; border: 2px solid black;" />
+                                            }
+                                            <input type="hidden" name="[@index].DrivaSpedita" value="false" />
+                                            <input type="date" name="[@index].DrivaSpeditaData" value="@(item.DrivaSpeditaData?.ToString("yyyy-MM-dd"))" class="form-control form-control-sm" style="font-size: 0.8rem;" />
+                                        </div>
+                                    </td>
+                                    
+                                    <!-- Altri Stati -->
+                                    <td class="text-center align-middle" style="width: 130px;">
+                                        <div class="d-flex flex-column gap-1">
+                                            <div class="form-check form-check-inline d-flex align-items-center justify-content-start gap-1">
+                                                @if (item.DrVisto)
+                                                {
+                                                    <input type="checkbox" name="[@index].DrVisto" value="true" checked class="form-check-input" style="accent-color: black; border: 2px solid black;" />
+                                                }
+                                                else
+                                                {
+                                                    <input type="checkbox" name="[@index].DrVisto" value="true" class="form-check-input" style="accent-color: black; border: 2px solid black;" />
+                                                }
+                                                <input type="hidden" name="[@index].DrVisto" value="false" />
+                                                <label class="form-check-label fw-bold text-dark" style="font-size: 0.75rem;">DR Visto</label>
+                                            </div>
+                                            <div class="form-check form-check-inline d-flex align-items-center justify-content-start gap-1">
+                                                @if (item.RicevutaDriva)
+                                                {
+                                                    <input type="checkbox" name="[@index].RicevutaDriva" value="true" checked class="form-check-input" style="accent-color: black; border: 2px solid black;" />
+                                                }
+                                                else
+                                                {
+                                                    <input type="checkbox" name="[@index].RicevutaDriva" value="true" class="form-check-input" style="accent-color: black; border: 2px solid black;" />
+                                                }
+                                                <input type="hidden" name="[@index].RicevutaDriva" value="false" />
+                                                <label class="form-check-label fw-bold text-success" style="font-size: 0.75rem;">Ricevuta</label>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    
+                                    <!-- F24 & Importi -->
+                                    <td class="text-center align-middle" style="width: 110px;">
+                                        <div class="d-flex flex-column gap-1">
+                                            <select name="[@index].F24AccontoIvaStato" class="form-select form-select-sm">
+                                                @if (item.F24AccontoIvaStato == "non_spedito")
+                                                {
+                                                    <option value="non_spedito" selected>Non Spedito</option>
+                                                }
+                                                else
+                                                {
+                                                    <option value="non_spedito">Non Spedito</option>
+                                                }
+                                                @if (item.F24AccontoIvaStato == "mail")
+                                                {
+                                                    <option value="mail" selected>Mail</option>
+                                                }
+                                                else
+                                                {
+                                                    <option value="mail">Mail</option>
+                                                }
+                                                @if (item.F24AccontoIvaStato == "entratel")
+                                                {
+                                                    <option value="entratel" selected>Entratel</option>
+                                                }
+                                                else
+                                                {
+                                                    <option value="entratel">Entratel</option>
+                                                }
+                                            </select>
+                                            <div class="form-check d-flex align-items-center justify-content-center gap-1">
+                                                @if (item.F24DrivaConsegnato)
+                                                {
+                                                    <input type="checkbox" name="[@index].F24DrivaConsegnato" value="true" checked class="form-check-input" style="accent-color: black; border: 2px solid black;" />
+                                                }
+                                                else
+                                                {
+                                                    <input type="checkbox" name="[@index].F24DrivaConsegnato" value="true" class="form-check-input" style="accent-color: black; border: 2px solid black;" />
+                                                }
+                                                <input type="hidden" name="[@index].F24DrivaConsegnato" value="false" />
+                                                <label class="form-check-label" style="font-size: 0.7rem;">F24 Cons.</label>
+                                            </div>
+                                            <input type="number" name="[@index].ImportoDrIva" value="@item.ImportoDrIva" 
+                                                   class="form-control form-control-sm" placeholder="Importo DR" step="0.01" />
+                                        </div>
+                                    </td>
+                                    
+                                    <!-- TCG Data -->
+                                    <td class="text-center align-middle" style="width: 100px;">
+                                        <input type="date" name="[@index].TcgData" value="@(item.TcgData?.ToString("yyyy-MM-dd"))" 
+                                               class="form-control form-control-sm" />
+                                    </td>
+                                    
+                                    <!-- Note -->
+                                    <td class="align-middle" style="width: 180px;">
+                                        <textarea name="[@index].Note" class="form-control form-control-sm" rows="3" placeholder="Note...">@item.Note</textarea>
+                                    </td>
+                                </tr>
+                                index++;
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </form>
+        }
+        else
+        {
+            <div class="text-center py-5">
+                <i class="fas fa-info-circle fa-3x text-muted mb-3"></i>
+                <h5 class="text-muted">Nessuna attività DRIVA trovata</h5>
+                <p class="text-muted">
+                    @if (annoFiscale != null)
+                    {
+                        <span>Non ci sono clienti con DRIVA attivo per l'anno @annoFiscale.Anno, oppure le attività non sono ancora state create.</span>
+                    }
+                    else
+                    {
+                        <span>Anno fiscale non configurato o non trovato.</span>
+                    }
+                </p>
+
+            </div>
+        }
+    </div>
+</div>
+
+<!-- Script semplificato per gestione tabella -->
+<script>
+
+
+// Funzione globale per eliminazione (deve essere fuori dal document.ready)
+function confermaEliminazioneAnno() {
+    console.log("Funzione confermaEliminazioneAnno chiamata");
+    const anno = @annoSelezionato;
+    const totalRows = $('tbody tr').length;
+    console.log(`Anno: ${anno}, Righe: ${totalRows}`);
+    
+    // Prima conferma
+    if (!confirm(`⚠️ ATTENZIONE!\n\nStai per eliminare TUTTI i ${totalRows} inserimenti DRIVA dell'anno ${anno}.\n\nQuesta operazione è IRREVERSIBILE!\n\nVuoi continuare?`)) {
+        return;
+    }
+    
+    // Seconda conferma con richiesta di digitare ELIMINA
+    const confermaParola = prompt(`🚨 ULTIMA CONFERMA!\n\nPer eliminare DEFINITIVAMENTE tutti i ${totalRows} inserimenti DRIVA dell'anno ${anno},\n\nScrivi esattamente: ELIMINA\n\ne poi premi OK:`);
+    
+    if (confermaParola !== "ELIMINA") {
+        alert("❌ Operazione annullata!\n\nDevi scrivere esattamente 'ELIMINA' per confermare.");
+        return;
+    }
+    
+    // Esegui eliminazione
+    eliminaTuttiInserimenti(anno);
+}
+
+function eliminaTuttiInserimenti(anno) {
+    // Mostra loading
+    const $button = $('button[onclick="confermaEliminazioneAnno()"]');
+    const originalText = $button.html();
+    $button.prop('disabled', true).html('<i class="fas fa-spinner fa-spin me-1"></i>Eliminazione...');
+    
+    $.ajax({
+        url: '@Url.Action("DeleteAllForYear", "AttivitaDriva")',
+        type: 'POST',
+        data: {
+            anno: anno,
+            __RequestVerificationToken: $('input[name="__RequestVerificationToken"]').val()
+        },
+        success: function(result) {
+            if (result.success) {
+                alert(`✅ Successo!\n\nEliminati ${result.deletedCount} inserimenti dell'anno ${anno}.`);
+                // Ricarica la pagina per aggiornare la tabella
+                window.location.reload();
+            } else {
+                alert(`❌ Errore!\n\n${result.message}`);
+                $button.prop('disabled', false).html(originalText);
+            }
+        },
+        error: function() {
+            alert('❌ Errore di comunicazione con il server!');
+            $button.prop('disabled', false).html(originalText);
+        }
+    });
+}
+
+// Funzioni globali per i filtri (devono essere fuori dal document.ready)
+function filterTable() {
+    console.log("Funzione filterTable chiamata");
+    const nomeClienteFilter = $('#filtroNomeCliente').val().toLowerCase();
+    const professionistaFilter = $('#filtroProfessionista').val();
+    const raccoltaFilter = $('#filtroRaccoltaDocumenti').val();
+    const drivaFilter = $('#filtroDrivaStatus').val();
+    const accontoFilter = $('#filtroAccontoStatus').val();
+    console.log(`Filtri: Cliente=${nomeClienteFilter}, Professionista=${professionistaFilter}, Raccolta=${raccoltaFilter}, DRIVA=${drivaFilter}, Acconto=${accontoFilter}`);
+    
+    $('tbody tr').each(function() {
+        let showRow = true;
+        const $row = $(this);
+        
+        // Filtro Nome Cliente
+        if (nomeClienteFilter) {
+            const nomeCliente = $row.find('td:first strong').text().toLowerCase();
+            if (!nomeCliente.includes(nomeClienteFilter)) {
+                showRow = false;
+            }
+        }
+        
+        // Filtro Professionista
+        if (professionistaFilter && showRow) {
+            const professionistaValue = $row.find('select[name$=".IdProfessionista"]').val();
+            if (professionistaValue !== professionistaFilter) {
+                showRow = false;
+            }
+        }
+        
+        // Filtro Raccolta Documenti
+        if (raccoltaFilter) {
+            const raccoltaValue = $row.find('select[name$=".RaccoltaDocumenti"]').val();
+            if (raccoltaValue !== raccoltaFilter) {
+                showRow = false;
+            }
+        }
+        
+        // Filtro Stato DRIVA
+        if (drivaFilter && showRow) {
+            const drivaInserita = $row.find('input[name$=".DrivaInserita"][type="checkbox"]').is(':checked');
+            const drivaControllata = $row.find('input[name$=".DrivaControllata"][type="checkbox"]').is(':checked');
+            const drivaSpedita = $row.find('input[name$=".DrivaSpedita"][type="checkbox"]').is(':checked');
+            console.log(`Riga ${$row.index()}: DRIVA Inserita=${drivaInserita}, Controllata=${drivaControllata}, Spedita=${drivaSpedita}`);
+            
+            switch(drivaFilter) {
+                case 'inserita':
+                    if (!drivaInserita) showRow = false;
+                    break;
+                case 'controllata':
+                    if (!drivaControllata) showRow = false;
+                    break;
+                case 'spedita':
+                    if (!drivaSpedita) showRow = false;
+                    break;
+                case 'complete':
+                    if (!(drivaInserita && drivaControllata && drivaSpedita)) showRow = false;
+                    break;
+                case 'incomplete':
+                    if (drivaInserita && drivaControllata && drivaSpedita) showRow = false;
+                    break;
+            }
+        }
+        
+        // Filtro Acconto IVA
+        if (accontoFilter && showRow) {
+            const accontoTipo = $row.find('select[name$=".AccontoIvaTipo"]').val();
+            
+            switch(accontoFilter) {
+                case 'storico':
+                    if (accontoTipo !== 'storico') showRow = false;
+                    break;
+                case 'analitico':
+                    if (accontoTipo !== 'analitico') showRow = false;
+                    break;
+                case 'al_20_12':
+                    if (accontoTipo !== 'al_20_12') showRow = false;
+                    break;
+                case 'missing':
+                    if (accontoTipo) showRow = false;
+                    break;
+            }
+        }
+        
+        if (showRow) {
+            $row.show();
+        } else {
+            $row.hide();
+        }
+    });
+    
+    // Aggiorna contatore righe visibili
+    updateRowCount();
+}
+
+function updateRowCount() {
+    const totalRows = $('tbody tr').length;
+    const visibleRows = $('tbody tr:visible').length;
+    
+    // Crea o aggiorna il contatore se non esiste
+    if ($('#rowCounter').length === 0) {
+        $('.card-header h5').append(' <span id="rowCounter" class="badge bg-light text-dark ms-2"></span>');
+    }
+    
+    $('#rowCounter').text(`${visibleRows} di ${totalRows}`);
+}
+
+function resetFilters() {
+    $('#filtroNomeCliente').val('');
+    $('#filtroProfessionista').val('');
+    $('#filtroRaccoltaDocumenti').val('');
+    $('#filtroDrivaStatus').val('');
+    $('#filtroAccontoStatus').val('');
+    filterTable();
+}
+
+$(document).ready(function() {
+    // Tooltip
+    $('[title]').tooltip();
+    
+    // Filtro ricerca in tempo reale per nome cliente
+    $('#filtroNomeCliente').on('input', function() {
+        filterTable();
+    });
+    
+    // Auto-imposta data quando si spunta checkbox
+    $('.stato-checkbox').change(function() {
+        if ($(this).is(':checked')) {
+            const target = $(this).data('target');
+            const dateInput = $('#' + target);
+            if (!dateInput.val()) {
+                dateInput.val(new Date().toISOString().slice(0, 10));
+            }
+        }
+    });
+    
+    // Aggiorna colori in base allo stato quando si cambiano i valori
+    $('select[name$=".RaccoltaDocumenti"]').change(function() {
+        const value = $(this).val();
+        $(this).removeClass('border-success bg-light border-warning bg-warning bg-opacity-10 border-secondary');
+        
+        switch(value) {
+            case 'ricevuti':
+                $(this).addClass('border-success bg-light');
+                break;
+            case 'richiesti':
+                $(this).addClass('border-warning bg-warning bg-opacity-10');
+                break;
+            default:
+                $(this).addClass('border-secondary');
+                break;
+        }
+    });
+    
+    // Event listeners per i filtri
+    $('#filtroRaccoltaDocumenti, #filtroDrivaStatus, #filtroAccontoStatus').change(filterTable);
+    
+    // Inizializza contatore
+    updateRowCount();
+    
+    // Auto-refresh scadenza ogni 30 secondi
+    @if (annoFiscale?.ScadenzaDIVA.HasValue == true)
+    {
+        @:setInterval(function() {
+        @:    // Aggiorna solo la sezione scadenza senza ricaricare tutta la pagina
+        @:    const now = new Date();
+        @:    // Implementa logica di aggiornamento countdown se necessario
+        @:}, 30000);
+    }
+});
+</script>

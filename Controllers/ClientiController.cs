@@ -414,6 +414,39 @@ namespace ConsultingGroup.Controllers
                             var count = await _context.AttivitaIrap.CountAsync(a => a.IdCliente == cliente.IdCliente && a.IdAnno == annoCorrente.IdAnno);
                             if (count > 0) checkboxRimosse.Add(("MOD IRAP", "attivita_irap", count));
                         }
+                        // Controlli per attività IVA
+                        if (cliente.Driva && !viewModel.Driva)
+                        {
+                            var count = await _context.AttivitaDriva.CountAsync(a => a.IdCliente == cliente.IdCliente && a.IdAnno == annoCorrente.IdAnno);
+                            if (count > 0) checkboxRimosse.Add(("DRIVA", "attivita_driva", count));
+                        }
+                        // TODO: Quando saranno create le tabelle per LIPE e ModTrIva, scommentare:
+                        // if (cliente.Lipe && !viewModel.Lipe)
+                        // {
+                        //     var count = await _context.AttivitaLipe.CountAsync(a => a.IdCliente == cliente.IdCliente && a.IdAnno == annoCorrente.IdAnno);
+                        //     if (count > 0) checkboxRimosse.Add(("LIPE", "attivita_lipe", count));
+                        // }
+                        // if (cliente.ModTrIva && !viewModel.ModTrIva)
+                        // {
+                        //     var count = await _context.AttivitaModTrIva.CountAsync(a => a.IdCliente == cliente.IdCliente && a.IdAnno == annoCorrente.IdAnno);
+                        //     if (count > 0) checkboxRimosse.Add(("MOD TR IVA", "attivita_mod_tr_iva", count));
+                        // }
+                        
+                        // Controlli per attività contabili
+                        // TODO: Quando saranno create le tabelle per le attività contabili, aggiungere i controlli per:
+                        // - INAIL (AttivitaInail)
+                        // - Cassetto Fiscale (AttivitaCassettoFiscale)
+                        // - Fatturazione Elettronica TS (AttivitaFatturazioneElettronicaTs)
+                        // - Conservazione (AttivitaConservazione)
+                        // - IMU (AttivitaImu)
+                        // - Registro IVA (AttivitaRegIva)
+                        // - Registro Cespiti (AttivitaRegCespiti)
+                        // - Inventari (AttivitaInventari)
+                        // - Libro Giornale (AttivitaLibroGiornale)
+                        // - Lettere d'Intento (AttivitaLettereIntento)
+                        // - Mod. INTRASTAT (AttivitaModIntrastat)
+                        // - Firma Digitale (AttivitaFirmaDigitale)
+                        // - Titolare Effettivo (AttivitaTitolareEffettivo)
                     }
 
                     // Se ci sono checkbox rimosse, richiedi conferma
@@ -1969,6 +2002,45 @@ namespace ConsultingGroup.Controllers
                             .ToListAsync();
                         _context.AttivitaCu.RemoveRange(attivitaCu);
                         break;
+
+                    case "attivita_driva":
+                        var attivitaDriva = await _context.AttivitaDriva
+                            .Where(a => a.IdCliente == idCliente && a.IdAnno == idAnno)
+                            .ToListAsync();
+                        _context.AttivitaDriva.RemoveRange(attivitaDriva);
+                        break;
+
+                    // TODO: Aggiungere case per altre attività IVA quando saranno create le tabelle:
+                    // case "attivita_lipe":
+                    //     var attivitaLipe = await _context.AttivitaLipe
+                    //         .Where(a => a.IdCliente == idCliente && a.IdAnno == idAnno)
+                    //         .ToListAsync();
+                    //     _context.AttivitaLipe.RemoveRange(attivitaLipe);
+                    //     break;
+                    //
+                    // case "attivita_mod_tr_iva":
+                    //     var attivitaModTrIva = await _context.AttivitaModTrIva
+                    //         .Where(a => a.IdCliente == idCliente && a.IdAnno == idAnno)
+                    //         .ToListAsync();
+                    //     _context.AttivitaModTrIva.RemoveRange(attivitaModTrIva);
+                    //     break;
+
+                    // TODO: Aggiungere case per attività contabili quando saranno create le tabelle:
+                    // case "attivita_inail":
+                    // case "attivita_cassetto_fiscale":
+                    // case "attivita_fatturazione_elettronica_ts":
+                    // case "attivita_conservazione":
+                    // case "attivita_imu":
+                    // case "attivita_reg_iva":
+                    // case "attivita_reg_cespiti":
+                    // case "attivita_inventari":
+                    // case "attivita_libro_giornale":
+                    // case "attivita_lettere_intento":
+                    // case "attivita_mod_intrastat":
+                    // case "attivita_firma_digitale":
+                    // case "attivita_titolare_effettivo":
+                    //     // Implementare quando saranno create le tabelle corrispondenti
+                    //     break;
                 }
             }
 
