@@ -420,12 +420,12 @@ namespace ConsultingGroup.Controllers
                             var count = await _context.AttivitaDriva.CountAsync(a => a.IdCliente == cliente.IdCliente && a.IdAnno == annoCorrente.IdAnno);
                             if (count > 0) checkboxRimosse.Add(("DRIVA", "attivita_driva", count));
                         }
-                        // TODO: Quando saranno create le tabelle per LIPE e ModTrIva, scommentare:
-                        // if (cliente.Lipe && !viewModel.Lipe)
-                        // {
-                        //     var count = await _context.AttivitaLipe.CountAsync(a => a.IdCliente == cliente.IdCliente && a.IdAnno == annoCorrente.IdAnno);
-                        //     if (count > 0) checkboxRimosse.Add(("LIPE", "attivita_lipe", count));
-                        // }
+                        if (cliente.Lipe && !viewModel.Lipe)
+                        {
+                            var count = await _context.AttivitaLipe.CountAsync(a => a.IdCliente == cliente.IdCliente && a.IdAnno == annoCorrente.IdAnno);
+                            if (count > 0) checkboxRimosse.Add(("LIPE", "attivita_lipe", count));
+                        }
+                        // TODO: Quando sarà creata la tabella per ModTrIva, scommentare:
                         // if (cliente.ModTrIva && !viewModel.ModTrIva)
                         // {
                         //     var count = await _context.AttivitaModTrIva.CountAsync(a => a.IdCliente == cliente.IdCliente && a.IdAnno == annoCorrente.IdAnno);
@@ -2010,13 +2010,13 @@ namespace ConsultingGroup.Controllers
                         _context.AttivitaDriva.RemoveRange(attivitaDriva);
                         break;
 
+                    case "attivita_lipe":
+                        var attivitaLipe = await _context.AttivitaLipe
+                            .Where(a => a.IdCliente == idCliente && a.IdAnno == idAnno)
+                            .ToListAsync();
+                        _context.AttivitaLipe.RemoveRange(attivitaLipe);
+                        break;
                     // TODO: Aggiungere case per altre attività IVA quando saranno create le tabelle:
-                    // case "attivita_lipe":
-                    //     var attivitaLipe = await _context.AttivitaLipe
-                    //         .Where(a => a.IdCliente == idCliente && a.IdAnno == idAnno)
-                    //         .ToListAsync();
-                    //     _context.AttivitaLipe.RemoveRange(attivitaLipe);
-                    //     break;
                     //
                     // case "attivita_mod_tr_iva":
                     //     var attivitaModTrIva = await _context.AttivitaModTrIva

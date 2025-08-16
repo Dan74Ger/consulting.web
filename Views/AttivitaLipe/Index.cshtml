@@ -1,0 +1,692 @@
+@model IEnumerable<ConsultingGroup.Models.AttivitaLipe>
+@{
+    ViewData["Title"] = "LIPE";
+    var annoSelezionato = ViewBag.AnnoSelezionato as int? ?? DateTime.Now.Year;
+    var annoFiscale = ViewBag.AnnoFiscale as ConsultingGroup.Models.AnnoFiscale;
+}
+
+<!-- Filtro Anno -->
+<div class="row mb-4">
+    <div class="col-md-12">
+        <div class="card border-warning">
+            <div class="card-header bg-warning text-dark">
+                <h5 class="mb-0">
+                    <i class="fas fa-chart-bar me-2"></i>Anno di Riferimento - LIPE Trimestrali
+                </h5>
+            </div>
+            <div class="card-body">
+                <form method="get" class="d-flex align-items-center gap-3">
+                    <label for="annoSelezionato" class="form-label mb-0 fw-bold">Seleziona Anno:</label>
+                    <select name="annoSelezionato" id="annoSelezionato" class="form-select w-auto" onchange="this.form.submit()">
+                        @{
+                            var anniFiscali = ViewBag.AnniFiscali as IEnumerable<Microsoft.AspNetCore.Mvc.Rendering.SelectListItem>;
+                        }
+                        @if (anniFiscali != null)
+                        {
+                            @foreach (var anno in anniFiscali)
+                            {
+                                @if (anno.Selected)
+                                {
+                                    <option value="@anno.Value" selected>@anno.Text</option>
+                                }
+                                else
+                                {
+                                    <option value="@anno.Value">@anno.Text</option>
+                                }
+                            }
+                        }
+                    </select>
+                    <div class="ms-auto d-flex gap-2">
+                        <a href="@Url.Action("Index", "GestioneAttivita")" class="btn btn-outline-primary btn-sm">
+                            <i class="fas fa-arrow-left me-1"></i>Gestione Attività
+                        </a>
+                        <a href="@Url.Action("Index", "Clienti")" class="btn btn-outline-success btn-sm">
+                            <i class="fas fa-users me-1"></i>Gestione Clienti
+                        </a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+<!-- Card principale -->
+<div class="card border-warning">
+    <div class="card-header bg-warning text-dark">
+        <h5 class="mb-0">
+            <i class="fas fa-chart-bar me-2"></i>Elenco Attività LIPE - @(annoFiscale?.AnnoDescrizione ?? $"Anno {annoSelezionato}")
+        </h5>
+    </div>
+    <div class="card-body p-0">
+        @if (Model.Any())
+        {
+
+            <form id="bulkUpdateForm" method="post" action="@Url.Action("BulkUpdate")">
+                @Html.AntiForgeryToken()
+                <input type="hidden" name="annoSelezionato" value="@annoSelezionato" />
+                
+                <!-- Filtri e Pulsanti -->
+                <div class="mb-3">
+                    <!-- Prima riga filtri -->
+                    <div class="d-flex flex-wrap gap-3 align-items-center mb-2">
+                        <div class="d-flex align-items-center gap-2">
+                            <label for="filtroNomeCliente" class="form-label mb-0 fw-bold">Cliente:</label>
+                            <input type="text" id="filtroNomeCliente" class="form-control form-control-sm" style="width: 180px;" placeholder="Cerca per nome...">
+                        </div>
+                        
+                        <div class="d-flex align-items-center gap-2">
+                            <label for="filtroProfessionista" class="form-label mb-0 fw-bold">Professionista:</label>
+                            <select id="filtroProfessionista" class="form-select form-select-sm" style="width: auto;">
+                                <option value="">Tutti</option>
+                                @{
+                                    var professionistiFiltro = ViewBag.Professionisti as IEnumerable<Microsoft.AspNetCore.Mvc.Rendering.SelectListItem>;
+                                }
+                                @if (professionistiFiltro != null)
+                                {
+                                    @foreach (var prof in professionistiFiltro)
+                                    {
+                                        <option value="@prof.Text">@prof.Text</option>
+                                    }
+                                }
+                            </select>
+                        </div>
+                        
+                        <div class="d-flex align-items-center gap-2">
+                            <label for="filtroRaccolta" class="form-label mb-0 fw-bold">Raccolta Doc:</label>
+                            <select id="filtroRaccolta" class="form-select form-select-sm" style="width: auto;">
+                                <option value="">Tutti</option>
+                                <option value="da_richiedere">Da Richiedere</option>
+                                <option value="richiesti">Richiesti</option>
+                                <option value="ricevuti">Ricevuti</option>
+                            </select>
+                        </div>
+                        
+                        <div class="d-flex align-items-center gap-2">
+                            <label for="filtroTrimestre" class="form-label mb-0 fw-bold">Trimestre:</label>
+                            <select id="filtroTrimestre" class="form-select form-select-sm" style="width: auto;">
+                                <option value="">Tutti</option>
+                                <option value="t1">1° Trimestre</option>
+                                <option value="t2">2° Trimestre</option>
+                                <option value="t3">3° Trimestre</option>
+                                <option value="t4">4° Trimestre</option>
+                            </select>
+                        </div>
+                        
+                        <div class="d-flex align-items-center gap-2">
+                            <label for="filtroStato" class="form-label mb-0 fw-bold">Stato:</label>
+                            <select id="filtroStato" class="form-select form-select-sm" style="width: auto;">
+                                <option value="">Tutti</option>
+                                <option value="incompleti">Incompleti</option>
+                                <option value="completati">Completati</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <!-- Seconda riga con pulsanti di azione -->
+                    <div class="d-flex flex-wrap justify-content-between align-items-center mt-2 gap-2">
+                        <div class="d-flex gap-2">
+                            <button type="button" class="btn btn-outline-primary btn-sm" onclick="filterTable()">
+                                <i class="fas fa-filter me-1"></i>Applica Filtri
+                            </button>
+                            <button type="button" class="btn btn-outline-secondary btn-sm" onclick="resetFilters()">
+                                <i class="fas fa-times me-1"></i>Reset
+                            </button>
+                        </div>
+                        
+                        <div class="d-flex flex-wrap gap-2">
+                            <button type="submit" class="btn btn-primary btn-sm">
+                                <i class="fas fa-save me-1"></i>Salva Tutto
+                            </button>
+                            <a href="@Url.Action("ExportExcel", new { anno = annoSelezionato })" class="btn btn-warning btn-sm">
+                                <i class="fas fa-file-excel me-1"></i>Export Excel
+                            </a>
+                            <button type="button" class="btn btn-danger btn-sm" onclick="confermaEliminazioneAnno()">
+                                <i class="fas fa-trash-alt me-1"></i>Elimina tutti gli inserimenti dell'anno
+                            </button>
+                        </div>
+                    </div>
+                </div>
+    
+    <div class="table-responsive">
+        <table class="table table-striped table-hover table-sm" id="lipeTable">
+            <!-- Header fisso -->
+            <thead class="table-dark sticky-top">
+                <tr>
+                    <th style="width: 200px;">
+                        <i class="fas fa-user me-1"></i>Cliente
+                    </th>
+                    <th style="width: 80px;">
+                        <i class="fas fa-industry me-1"></i>ATECO
+                    </th>
+                    <th style="width: 150px;">
+                        <i class="fas fa-user-tie me-1"></i>Professionista
+                    </th>
+                    
+                    <!-- 1° Trimestre -->
+                    <th colspan="4" class="text-center bg-success">
+                        <i class="fas fa-chart-line me-1"></i>1° TRIMESTRE
+                        @if (annoFiscale?.ScadenzaLipe1t != null)
+                        {
+                            <br><small>@annoFiscale.ScadenzaLipe1t.Value.ToString("dd/MM/yyyy")</small>
+                        }
+                    </th>
+                    
+                    <!-- 2° Trimestre -->
+                    <th colspan="4" class="text-center bg-primary">
+                        <i class="fas fa-chart-line me-1"></i>2° TRIMESTRE
+                        @if (annoFiscale?.ScadenzaLipe2t != null)
+                        {
+                            <br><small>@annoFiscale.ScadenzaLipe2t.Value.ToString("dd/MM/yyyy")</small>
+                        }
+                    </th>
+                    
+                    <!-- 3° Trimestre -->
+                    <th colspan="4" class="text-center bg-warning text-dark">
+                        <i class="fas fa-chart-line me-1"></i>3° TRIMESTRE
+                        @if (annoFiscale?.ScadenzaLipe3t != null)
+                        {
+                            <br><small>@annoFiscale.ScadenzaLipe3t.Value.ToString("dd/MM/yyyy")</small>
+                        }
+                    </th>
+                    
+                    <!-- 4° Trimestre -->
+                    <th colspan="4" class="text-center bg-danger">
+                        <i class="fas fa-chart-line me-1"></i>4° TRIMESTRE
+                        @if (annoFiscale?.ScadenzaLipe4t != null)
+                        {
+                            <br><small>@annoFiscale.ScadenzaLipe4t.Value.ToString("dd/MM/yyyy")</small>
+                        }
+                    </th>
+                </tr>
+                <tr>
+                    <th></th>
+                    <th></th>
+                    <th></th>
+                    
+                    <!-- T1 Sub-headers -->
+                    <th class="bg-success text-white" style="width: 100px;">Raccolta</th>
+                    <th class="bg-success text-white" style="width: 80px;">Inserita</th>
+                    <th class="bg-success text-white" style="width: 80px;">Controllata</th>
+                    <th class="bg-success text-white" style="width: 80px;">Spedita</th>
+                    
+                    <!-- T2 Sub-headers -->
+                    <th class="bg-primary text-white" style="width: 100px;">Raccolta</th>
+                    <th class="bg-primary text-white" style="width: 80px;">Inserita</th>
+                    <th class="bg-primary text-white" style="width: 80px;">Controllata</th>
+                    <th class="bg-primary text-white" style="width: 80px;">Spedita</th>
+                    
+                    <!-- T3 Sub-headers -->
+                    <th class="bg-warning text-dark" style="width: 100px;">Raccolta</th>
+                    <th class="bg-warning text-dark" style="width: 80px;">Inserita</th>
+                    <th class="bg-warning text-dark" style="width: 80px;">Controllata</th>
+                    <th class="bg-warning text-dark" style="width: 80px;">Spedita</th>
+                    
+                    <!-- T4 Sub-headers -->
+                    <th class="bg-danger text-white" style="width: 100px;">Raccolta</th>
+                    <th class="bg-danger text-white" style="width: 80px;">Inserita</th>
+                    <th class="bg-danger text-white" style="width: 80px;">Controllata</th>
+                    <th class="bg-danger text-white" style="width: 80px;">Spedita</th>
+                </tr>
+            </thead>
+            
+            <tbody>
+                @{ var index = 0; }
+                @foreach (var item in Model)
+                {
+                    <tr class="lipe-row">
+                        <!-- Info Cliente -->
+                        <td class="align-middle">
+                            <strong>@item.Cliente?.NomeCliente</strong>
+                            <input type="hidden" name="[@index].IdAttivitaLipe" value="@item.IdAttivitaLipe" />
+                            <input type="hidden" name="[@index].IdAnno" value="@item.IdAnno" />
+                            <input type="hidden" name="[@index].IdCliente" value="@item.IdCliente" />
+                        </td>
+                        <td class="align-middle">
+                            <small class="text-muted">@item.Cliente?.CodiceAteco</small>
+                        </td>
+                        <td class="align-middle">
+                            <select name="[@index].IdProfessionista" class="form-select form-select-sm">
+                                <option value="">Seleziona...</option>
+                                @{
+                                    var professionisti = ViewBag.Professionisti as IEnumerable<Microsoft.AspNetCore.Mvc.Rendering.SelectListItem>;
+                                }
+                                @if (professionisti != null)
+                                {
+                                    @foreach (var prof in professionisti)
+                                    {
+                                        @if (prof.Value == item.IdProfessionista?.ToString())
+                                        {
+                                            <option value="@prof.Value" selected>@prof.Text</option>
+                                        }
+                                        else
+                                        {
+                                            <option value="@prof.Value">@prof.Text</option>
+                                        }
+                                    }
+                                }
+                            </select>
+                        </td>
+
+                        <!-- 1° TRIMESTRE -->
+                        <td class="align-middle">
+                            <select name="[@index].T1RaccoltaDocumenti" class="form-select form-select-sm ">
+                                @if (item.T1RaccoltaDocumenti == "da_richiedere")
+                                {
+                                    <option value="da_richiedere" selected>Da Richiedere</option>
+                                }
+                                else
+                                {
+                                    <option value="da_richiedere">Da Richiedere</option>
+                                }
+                                @if (item.T1RaccoltaDocumenti == "richiesti")
+                                {
+                                    <option value="richiesti" selected>Richiesti</option>
+                                }
+                                else
+                                {
+                                    <option value="richiesti">Richiesti</option>
+                                }
+                                @if (item.T1RaccoltaDocumenti == "ricevuti")
+                                {
+                                    <option value="ricevuti" selected>Ricevuti</option>
+                                }
+                                else
+                                {
+                                    <option value="ricevuti">Ricevuti</option>
+                                }
+                            </select>
+                        </td>
+                        <td class="text-center align-middle">
+                            @if (item.T1LipeInserita)
+                            {
+                                <input type="checkbox" name="[@index].T1LipeInserita" value="true" checked class="form-check-input" style="accent-color: black; border: 2px solid black;" />
+                            }
+                            else
+                            {
+                                <input type="checkbox" name="[@index].T1LipeInserita" value="true" class="form-check-input" style="accent-color: black; border: 2px solid black;" />
+                            }
+                            <input type="hidden" name="[@index].T1LipeInserita" value="false" />
+                        </td>
+                        <td class="text-center align-middle">
+                            @if (item.T1LipeControllata)
+                            {
+                                <input type="checkbox" name="[@index].T1LipeControllata" value="true" checked class="form-check-input" style="accent-color: black; border: 2px solid black;" />
+                            }
+                            else
+                            {
+                                <input type="checkbox" name="[@index].T1LipeControllata" value="true" class="form-check-input" style="accent-color: black; border: 2px solid black;" />
+                            }
+                            <input type="hidden" name="[@index].T1LipeControllata" value="false" />
+                        </td>
+                        <td class="text-center align-middle">
+                            @if (item.T1LipeSpedita)
+                            {
+                                <input type="checkbox" name="[@index].T1LipeSpedita" value="true" checked class="form-check-input" style="accent-color: black; border: 2px solid black;" />
+                            }
+                            else
+                            {
+                                <input type="checkbox" name="[@index].T1LipeSpedita" value="true" class="form-check-input" style="accent-color: black; border: 2px solid black;" />
+                            }
+                            <input type="hidden" name="[@index].T1LipeSpedita" value="false" />
+                        </td>
+
+                        <!-- 2° TRIMESTRE -->
+                        <td class="align-middle">
+                            <select name="[@index].T2RaccoltaDocumenti" class="form-select form-select-sm ">
+                                @if (item.T2RaccoltaDocumenti == "da_richiedere")
+                                {
+                                    <option value="da_richiedere" selected>Da Richiedere</option>
+                                }
+                                else
+                                {
+                                    <option value="da_richiedere">Da Richiedere</option>
+                                }
+                                @if (item.T2RaccoltaDocumenti == "richiesti")
+                                {
+                                    <option value="richiesti" selected>Richiesti</option>
+                                }
+                                else
+                                {
+                                    <option value="richiesti">Richiesti</option>
+                                }
+                                @if (item.T2RaccoltaDocumenti == "ricevuti")
+                                {
+                                    <option value="ricevuti" selected>Ricevuti</option>
+                                }
+                                else
+                                {
+                                    <option value="ricevuti">Ricevuti</option>
+                                }
+                            </select>
+                        </td>
+                        <td class="text-center align-middle">
+                            @if (item.T2LipeInserita)
+                            {
+                                <input type="checkbox" name="[@index].T2LipeInserita" value="true" checked class="form-check-input" style="accent-color: black; border: 2px solid black;" />
+                            }
+                            else
+                            {
+                                <input type="checkbox" name="[@index].T2LipeInserita" value="true" class="form-check-input" style="accent-color: black; border: 2px solid black;" />
+                            }
+                            <input type="hidden" name="[@index].T2LipeInserita" value="false" />
+                        </td>
+                        <td class="text-center align-middle">
+                            @if (item.T2LipeControllata)
+                            {
+                                <input type="checkbox" name="[@index].T2LipeControllata" value="true" checked class="form-check-input" style="accent-color: black; border: 2px solid black;" />
+                            }
+                            else
+                            {
+                                <input type="checkbox" name="[@index].T2LipeControllata" value="true" class="form-check-input" style="accent-color: black; border: 2px solid black;" />
+                            }
+                            <input type="hidden" name="[@index].T2LipeControllata" value="false" />
+                        </td>
+                        <td class="text-center align-middle">
+                            @if (item.T2LipeSpedita)
+                            {
+                                <input type="checkbox" name="[@index].T2LipeSpedita" value="true" checked class="form-check-input" style="accent-color: black; border: 2px solid black;" />
+                            }
+                            else
+                            {
+                                <input type="checkbox" name="[@index].T2LipeSpedita" value="true" class="form-check-input" style="accent-color: black; border: 2px solid black;" />
+                            }
+                            <input type="hidden" name="[@index].T2LipeSpedita" value="false" />
+                        </td>
+
+                        <!-- 3° TRIMESTRE -->
+                        <td class="align-middle">
+                            <select name="[@index].T3RaccoltaDocumenti" class="form-select form-select-sm ">
+                                @if (item.T3RaccoltaDocumenti == "da_richiedere")
+                                {
+                                    <option value="da_richiedere" selected>Da Richiedere</option>
+                                }
+                                else
+                                {
+                                    <option value="da_richiedere">Da Richiedere</option>
+                                }
+                                @if (item.T3RaccoltaDocumenti == "richiesti")
+                                {
+                                    <option value="richiesti" selected>Richiesti</option>
+                                }
+                                else
+                                {
+                                    <option value="richiesti">Richiesti</option>
+                                }
+                                @if (item.T3RaccoltaDocumenti == "ricevuti")
+                                {
+                                    <option value="ricevuti" selected>Ricevuti</option>
+                                }
+                                else
+                                {
+                                    <option value="ricevuti">Ricevuti</option>
+                                }
+                            </select>
+                        </td>
+                        <td class="text-center align-middle">
+                            @if (item.T3LipeInserita)
+                            {
+                                <input type="checkbox" name="[@index].T3LipeInserita" value="true" checked class="form-check-input" style="accent-color: black; border: 2px solid black;" />
+                            }
+                            else
+                            {
+                                <input type="checkbox" name="[@index].T3LipeInserita" value="true" class="form-check-input" style="accent-color: black; border: 2px solid black;" />
+                            }
+                            <input type="hidden" name="[@index].T3LipeInserita" value="false" />
+                        </td>
+                        <td class="text-center align-middle">
+                            @if (item.T3LipeControllata)
+                            {
+                                <input type="checkbox" name="[@index].T3LipeControllata" value="true" checked class="form-check-input" style="accent-color: black; border: 2px solid black;" />
+                            }
+                            else
+                            {
+                                <input type="checkbox" name="[@index].T3LipeControllata" value="true" class="form-check-input" style="accent-color: black; border: 2px solid black;" />
+                            }
+                            <input type="hidden" name="[@index].T3LipeControllata" value="false" />
+                        </td>
+                        <td class="text-center align-middle">
+                            @if (item.T3LipeSpedita)
+                            {
+                                <input type="checkbox" name="[@index].T3LipeSpedita" value="true" checked class="form-check-input" style="accent-color: black; border: 2px solid black;" />
+                            }
+                            else
+                            {
+                                <input type="checkbox" name="[@index].T3LipeSpedita" value="true" class="form-check-input" style="accent-color: black; border: 2px solid black;" />
+                            }
+                            <input type="hidden" name="[@index].T3LipeSpedita" value="false" />
+                        </td>
+
+                        <!-- 4° TRIMESTRE -->
+                        <td class="align-middle">
+                            <select name="[@index].T4RaccoltaDocumenti" class="form-select form-select-sm ">
+                                @if (item.T4RaccoltaDocumenti == "da_richiedere")
+                                {
+                                    <option value="da_richiedere" selected>Da Richiedere</option>
+                                }
+                                else
+                                {
+                                    <option value="da_richiedere">Da Richiedere</option>
+                                }
+                                @if (item.T4RaccoltaDocumenti == "richiesti")
+                                {
+                                    <option value="richiesti" selected>Richiesti</option>
+                                }
+                                else
+                                {
+                                    <option value="richiesti">Richiesti</option>
+                                }
+                                @if (item.T4RaccoltaDocumenti == "ricevuti")
+                                {
+                                    <option value="ricevuti" selected>Ricevuti</option>
+                                }
+                                else
+                                {
+                                    <option value="ricevuti">Ricevuti</option>
+                                }
+                            </select>
+                        </td>
+                        <td class="text-center align-middle">
+                            @if (item.T4LipeInserita)
+                            {
+                                <input type="checkbox" name="[@index].T4LipeInserita" value="true" checked class="form-check-input" style="accent-color: black; border: 2px solid black;" />
+                            }
+                            else
+                            {
+                                <input type="checkbox" name="[@index].T4LipeInserita" value="true" class="form-check-input" style="accent-color: black; border: 2px solid black;" />
+                            }
+                            <input type="hidden" name="[@index].T4LipeInserita" value="false" />
+                        </td>
+                        <td class="text-center align-middle">
+                            @if (item.T4LipeControllata)
+                            {
+                                <input type="checkbox" name="[@index].T4LipeControllata" value="true" checked class="form-check-input" style="accent-color: black; border: 2px solid black;" />
+                            }
+                            else
+                            {
+                                <input type="checkbox" name="[@index].T4LipeControllata" value="true" class="form-check-input" style="accent-color: black; border: 2px solid black;" />
+                            }
+                            <input type="hidden" name="[@index].T4LipeControllata" value="false" />
+                        </td>
+                        <td class="text-center align-middle">
+                            @if (item.T4LipeSpedita)
+                            {
+                                <input type="checkbox" name="[@index].T4LipeSpedita" value="true" checked class="form-check-input" style="accent-color: black; border: 2px solid black;" />
+                            }
+                            else
+                            {
+                                <input type="checkbox" name="[@index].T4LipeSpedita" value="true" class="form-check-input" style="accent-color: black; border: 2px solid black;" />
+                            }
+                            <input type="hidden" name="[@index].T4LipeSpedita" value="false" />
+                        </td>
+                    </tr>
+                    index++;
+                }
+            </tbody>
+        </table>
+    </div>
+                
+            </form>
+        }
+        else
+        {
+            <div class="alert alert-info text-center m-3">
+                <i class="fas fa-info-circle me-2"></i>
+                Nessun cliente ha attivato il servizio LIPE per l'anno @annoSelezionato.
+                <br>
+                <small class="text-muted">Attiva il servizio LIPE nell'anagrafica clienti per vedere le attività qui.</small>
+            </div>
+        }
+    </div>
+</div>
+
+
+
+<!-- Modal per conferma eliminazione -->
+<div class="modal fade" id="deleteAllModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header bg-danger text-white">
+                <h5 class="modal-title">Conferma Eliminazione</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <p>Sei sicuro di voler eliminare <strong>TUTTE</strong> le attività LIPE per l'anno <span id="annoToDelete"></span>?</p>
+                <div class="alert alert-warning">
+                    <i class="fas fa-exclamation-triangle me-2"></i>
+                    Questa operazione non può essere annullata!
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annulla</button>
+                <button type="button" class="btn btn-danger" onclick="deleteAllForYear()">
+                    <i class="fas fa-trash me-1"></i>Elimina Tutto
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        let currentAnnoToDelete;
+
+        // Funzioni di filtro
+        function filterTable() {
+            const nomeCliente = $('#filtroNomeCliente').val().toLowerCase();
+            const professionista = $('#filtroProfessionista').val();
+            const raccolta = $('#filtroRaccolta').val();
+            const trimestre = $('#filtroTrimestre').val();
+            const stato = $('#filtroStato').val();
+
+            $('.lipe-row').each(function () {
+                const row = $(this);
+                let shouldShow = true;
+
+                // Filtro per nome cliente
+                if (nomeCliente && !row.find('td:first strong').text().toLowerCase().includes(nomeCliente)) {
+                    shouldShow = false;
+                }
+
+                // Filtro per professionista
+                if (professionista && row.find('select[name$=".IdProfessionista"] option:selected').text() !== professionista) {
+                    shouldShow = false;
+                }
+
+                // Filtro per raccolta documenti
+                if (raccolta) {
+                    let hasRaccolta = false;
+                    row.find('select[name$="RaccoltaDocumenti"]').each(function () {
+                        if ($(this).val() === raccolta) {
+                            hasRaccolta = true;
+                        }
+                    });
+                    if (!hasRaccolta) shouldShow = false;
+                }
+
+                // Filtro per trimestre
+                if (trimestre) {
+                    const upperTrimestre = trimestre.toUpperCase();
+                    let hasTrimestre = false;
+                    row.find(`[name*="${upperTrimestre}"]`).each(function () {
+                        const input = $(this);
+                        if (input.is(':checkbox') && input.is(':checked')) {
+                            hasTrimestre = true;
+                        } else if (input.is('select') && input.val() !== 'da_richiedere') {
+                            hasTrimestre = true;
+                        }
+                    });
+                    if (!hasTrimestre) shouldShow = false;
+                }
+
+                // Filtro per stato (incompleti/completati)
+                if (stato) {
+                    const checkboxes = row.find('input[type="checkbox"]');
+                    const checkedCount = checkboxes.filter(':checked').length;
+                    const totalCount = checkboxes.length;
+                    
+                    if (stato === 'completati' && checkedCount !== totalCount) {
+                        shouldShow = false;
+                    } else if (stato === 'incompleti' && checkedCount === totalCount) {
+                        shouldShow = false;
+                    }
+                }
+
+                if (shouldShow) {
+                    row.show();
+                } else {
+                    row.hide();
+                }
+            });
+        }
+
+        function resetFilters() {
+            $('#filtroNomeCliente').val('');
+            $('#filtroProfessionista').val('');
+            $('#filtroRaccolta').val('');
+            $('#filtroTrimestre').val('');
+            $('#filtroStato').val('');
+            $('.lipe-row').show();
+        }
+
+        // Conferma eliminazione di tutto l'anno
+        function confirmDeleteAll(anno) {
+            currentAnnoToDelete = anno;
+            $('#annoToDelete').text(anno);
+            $('#deleteAllModal').modal('show');
+        }
+        
+        // Funzione compatibility per il bottone
+        function confermaEliminazioneAnno() {
+            const anno = @annoSelezionato;
+            confirmDeleteAll(anno);
+        }
+
+        function deleteAllForYear() {
+            if (!currentAnnoToDelete) return;
+
+            $.ajax({
+                url: '@Url.Action("DeleteAllForYear")',
+                type: 'POST',
+                data: {
+                    anno: currentAnnoToDelete,
+                    __RequestVerificationToken: $('input[name="__RequestVerificationToken"]').val()
+                },
+                success: function (response) {
+                    $('#deleteAllModal').modal('hide');
+                    if (response.success) {
+                        alert(`✅ ${response.message}`);
+                        location.reload();
+                    } else {
+                        alert(`❌ ${response.message}`);
+                    }
+                },
+                error: function () {
+                    $('#deleteAllModal').modal('hide');
+                    alert('❌ Errore durante l\'eliminazione.');
+                }
+            });
+        }
+    </script>
+}
