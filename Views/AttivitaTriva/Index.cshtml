@@ -1,0 +1,533 @@
+@model IEnumerable<ConsultingGroup.Models.AttivitaTriva>
+@{
+    ViewData["Title"] = "Mod. TR IVA";
+    var annoSelezionato = ViewBag.AnnoSelezionato as int? ?? DateTime.Now.Year;
+    var annoFiscale = ViewBag.AnnoFiscale as ConsultingGroup.Models.AnnoFiscale;
+}
+
+<!-- Filtro Anno -->
+<div class="row mb-4">
+    <div class="col-md-12">
+        <div class="card border-info">
+            <div class="card-header bg-info text-white">
+                <h5 class="mb-0">
+                    <i class="fas fa-chart-bar me-2"></i>Anno di Riferimento - Mod. TR IVA Trimestrali
+                </h5>
+            </div>
+            <div class="card-body">
+                <form method="get" class="d-flex align-items-center gap-3">
+                    <label for="annoSelezionato" class="form-label mb-0 fw-bold">Seleziona Anno:</label>
+                    <select name="annoSelezionato" id="annoSelezionato" class="form-select w-auto" onchange="this.form.submit()">
+                        @{
+                            var anniFiscali = ViewBag.AnniFiscali as IEnumerable<Microsoft.AspNetCore.Mvc.Rendering.SelectListItem>;
+                        }
+                        @if (anniFiscali != null)
+                        {
+                            @foreach (var anno in anniFiscali)
+                            {
+                                @if (anno.Selected)
+                                {
+                                    <option value="@anno.Value" selected>@anno.Text</option>
+                                }
+                                else
+                                {
+                                    <option value="@anno.Value">@anno.Text</option>
+                                }
+                            }
+                        }
+                    </select>
+                    <div class="ms-auto d-flex gap-2">
+                        <a href="@Url.Action("Index", "GestioneAttivita")" class="btn btn-outline-primary btn-sm">
+                            <i class="fas fa-arrow-left me-1"></i>Gestione Attività
+                        </a>
+                        <a href="@Url.Action("Index", "Clienti")" class="btn btn-outline-success btn-sm">
+                            <i class="fas fa-users me-1"></i>Gestione Clienti
+                        </a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Card principale -->
+<div class="card border-info">
+    <div class="card-header bg-info text-white">
+        <h5 class="mb-0">
+            <i class="fas fa-chart-bar me-2"></i>Elenco Attività Mod. TR IVA - @(annoFiscale?.AnnoDescrizione ?? $"Anno {annoSelezionato}")
+        </h5>
+    </div>
+    <div class="card-body p-0">
+        @if (Model.Any())
+        {
+            <form id="bulkUpdateForm" method="post" action="@Url.Action("BulkUpdate")">
+                @Html.AntiForgeryToken()
+                <input type="hidden" name="annoSelezionato" value="@annoSelezionato" />
+                
+                <!-- Filtri e Pulsanti -->
+                <div class="mb-3">
+                    <!-- Prima riga filtri -->
+                    <div class="d-flex flex-wrap gap-3 align-items-center mb-2">
+                        <div class="d-flex align-items-center gap-2">
+                            <label for="filtroNomeCliente" class="form-label mb-0 fw-bold">Cliente:</label>
+                            <input type="text" id="filtroNomeCliente" class="form-control form-control-sm" style="width: 180px;" placeholder="Cerca per nome...">
+                        </div>
+                        
+                        <div class="d-flex align-items-center gap-2">
+                            <label for="filtroTrimestre" class="form-label mb-0 fw-bold">Trimestre:</label>
+                            <select id="filtroTrimestre" class="form-select form-select-sm" style="width: auto;">
+                                <option value="">Tutti</option>
+                                <option value="t1">1° Trimestre</option>
+                                <option value="t2">2° Trimestre</option>
+                                <option value="t3">3° Trimestre</option>
+                            </select>
+                        </div>
+                        
+                        <div class="d-flex align-items-center gap-2">
+                            <label for="filtroStato" class="form-label mb-0 fw-bold">Stato:</label>
+                            <select id="filtroStato" class="form-select form-select-sm" style="width: auto;">
+                                <option value="">Tutti</option>
+                                <option value="incompleti">Incompleti</option>
+                                <option value="completati">Completati</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <!-- Seconda riga con pulsanti di azione -->
+                    <div class="d-flex flex-wrap justify-content-between align-items-center mt-2 gap-2">
+                        <div class="d-flex gap-2">
+                            <button type="button" class="btn btn-outline-primary btn-sm" onclick="filterTable()">
+                                <i class="fas fa-filter me-1"></i>Applica Filtri
+                            </button>
+                            <button type="button" class="btn btn-outline-secondary btn-sm" onclick="resetFilters()">
+                                <i class="fas fa-times me-1"></i>Reset
+                            </button>
+                        </div>
+                        
+                        <div class="d-flex flex-wrap gap-2">
+                            <button type="submit" class="btn btn-primary btn-sm">
+                                <i class="fas fa-save me-1"></i>Salva Tutto
+                            </button>
+                            <a href="@Url.Action("ExportExcel", new { anno = annoSelezionato })" class="btn btn-warning btn-sm">
+                                <i class="fas fa-file-excel me-1"></i>Export Excel
+                            </a>
+                            <button type="button" class="btn btn-danger btn-sm" onclick="confermaEliminazioneAnno()">
+                                <i class="fas fa-trash-alt me-1"></i>Elimina tutti gli inserimenti dell'anno
+                            </button>
+                        </div>
+                    </div>
+                </div>
+    
+                <div class="table-responsive">
+                    <table class="table table-striped table-hover table-sm" id="trivaTable">
+                        <!-- Header fisso -->
+                        <thead class="table-dark sticky-top">
+                            <tr>
+                                <th style="width: 200px;">
+                                    <i class="fas fa-user me-1"></i>Cliente
+                                </th>
+                                <th style="width: 80px;">
+                                    <i class="fas fa-industry me-1"></i>ATECO
+                                </th>
+                                
+                                <!-- 1° Trimestre -->
+                                <th colspan="5" class="text-center bg-success">
+                                    <i class="fas fa-chart-line me-1"></i>1° TRIMESTRE
+                                    @if (annoFiscale?.ScadenzaModTRIva1t != null)
+                                    {
+                                        <br><small>@annoFiscale.ScadenzaModTRIva1t.Value.ToString("dd/MM/yyyy")</small>
+                                    }
+                                </th>
+                                
+                                <!-- 2° Trimestre -->
+                                <th colspan="5" class="text-center bg-primary">
+                                    <i class="fas fa-chart-line me-1"></i>2° TRIMESTRE
+                                    @if (annoFiscale?.ScadenzaModTRIva2t != null)
+                                    {
+                                        <br><small>@annoFiscale.ScadenzaModTRIva2t.Value.ToString("dd/MM/yyyy")</small>
+                                    }
+                                </th>
+                                
+                                <!-- 3° Trimestre -->
+                                <th colspan="5" class="text-center bg-warning text-dark">
+                                    <i class="fas fa-chart-line me-1"></i>3° TRIMESTRE
+                                    @if (annoFiscale?.ScadenzaModTRIva3t != null)
+                                    {
+                                        <br><small>@annoFiscale.ScadenzaModTRIva3t.Value.ToString("dd/MM/yyyy")</small>
+                                    }
+                                </th>
+                            </tr>
+                            <tr>
+                                <th></th>
+                                <th></th>
+                                
+                                <!-- T1 Sub-headers -->
+                                <th class="bg-success text-white" style="width: 80px;">Base</th>
+                                <th class="bg-success text-white" style="width: 80px;">Compilato</th>
+                                <th class="bg-success text-white" style="width: 80px;">Spedito</th>
+                                <th class="bg-success text-white" style="width: 80px;">Ricevuta</th>
+                                <th class="bg-success text-white" style="width: 80px;">Mail Cliente</th>
+                                
+                                <!-- T2 Sub-headers -->
+                                <th class="bg-primary text-white" style="width: 80px;">Base</th>
+                                <th class="bg-primary text-white" style="width: 80px;">Compilato</th>
+                                <th class="bg-primary text-white" style="width: 80px;">Spedito</th>
+                                <th class="bg-primary text-white" style="width: 80px;">Ricevuta</th>
+                                <th class="bg-primary text-white" style="width: 80px;">Mail Cliente</th>
+                                
+                                <!-- T3 Sub-headers -->
+                                <th class="bg-warning text-dark" style="width: 80px;">Base</th>
+                                <th class="bg-warning text-dark" style="width: 80px;">Compilato</th>
+                                <th class="bg-warning text-dark" style="width: 80px;">Spedito</th>
+                                <th class="bg-warning text-dark" style="width: 80px;">Ricevuta</th>
+                                <th class="bg-warning text-dark" style="width: 80px;">Mail Cliente</th>
+                            </tr>
+                        </thead>
+                        
+                        <tbody>
+                            @{ var index = 0; }
+                            @foreach (var item in Model)
+                            {
+                                <tr class="triva-row">
+                                    <!-- Info Cliente -->
+                                    <td class="align-middle">
+                                        <strong>@item.Cliente?.NomeCliente</strong>
+                                        <input type="hidden" name="[@index].IdModTrIva" value="@item.IdModTrIva" />
+                                        <input type="hidden" name="[@index].IdAnno" value="@item.IdAnno" />
+                                        <input type="hidden" name="[@index].IdCliente" value="@item.IdCliente" />
+                                    </td>
+                                    <td class="align-middle">
+                                        <small class="text-muted">@item.Cliente?.CodiceAteco</small>
+                                    </td>
+
+                                    <!-- 1° TRIMESTRE -->
+                                    <td class="text-center align-middle">
+                                        @if (item.PrimoTrimestre)
+                                        {
+                                            <input type="checkbox" name="[@index].PrimoTrimestre" value="true" checked class="form-check-input" style="accent-color: black; border: 2px solid black;" />
+                                        }
+                                        else
+                                        {
+                                            <input type="checkbox" name="[@index].PrimoTrimestre" value="true" class="form-check-input" style="accent-color: black; border: 2px solid black;" />
+                                        }
+                                        <input type="hidden" name="[@index].PrimoTrimestre" value="false" />
+                                    </td>
+                                    <td class="text-center align-middle">
+                                        @if (item.PrimoTrimestreCompilato)
+                                        {
+                                            <input type="checkbox" name="[@index].PrimoTrimestreCompilato" value="true" checked class="form-check-input" style="accent-color: black; border: 2px solid black;" />
+                                        }
+                                        else
+                                        {
+                                            <input type="checkbox" name="[@index].PrimoTrimestreCompilato" value="true" class="form-check-input" style="accent-color: black; border: 2px solid black;" />
+                                        }
+                                        <input type="hidden" name="[@index].PrimoTrimestreCompilato" value="false" />
+                                    </td>
+                                    <td class="text-center align-middle">
+                                        @if (item.PrimoTrimestreSpedito)
+                                        {
+                                            <input type="checkbox" name="[@index].PrimoTrimestreSpedito" value="true" checked class="form-check-input" style="accent-color: black; border: 2px solid black;" />
+                                        }
+                                        else
+                                        {
+                                            <input type="checkbox" name="[@index].PrimoTrimestreSpedito" value="true" class="form-check-input" style="accent-color: black; border: 2px solid black;" />
+                                        }
+                                        <input type="hidden" name="[@index].PrimoTrimestreSpedito" value="false" />
+                                    </td>
+                                    <td class="text-center align-middle">
+                                        @if (item.PrimoTrimestreRicevuta)
+                                        {
+                                            <input type="checkbox" name="[@index].PrimoTrimestreRicevuta" value="true" checked class="form-check-input" style="accent-color: black; border: 2px solid black;" />
+                                        }
+                                        else
+                                        {
+                                            <input type="checkbox" name="[@index].PrimoTrimestreRicevuta" value="true" class="form-check-input" style="accent-color: black; border: 2px solid black;" />
+                                        }
+                                        <input type="hidden" name="[@index].PrimoTrimestreRicevuta" value="false" />
+                                    </td>
+                                    <td class="text-center align-middle">
+                                        @if (item.PrimoTrimestreMailCliente)
+                                        {
+                                            <input type="checkbox" name="[@index].PrimoTrimestreMailCliente" value="true" checked class="form-check-input" style="accent-color: black; border: 2px solid black;" />
+                                        }
+                                        else
+                                        {
+                                            <input type="checkbox" name="[@index].PrimoTrimestreMailCliente" value="true" class="form-check-input" style="accent-color: black; border: 2px solid black;" />
+                                        }
+                                        <input type="hidden" name="[@index].PrimoTrimestreMailCliente" value="false" />
+                                    </td>
+
+                                    <!-- 2° TRIMESTRE -->
+                                    <td class="text-center align-middle">
+                                        @if (item.SecondoTrimestre)
+                                        {
+                                            <input type="checkbox" name="[@index].SecondoTrimestre" value="true" checked class="form-check-input" style="accent-color: black; border: 2px solid black;" />
+                                        }
+                                        else
+                                        {
+                                            <input type="checkbox" name="[@index].SecondoTrimestre" value="true" class="form-check-input" style="accent-color: black; border: 2px solid black;" />
+                                        }
+                                        <input type="hidden" name="[@index].SecondoTrimestre" value="false" />
+                                    </td>
+                                    <td class="text-center align-middle">
+                                        @if (item.SecondoTrimestreCompilato)
+                                        {
+                                            <input type="checkbox" name="[@index].SecondoTrimestreCompilato" value="true" checked class="form-check-input" style="accent-color: black; border: 2px solid black;" />
+                                        }
+                                        else
+                                        {
+                                            <input type="checkbox" name="[@index].SecondoTrimestreCompilato" value="true" class="form-check-input" style="accent-color: black; border: 2px solid black;" />
+                                        }
+                                        <input type="hidden" name="[@index].SecondoTrimestreCompilato" value="false" />
+                                    </td>
+                                    <td class="text-center align-middle">
+                                        @if (item.SecondoTrimestreSpedito)
+                                        {
+                                            <input type="checkbox" name="[@index].SecondoTrimestreSpedito" value="true" checked class="form-check-input" style="accent-color: black; border: 2px solid black;" />
+                                        }
+                                        else
+                                        {
+                                            <input type="checkbox" name="[@index].SecondoTrimestreSpedito" value="true" class="form-check-input" style="accent-color: black; border: 2px solid black;" />
+                                        }
+                                        <input type="hidden" name="[@index].SecondoTrimestreSpedito" value="false" />
+                                    </td>
+                                    <td class="text-center align-middle">
+                                        @if (item.SecondoTrimestreRicevuta)
+                                        {
+                                            <input type="checkbox" name="[@index].SecondoTrimestreRicevuta" value="true" checked class="form-check-input" style="accent-color: black; border: 2px solid black;" />
+                                        }
+                                        else
+                                        {
+                                            <input type="checkbox" name="[@index].SecondoTrimestreRicevuta" value="true" class="form-check-input" style="accent-color: black; border: 2px solid black;" />
+                                        }
+                                        <input type="hidden" name="[@index].SecondoTrimestreRicevuta" value="false" />
+                                    </td>
+                                    <td class="text-center align-middle">
+                                        @if (item.SecondoTrimestreMailCliente)
+                                        {
+                                            <input type="checkbox" name="[@index].SecondoTrimestreMailCliente" value="true" checked class="form-check-input" style="accent-color: black; border: 2px solid black;" />
+                                        }
+                                        else
+                                        {
+                                            <input type="checkbox" name="[@index].SecondoTrimestreMailCliente" value="true" class="form-check-input" style="accent-color: black; border: 2px solid black;" />
+                                        }
+                                        <input type="hidden" name="[@index].SecondoTrimestreMailCliente" value="false" />
+                                    </td>
+
+                                    <!-- 3° TRIMESTRE -->
+                                    <td class="text-center align-middle">
+                                        @if (item.TerzoTrimestre)
+                                        {
+                                            <input type="checkbox" name="[@index].TerzoTrimestre" value="true" checked class="form-check-input" style="accent-color: black; border: 2px solid black;" />
+                                        }
+                                        else
+                                        {
+                                            <input type="checkbox" name="[@index].TerzoTrimestre" value="true" class="form-check-input" style="accent-color: black; border: 2px solid black;" />
+                                        }
+                                        <input type="hidden" name="[@index].TerzoTrimestre" value="false" />
+                                    </td>
+                                    <td class="text-center align-middle">
+                                        @if (item.TerzoTrimestreCompilato)
+                                        {
+                                            <input type="checkbox" name="[@index].TerzoTrimestreCompilato" value="true" checked class="form-check-input" style="accent-color: black; border: 2px solid black;" />
+                                        }
+                                        else
+                                        {
+                                            <input type="checkbox" name="[@index].TerzoTrimestreCompilato" value="true" class="form-check-input" style="accent-color: black; border: 2px solid black;" />
+                                        }
+                                        <input type="hidden" name="[@index].TerzoTrimestreCompilato" value="false" />
+                                    </td>
+                                    <td class="text-center align-middle">
+                                        @if (item.TerzoTrimestreSpedito)
+                                        {
+                                            <input type="checkbox" name="[@index].TerzoTrimestreSpedito" value="true" checked class="form-check-input" style="accent-color: black; border: 2px solid black;" />
+                                        }
+                                        else
+                                        {
+                                            <input type="checkbox" name="[@index].TerzoTrimestreSpedito" value="true" class="form-check-input" style="accent-color: black; border: 2px solid black;" />
+                                        }
+                                        <input type="hidden" name="[@index].TerzoTrimestreSpedito" value="false" />
+                                    </td>
+                                    <td class="text-center align-middle">
+                                        @if (item.TerzoTrimestreRicevuta)
+                                        {
+                                            <input type="checkbox" name="[@index].TerzoTrimestreRicevuta" value="true" checked class="form-check-input" style="accent-color: black; border: 2px solid black;" />
+                                        }
+                                        else
+                                        {
+                                            <input type="checkbox" name="[@index].TerzoTrimestreRicevuta" value="true" class="form-check-input" style="accent-color: black; border: 2px solid black;" />
+                                        }
+                                        <input type="hidden" name="[@index].TerzoTrimestreRicevuta" value="false" />
+                                    </td>
+                                    <td class="text-center align-middle">
+                                        @if (item.TerzoTrimestreMailCliente)
+                                        {
+                                            <input type="checkbox" name="[@index].TerzoTrimestreMailCliente" value="true" checked class="form-check-input" style="accent-color: black; border: 2px solid black;" />
+                                        }
+                                        else
+                                        {
+                                            <input type="checkbox" name="[@index].TerzoTrimestreMailCliente" value="true" class="form-check-input" style="accent-color: black; border: 2px solid black;" />
+                                        }
+                                        <input type="hidden" name="[@index].TerzoTrimestreMailCliente" value="false" />
+                                    </td>
+                                </tr>
+                                index++;
+                            }
+                        </tbody>
+                    </table>
+                </div>
+                
+            </form>
+        }
+        else
+        {
+            <div class="alert alert-info text-center m-3">
+                <i class="fas fa-info-circle me-2"></i>
+                Nessun cliente ha attivato il servizio Mod. TR IVA per l'anno @annoSelezionato.
+                <br>
+                <small class="text-muted">Attiva il servizio Mod. TR IVA nell'anagrafica clienti per vedere le attività qui.</small>
+            </div>
+        }
+    </div>
+</div>
+
+<!-- Modal per conferma eliminazione -->
+<div class="modal fade" id="deleteAllModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header bg-danger text-white">
+                <h5 class="modal-title">Conferma Eliminazione</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <p>Sei sicuro di voler eliminare <strong>TUTTE</strong> le attività Mod. TR IVA per l'anno <span id="annoToDelete"></span>?</p>
+                <div class="alert alert-warning">
+                    <i class="fas fa-exclamation-triangle me-2"></i>
+                    Questa operazione non può essere annullata!
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annulla</button>
+                <button type="button" class="btn btn-danger" onclick="deleteAllForYear()">
+                    <i class="fas fa-trash me-1"></i>Elimina Tutto
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        let currentAnnoToDelete;
+
+        // Funzioni di filtro
+        function filterTable() {
+            const nomeCliente = $('#filtroNomeCliente').val().toLowerCase();
+            const trimestre = $('#filtroTrimestre').val();
+            const stato = $('#filtroStato').val();
+
+            $('.triva-row').each(function () {
+                const row = $(this);
+                let shouldShow = true;
+
+                // Filtro per nome cliente
+                if (nomeCliente && !row.find('td:first strong').text().toLowerCase().includes(nomeCliente)) {
+                    shouldShow = false;
+                }
+
+                // Filtro per trimestre
+                if (trimestre && shouldShow) {
+                    let hasTrimestre = false;
+                    
+                    // Trova tutte le checkbox spuntate in questa riga
+                    const allCheckboxes = row.find('input[type="checkbox"]:checked');
+                    
+                    // Controlla se ci sono checkbox spuntate per il trimestre richiesto
+                    allCheckboxes.each(function() {
+                        const checkboxName = $(this).attr('name') || '';
+                        
+                        if (trimestre === 't1' && checkboxName.includes('PrimoTrimestre')) {
+                            hasTrimestre = true;
+                            return false; // break
+                        } else if (trimestre === 't2' && checkboxName.includes('SecondoTrimestre')) {
+                            hasTrimestre = true;
+                            return false; // break
+                        } else if (trimestre === 't3' && checkboxName.includes('TerzoTrimestre')) {
+                            hasTrimestre = true;
+                            return false; // break
+                        }
+                    });
+                    
+                    if (!hasTrimestre) {
+                        shouldShow = false;
+                    }
+                }
+
+                // Filtro per stato (incompleti/completati)
+                if (stato && shouldShow) {
+                    const checkboxes = row.find('input[type="checkbox"]');
+                    const checkedCount = checkboxes.filter(':checked').length;
+                    const totalCount = checkboxes.length;
+                    
+                    if (stato === 'completati' && checkedCount !== totalCount) {
+                        shouldShow = false;
+                    } else if (stato === 'incompleti' && checkedCount === totalCount) {
+                        shouldShow = false;
+                    }
+                }
+
+                if (shouldShow) {
+                    row.show();
+                } else {
+                    row.hide();
+                }
+            });
+        }
+
+        function resetFilters() {
+            $('#filtroNomeCliente').val('');
+            $('#filtroTrimestre').val('');
+            $('#filtroStato').val('');
+            $('.triva-row').show();
+        }
+
+        // Conferma eliminazione di tutto l'anno
+        function confirmDeleteAll(anno) {
+            currentAnnoToDelete = anno;
+            $('#annoToDelete').text(anno);
+            $('#deleteAllModal').modal('show');
+        }
+        
+        // Funzione compatibility per il bottone
+        function confermaEliminazioneAnno() {
+            const anno = @annoSelezionato;
+            confirmDeleteAll(anno);
+        }
+
+        function deleteAllForYear() {
+            if (!currentAnnoToDelete) return;
+
+            $.ajax({
+                url: '@Url.Action("DeleteAllForYear")',
+                type: 'POST',
+                data: {
+                    anno: currentAnnoToDelete,
+                    __RequestVerificationToken: $('input[name="__RequestVerificationToken"]').val()
+                },
+                success: function (response) {
+                    $('#deleteAllModal').modal('hide');
+                    if (response.success) {
+                        alert(`✅ ${response.message}`);
+                        location.reload();
+                    } else {
+                        alert(`❌ ${response.message}`);
+                    }
+                },
+                error: function () {
+                    $('#deleteAllModal').modal('hide');
+                    alert('❌ Errore durante l\'eliminazione.');
+                }
+            });
+        }
+    </script>
+}

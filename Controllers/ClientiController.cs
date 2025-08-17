@@ -425,12 +425,11 @@ namespace ConsultingGroup.Controllers
                             var count = await _context.AttivitaLipe.CountAsync(a => a.IdCliente == cliente.IdCliente && a.IdAnno == annoCorrente.IdAnno);
                             if (count > 0) checkboxRimosse.Add(("LIPE", "attivita_lipe", count));
                         }
-                        // TODO: Quando sarà creata la tabella per ModTrIva, scommentare:
-                        // if (cliente.ModTrIva && !viewModel.ModTrIva)
-                        // {
-                        //     var count = await _context.AttivitaModTrIva.CountAsync(a => a.IdCliente == cliente.IdCliente && a.IdAnno == annoCorrente.IdAnno);
-                        //     if (count > 0) checkboxRimosse.Add(("MOD TR IVA", "attivita_mod_tr_iva", count));
-                        // }
+                        if (cliente.ModTrIva && !viewModel.ModTrIva)
+                        {
+                            var count = await _context.AttivitaTriva.CountAsync(a => a.IdCliente == cliente.IdCliente && a.IdAnno == annoCorrente.IdAnno);
+                            if (count > 0) checkboxRimosse.Add(("MOD TR IVA", "attivita_mod_tr_iva", count));
+                        }
                         
                         // Controlli per attività contabili
                         // TODO: Quando saranno create le tabelle per le attività contabili, aggiungere i controlli per:
@@ -2016,14 +2015,12 @@ namespace ConsultingGroup.Controllers
                             .ToListAsync();
                         _context.AttivitaLipe.RemoveRange(attivitaLipe);
                         break;
-                    // TODO: Aggiungere case per altre attività IVA quando saranno create le tabelle:
-                    //
-                    // case "attivita_mod_tr_iva":
-                    //     var attivitaModTrIva = await _context.AttivitaModTrIva
-                    //         .Where(a => a.IdCliente == idCliente && a.IdAnno == idAnno)
-                    //         .ToListAsync();
-                    //     _context.AttivitaModTrIva.RemoveRange(attivitaModTrIva);
-                    //     break;
+                    case "attivita_mod_tr_iva":
+                        var attivitaTriva = await _context.AttivitaTriva
+                            .Where(a => a.IdCliente == idCliente && a.IdAnno == idAnno)
+                            .ToListAsync();
+                        _context.AttivitaTriva.RemoveRange(attivitaTriva);
+                        break;
 
                     // TODO: Aggiungere case per attività contabili quando saranno create le tabelle:
                     // case "attivita_inail":
