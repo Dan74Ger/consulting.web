@@ -151,6 +151,63 @@ namespace ConsultingGroup.Models
         [Display(Name = "Codice ATECO")]
         public string? CodiceAteco { get; set; }
 
+        // NUOVI CAMPI DATI CLIENTE
+        [Column("cf_cliente")]
+        [MaxLength(16)]
+        [Display(Name = "C.F. Cliente")]
+        public string? CfCliente { get; set; }
+
+        [Column("piva_cliente")]
+        [MaxLength(20)]
+        [Display(Name = "P.IVA Cliente")]
+        public string? PivaCliente { get; set; }
+
+        [Column("indirizzo")]
+        [MaxLength(200)]
+        [Display(Name = "Indirizzo (Via e N.Civico)")]
+        public string? Indirizzo { get; set; }
+
+        [Column("citta")]
+        [MaxLength(100)]
+        [Display(Name = "Città")]
+        public string? Citta { get; set; }
+
+        [Column("provincia")]
+        [MaxLength(5)]
+        [Display(Name = "Provincia")]
+        public string? Provincia { get; set; }
+
+        [Column("cap")]
+        [MaxLength(10)]
+        [Display(Name = "CAP")]
+        public string? Cap { get; set; }
+
+        [Column("legale_rappresentante")]
+        [MaxLength(200)]
+        [Display(Name = "Legale Rappresentante")]
+        public string? LegaleRappresentante { get; set; }
+
+        [Column("cf_legale_rappresentante")]
+        [MaxLength(16)]
+        [Display(Name = "C.F. Legale Rappresentante")]
+        public string? CfLegaleRappresentante { get; set; }
+
+        // SEZIONE MANDATI
+        [Column("data_mandato")]
+        [DataType(DataType.Date)]
+        [Display(Name = "Data Mandato")]
+        public DateTime? DataMandato { get; set; }
+
+        [Column("importo_mandato_annuo")]
+        [Display(Name = "Importo Mandato Annuo")]
+        [DataType(DataType.Currency)]
+        public decimal? ImportoMandatoAnnuo { get; set; }
+
+        [Column("proforma_tipo")]
+        [MaxLength(20)]
+        [Display(Name = "Proforma")]
+        public string? ProformaTipo { get; set; } = "trimestrale";
+
         // Campi di gestione stato
         [Column("attivo")]
         [Display(Name = "Attivo")]

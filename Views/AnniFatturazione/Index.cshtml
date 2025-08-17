@@ -1,0 +1,207 @@
+@model IEnumerable<ConsultingGroup.Models.AnnoFatturazione>
+
+@{
+    ViewData["Title"] = "Gestione Anni Fatturazione";
+}
+
+<div class="container-fluid">
+    <!-- Header della pagina -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h2><i class="fas fa-euro-sign text-success me-2"></i>Gestione Anni Fatturazione</h2>
+            <p class="text-muted mb-0">Gestisci gli anni per la fatturazione e il calcolo delle proforma</p>
+        </div>
+        <a asp-action="Create" class="btn btn-success">
+            <i class="fas fa-plus me-1"></i>Nuovo Anno Fatturazione
+        </a>
+    </div>
+
+    <!-- Messaggi di stato -->
+    @if (TempData["SuccessMessage"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            <i class="fas fa-check-circle me-2"></i>@TempData["SuccessMessage"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    }
+
+    @if (TempData["ErrorMessage"] != null)
+    {
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            <i class="fas fa-exclamation-triangle me-2"></i>@TempData["ErrorMessage"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    }
+
+    <!-- Filtri e Ricerca -->
+    <div class="card mb-4">
+        <div class="card-body">
+            <form method="get" class="row g-3">
+                <div class="col-md-4">
+                    <label class="form-label">Filtra Anni</label>
+                    <select name="filtroStato" class="form-select" onchange="this.form.submit()">
+                        <option value="tutti" selected="@(ViewBag.FiltroStato == "tutti")">Tutti gli Anni</option>
+                        <option value="corrente" selected="@(ViewBag.FiltroStato == "corrente")">Solo Anno Corrente</option>
+                        <option value="attivi" selected="@(ViewBag.FiltroStato == "attivi")">Solo Attivi</option>
+                        <option value="non_attivi" selected="@(ViewBag.FiltroStato == "non_attivi")">Solo Non Attivi</option>
+                    </select>
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label">Ricerca</label>
+                    <input type="text" name="ricerca" class="form-control" placeholder="Cerca anno, descrizione o note..." value="@ViewBag.Ricerca">
+                </div>
+                <div class="col-md-2 d-flex align-items-end">
+                    <button type="submit" class="btn btn-outline-primary me-2">
+                        <i class="fas fa-search me-1"></i>Cerca
+                    </button>
+                    <a href="@Url.Action("Index")" class="btn btn-outline-secondary">
+                        <i class="fas fa-times me-1"></i>Reset
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Tabella Anni Fatturazione -->
+    <div class="card">
+        <div class="card-header">
+            <h5 class="card-title mb-0">
+                <i class="fas fa-list me-2"></i>Elenco Anni Fatturazione
+            </h5>
+        </div>
+        <div class="card-body p-0">
+            @if (Model.Any())
+            {
+                <div class="table-responsive">
+                    <table class="table table-hover mb-0">
+                        <thead class="table-light">
+                            <tr>
+                                <th><i class="fas fa-calendar me-1"></i>Anno</th>
+                                <th><i class="fas fa-edit me-1"></i>Descrizione</th>
+                                <th><i class="fas fa-info-circle me-1"></i>Stato</th>
+                                <th><i class="fas fa-star me-1"></i>Anno Corrente</th>
+                                <th><i class="fas fa-sticky-note me-1"></i>Note</th>
+                                <th><i class="fas fa-clock me-1"></i>Creato</th>
+                                <th class="text-center"><i class="fas fa-cogs me-1"></i>Azioni</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var anno in Model)
+                            {
+                                <tr class="@(anno.AnnoCorrente ? "table-warning" : "")">
+                                    <td>
+                                        <strong>@anno.Anno</strong>
+                                        @if (anno.AnnoCorrente)
+                                        {
+                                            <span class="badge bg-warning text-dark ms-1">
+                                                <i class="fas fa-star me-1"></i>CORRENTE
+                                            </span>
+                                        }
+                                    </td>
+                                    <td>@(anno.Descrizione ?? "-")</td>
+                                    <td>
+                                        @if (anno.Attivo)
+                                        {
+                                            <span class="badge bg-success">
+                                                <i class="fas fa-check me-1"></i>Attivo
+                                            </span>
+                                        }
+                                        else
+                                        {
+                                            <span class="badge bg-danger">
+                                                <i class="fas fa-times me-1"></i>Non Attivo
+                                            </span>
+                                        }
+                                    </td>
+                                    <td class="text-center">
+                                        @if (anno.AnnoCorrente)
+                                        {
+                                            <i class="fas fa-star text-warning" title="Anno Corrente"></i>
+                                        }
+                                        else
+                                        {
+                                            <form asp-action="SetCorrente" method="post" style="display: inline;">
+                                                <input type="hidden" name="id" value="@anno.IdAnnoFatturazione" />
+                                                <button type="submit" class="btn btn-sm btn-outline-warning" title="Imposta come Anno Corrente"
+                                                        onclick="return confirm('Sei sicuro di voler impostare @anno.Anno come anno corrente di fatturazione?')">
+                                                    <i class="fas fa-star"></i>
+                                                </button>
+                                            </form>
+                                        }
+                                    </td>
+                                    <td>
+                                        @if (!string.IsNullOrEmpty(anno.Note))
+                                        {
+                                            <span class="text-muted" title="@anno.Note">
+                                                @(anno.Note.Length > 30 ? anno.Note.Substring(0, 30) + "..." : anno.Note)
+                                            </span>
+                                        }
+                                        else
+                                        {
+                                            <span class="text-muted">-</span>
+                                        }
+                                    </td>
+                                    <td>
+                                        <small class="text-muted">
+                                            @anno.CreatedAt.ToString("dd/MM/yyyy")
+                                        </small>
+                                    </td>
+                                    <td class="text-center">
+                                        <div class="btn-group" role="group">
+                                            <a asp-action="Details" asp-route-id="@anno.IdAnnoFatturazione" 
+                                               class="btn btn-sm btn-outline-info" title="Visualizza Dettagli">
+                                                <i class="fas fa-eye"></i>
+                                            </a>
+                                            <a asp-action="Edit" asp-route-id="@anno.IdAnnoFatturazione" 
+                                               class="btn btn-sm btn-outline-primary" title="Modifica">
+                                                <i class="fas fa-edit"></i>
+                                            </a>
+                                            @if (!anno.AnnoCorrente)
+                                            {
+                                                <a asp-action="Delete" asp-route-id="@anno.IdAnnoFatturazione" 
+                                                   class="btn btn-sm btn-outline-danger" title="Elimina">
+                                                    <i class="fas fa-trash"></i>
+                                                </a>
+                                            }
+                                        </div>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            }
+            else
+            {
+                <div class="text-center py-5">
+                    <i class="fas fa-calendar-times fa-3x text-muted mb-3"></i>
+                    <h5 class="text-muted">Nessun anno fatturazione trovato</h5>
+                    <p class="text-muted">Crea il primo anno fatturazione per iniziare.</p>
+                    <a asp-action="Create" class="btn btn-success">
+                        <i class="fas fa-plus me-1"></i>Crea Primo Anno
+                    </a>
+                </div>
+            }
+        </div>
+    </div>
+</div>
+
+<style>
+    .table tbody tr:hover {
+        background-color: #f8f9fa;
+    }
+    
+    .badge {
+        font-size: 0.75em;
+    }
+    
+    .btn-group .btn {
+        border-radius: 0.25rem;
+        margin-right: 2px;
+    }
+    
+    .card-header {
+        background-color: #f8f9fa;
+        border-bottom: 1px solid #dee2e6;
+    }
+</style>

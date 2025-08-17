@@ -22,6 +22,8 @@ namespace ConsultingGroup.ViewModels
         public int AnniFiscaliCessati { get; set; }
         public string AnnoFiscaleCorrente { get; set; } = string.Empty;
         
+
+        
         // Statistiche Clienti
         public int ClientiAttivi { get; set; }
         public int ClientiCessati { get; set; }

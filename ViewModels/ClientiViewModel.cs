@@ -114,6 +114,51 @@ namespace ConsultingGroup.ViewModels
         [Display(Name = "Codice ATECO")]
         public string? CodiceAteco { get; set; }
 
+        // NUOVI CAMPI DATI CLIENTE
+        [StringLength(16, ErrorMessage = "Il codice fiscale non può superare i 16 caratteri")]
+        [Display(Name = "C.F. Cliente")]
+        public string? CfCliente { get; set; }
+
+        [StringLength(20, ErrorMessage = "La P.IVA non può superare i 20 caratteri")]
+        [Display(Name = "P.IVA Cliente")]
+        public string? PivaCliente { get; set; }
+
+        [StringLength(200, ErrorMessage = "L'indirizzo non può superare i 200 caratteri")]
+        [Display(Name = "Indirizzo (Via e N.Civico)")]
+        public string? Indirizzo { get; set; }
+
+        [StringLength(100, ErrorMessage = "La città non può superare i 100 caratteri")]
+        [Display(Name = "Città")]
+        public string? Citta { get; set; }
+
+        [StringLength(5, ErrorMessage = "La provincia non può superare i 5 caratteri")]
+        [Display(Name = "Provincia")]
+        public string? Provincia { get; set; }
+
+        [StringLength(10, ErrorMessage = "Il CAP non può superare i 10 caratteri")]
+        [Display(Name = "CAP")]
+        public string? Cap { get; set; }
+
+        [StringLength(200, ErrorMessage = "Il nome del legale rappresentante non può superare i 200 caratteri")]
+        [Display(Name = "Legale Rappresentante")]
+        public string? LegaleRappresentante { get; set; }
+
+        [StringLength(16, ErrorMessage = "Il codice fiscale del legale rappresentante non può superare i 16 caratteri")]
+        [Display(Name = "C.F. Legale Rappresentante")]
+        public string? CfLegaleRappresentante { get; set; }
+
+        // SEZIONE MANDATI
+        [DataType(DataType.Date)]
+        [Display(Name = "Data Mandato")]
+        public DateTime? DataMandato { get; set; }
+
+        [Display(Name = "Importo Mandato Annuo")]
+        [DataType(DataType.Currency)]
+        public decimal? ImportoMandatoAnnuo { get; set; }
+
+        [Display(Name = "Proforma")]
+        public string? ProformaTipo { get; set; } = "trimestrale";
+
         [Display(Name = "Attivo")]
         public bool Attivo { get; set; } = true;
 

@@ -60,6 +60,7 @@ builder.Services.Configure<ForwardedHeadersOptions>(options =>
 // Add custom services
 builder.Services.AddScoped<DatabaseSeeder>();
 builder.Services.AddScoped<IUserPermissionsService, UserPermissionsService>();
+builder.Services.AddScoped<ProformaService>();
 
 var app = builder.Build();
 

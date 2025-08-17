@@ -37,6 +37,7 @@ namespace ConsultingGroup.Controllers
             var allStudios = await _context.Studios.ToListAsync();
             var allProgrammi = await _context.Programmi.ToListAsync();
             var allAnniFiscali = await _context.AnniFiscali.ToListAsync();
+
             var allProfessionisti = await _context.Professionisti.ToListAsync();
             var allRegimiContabili = await _context.RegimiContabili.ToListAsync();
             var allTipologieInps = await _context.TipologieInps.ToListAsync();
@@ -63,6 +64,8 @@ namespace ConsultingGroup.Controllers
                 AnniFiscaliAttivi = allAnniFiscali.Count(a => a.Attivo),
                 AnniFiscaliCessati = allAnniFiscali.Count(a => !a.Attivo),
                 AnnoFiscaleCorrente = allAnniFiscali.FirstOrDefault(a => a.AnnoCorrente)?.Anno.ToString() ?? "N/A",
+                
+
                 
                 // Statistiche reali Clienti
                 ClientiAttivi = allClienti.Count(c => c.Attivo),

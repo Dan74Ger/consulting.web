@@ -17,6 +17,8 @@ namespace ConsultingGroup.Data
         public DbSet<Studio> Studios { get; set; } = default!;
         public DbSet<Programma> Programmi { get; set; } = default!;
         public DbSet<AnnoFiscale> AnniFiscali { get; set; } = default!;
+        public DbSet<AnnoFatturazione> AnniFatturazione { get; set; } = default!;
+        public DbSet<ProformaGenerata> ProformeGenerate { get; set; } = default!;
         public DbSet<Professionista> Professionisti { get; set; } = default!;
         public DbSet<RegimeContabile> RegimiContabili { get; set; } = default!;
         public DbSet<TipologiaInps> TipologieInps { get; set; } = default!;

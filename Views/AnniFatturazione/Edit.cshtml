@@ -1,0 +1,169 @@
+@model ConsultingGroup.Models.AnnoFatturazione
+
+@{
+    ViewData["Title"] = "Modifica Anno Fatturazione";
+}
+
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <div>
+                    <h2><i class="fas fa-edit text-primary me-2"></i>Modifica Anno Fatturazione</h2>
+                    <p class="text-muted mb-0">Modifica le informazioni dell'anno: <strong>@Model.Anno</strong></p>
+                </div>
+                <div>
+                    <a asp-action="Index" class="btn btn-secondary">
+                        <i class="fas fa-arrow-left me-1"></i>Torna all'Elenco
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="card">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="card-title mb-0">
+                        <i class="fas fa-euro-sign me-2"></i>Informazioni Anno Fatturazione
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <form asp-action="Edit" method="post">
+                        <input type="hidden" asp-for="IdAnnoFatturazione" />
+                        <input type="hidden" asp-for="CreatedAt" />
+                        
+                        <div asp-validation-summary="ModelOnly" class="alert alert-danger" role="alert"></div>
+
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label asp-for="Anno" class="form-label fw-bold">
+                                    <i class="fas fa-calendar me-1"></i>Anno
+                                    <span class="text-danger">*</span>
+                                </label>
+                                <input asp-for="Anno" type="number" min="2020" max="2050" class="form-control">
+                                <span asp-validation-for="Anno" class="text-danger"></span>
+                                <div class="form-text">
+                                    <i class="fas fa-info-circle me-1"></i>
+                                    Anno di riferimento per le fatturazioni
+                                </div>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label asp-for="Descrizione" class="form-label">
+                                    <i class="fas fa-edit me-1"></i>Descrizione
+                                </label>
+                                <input asp-for="Descrizione" class="form-control" placeholder="Es: Anno Fatturazione 2025">
+                                <span asp-validation-for="Descrizione" class="text-danger"></span>
+                                <div class="form-text">
+                                    Descrizione opzionale per identificare l'anno
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-12 mb-3">
+                                <label asp-for="Note" class="form-label">
+                                    <i class="fas fa-sticky-note me-1"></i>Note
+                                </label>
+                                <textarea asp-for="Note" class="form-control" rows="3" placeholder="Note aggiuntive sull'anno fatturazione..."></textarea>
+                                <span asp-validation-for="Note" class="text-danger"></span>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <div class="form-check form-switch">
+                                    <input asp-for="Attivo" class="form-check-input" type="checkbox">
+                                    <label asp-for="Attivo" class="form-check-label">
+                                        <i class="fas fa-toggle-on me-1"></i>Anno Attivo
+                                    </label>
+                                </div>
+                                <div class="form-text">
+                                    Se disattivato, l'anno non sarà disponibile per le selezioni
+                                </div>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <div class="form-check form-switch">
+                                    <input asp-for="AnnoCorrente" class="form-check-input" type="checkbox">
+                                    <label asp-for="AnnoCorrente" class="form-check-label">
+                                        <i class="fas fa-star me-1"></i>Anno Corrente
+                                    </label>
+                                </div>
+                                <div class="form-text text-warning">
+                                    <i class="fas fa-exclamation-triangle me-1"></i>
+                                    Se selezionato, questo diventerà l'anno corrente (rimuoverà il flag dagli altri)
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Info aggiuntive -->
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label text-muted">
+                                    <i class="fas fa-calendar-plus me-1"></i>Data Creazione
+                                </label>
+                                <input type="text" class="form-control-plaintext" readonly value="@Model.CreatedAt.ToString("dd/MM/yyyy HH:mm")">
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label text-muted">
+                                    <i class="fas fa-calendar-check me-1"></i>Ultima Modifica
+                                </label>
+                                <input type="text" class="form-control-plaintext" readonly value="@Model.UpdatedAt.ToString("dd/MM/yyyy HH:mm")">
+                            </div>
+                        </div>
+
+                        @if (Model.AnnoCorrente)
+                        {
+                            <div class="row">
+                                <div class="col-12">
+                                    <div class="alert alert-warning">
+                                        <i class="fas fa-star me-2"></i>
+                                        <strong>Anno Corrente:</strong> Questo è attualmente l'anno corrente di fatturazione. 
+                                        Viene utilizzato per il calcolo automatico delle date delle proforma nei mandati clienti.
+                                    </div>
+                                </div>
+                            </div>
+                        }
+
+                        <div class="d-flex justify-content-between">
+                            <a asp-action="Index" class="btn btn-outline-secondary">
+                                <i class="fas fa-times me-1"></i>Annulla
+                            </a>
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-save me-1"></i>Salva Modifiche
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    
+    <script>
+        // Warning per anno corrente
+        const annoCorrenteCheckbox = document.getElementById('AnnoCorrente');
+        const originalValue = annoCorrenteCheckbox.checked;
+        
+        annoCorrenteCheckbox.addEventListener('change', function() {
+            if (this.checked && !originalValue) {
+                if (!confirm('Sei sicuro di voler impostare questo anno come corrente? Tutti gli altri anni perderanno automaticamente questo flag.')) {
+                    this.checked = false;
+                }
+            }
+        });
+        
+        // Warning per disattivazione anno corrente
+        const attivoCheckbox = document.getElementById('Attivo');
+        attivoCheckbox.addEventListener('change', function() {
+            if (!this.checked && annoCorrenteCheckbox.checked) {
+                alert('Attenzione: Non puoi disattivare l\'anno corrente. Rimuovi prima il flag "Anno Corrente".');
+                this.checked = true;
+            }
+        });
+    </script>
+}

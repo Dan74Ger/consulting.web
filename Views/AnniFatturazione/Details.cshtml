@@ -1,0 +1,173 @@
+@model ConsultingGroup.Models.AnnoFatturazione
+
+@{
+    ViewData["Title"] = "Dettagli Anno Fatturazione";
+}
+
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <div>
+                    <h2><i class="fas fa-eye text-info me-2"></i>Dettagli Anno Fatturazione</h2>
+                    <p class="text-muted mb-0">Visualizza le informazioni complete dell'anno: <strong>@Model.Anno</strong></p>
+                </div>
+                <div>
+                    <a asp-action="Index" class="btn btn-secondary">
+                        <i class="fas fa-arrow-left me-1"></i>Torna all'Elenco
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="card">
+                <div class="card-header @(Model.AnnoCorrente ? "bg-warning text-dark" : "bg-info text-white")">
+                    <h5 class="card-title mb-0">
+                        <i class="fas fa-euro-sign me-2"></i>Anno @Model.Anno
+                        @if (Model.AnnoCorrente)
+                        {
+                            <span class="badge bg-dark ms-2">
+                                <i class="fas fa-star me-1"></i>CORRENTE
+                            </span>
+                        }
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6 mb-4">
+                            <h6 class="text-muted mb-2">
+                                <i class="fas fa-calendar me-1"></i>Anno
+                            </h6>
+                            <p class="fs-4 fw-bold text-primary mb-0">@Model.Anno</p>
+                        </div>
+                        <div class="col-md-6 mb-4">
+                            <h6 class="text-muted mb-2">
+                                <i class="fas fa-info-circle me-1"></i>Stato
+                            </h6>
+                            @if (Model.Attivo)
+                            {
+                                <span class="badge bg-success fs-6">
+                                    <i class="fas fa-check me-1"></i>Attivo
+                                </span>
+                            }
+                            else
+                            {
+                                <span class="badge bg-danger fs-6">
+                                    <i class="fas fa-times me-1"></i>Non Attivo
+                                </span>
+                            }
+                            
+                            @if (Model.AnnoCorrente)
+                            {
+                                <span class="badge bg-warning text-dark fs-6 ms-2">
+                                    <i class="fas fa-star me-1"></i>Anno Corrente
+                                </span>
+                            }
+                        </div>
+                    </div>
+
+                    @if (!string.IsNullOrEmpty(Model.Descrizione))
+                    {
+                        <div class="row">
+                            <div class="col-12 mb-4">
+                                <h6 class="text-muted mb-2">
+                                    <i class="fas fa-edit me-1"></i>Descrizione
+                                </h6>
+                                <p class="mb-0">@Model.Descrizione</p>
+                            </div>
+                        </div>
+                    }
+
+                    @if (!string.IsNullOrEmpty(Model.Note))
+                    {
+                        <div class="row">
+                            <div class="col-12 mb-4">
+                                <h6 class="text-muted mb-2">
+                                    <i class="fas fa-sticky-note me-1"></i>Note
+                                </h6>
+                                <div class="border rounded p-3 bg-light">
+                                    <p class="mb-0">@Model.Note</p>
+                                </div>
+                            </div>
+                        </div>
+                    }
+
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <h6 class="text-muted mb-2">
+                                <i class="fas fa-calendar-plus me-1"></i>Data Creazione
+                            </h6>
+                            <p class="mb-0">@Model.CreatedAt.ToString("dddd, dd MMMM yyyy 'alle' HH:mm")</p>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <h6 class="text-muted mb-2">
+                                <i class="fas fa-calendar-check me-1"></i>Ultima Modifica
+                            </h6>
+                            <p class="mb-0">@Model.UpdatedAt.ToString("dddd, dd MMMM yyyy 'alle' HH:mm")</p>
+                        </div>
+                    </div>
+
+                    @if (Model.AnnoCorrente)
+                    {
+                        <div class="row">
+                            <div class="col-12">
+                                <div class="alert alert-warning">
+                                    <i class="fas fa-lightbulb me-2"></i>
+                                    <strong>Anno Corrente di Fatturazione:</strong> Questo anno viene utilizzato automaticamente 
+                                    per il calcolo delle date nelle proforma (trimestrale/mensile) quando si configurano i mandati dei clienti.
+                                    Le date generate saranno nel formato 31/03/@Model.Anno, 30/06/@Model.Anno, ecc.
+                                </div>
+                            </div>
+                        </div>
+                    }
+                </div>
+                <div class="card-footer bg-light">
+                    <div class="d-flex justify-content-between">
+                        <a asp-action="Index" class="btn btn-outline-secondary">
+                            <i class="fas fa-list me-1"></i>Torna all'Elenco
+                        </a>
+                        <div>
+                            @if (!Model.AnnoCorrente)
+                            {
+                                <form asp-action="SetCorrente" method="post" style="display: inline;">
+                                    <input type="hidden" name="id" value="@Model.IdAnnoFatturazione" />
+                                    <button type="submit" class="btn btn-warning me-2" 
+                                            onclick="return confirm('Sei sicuro di voler impostare @Model.Anno come anno corrente di fatturazione?')">
+                                        <i class="fas fa-star me-1"></i>Imposta Corrente
+                                    </button>
+                                </form>
+                            }
+                            <a asp-action="Edit" asp-route-id="@Model.IdAnnoFatturazione" class="btn btn-primary me-2">
+                                <i class="fas fa-edit me-1"></i>Modifica
+                            </a>
+                            @if (!Model.AnnoCorrente)
+                            {
+                                <a asp-action="Delete" asp-route-id="@Model.IdAnnoFatturazione" class="btn btn-outline-danger">
+                                    <i class="fas fa-trash me-1"></i>Elimina
+                                </a>
+                            }
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .fs-6 {
+        font-size: 0.875rem;
+    }
+    
+    .card-footer {
+        background-color: #f8f9fa !important;
+        border-top: 1px solid #dee2e6;
+    }
+    
+    .alert {
+        border-left: 4px solid #ffc107;
+    }
+</style>

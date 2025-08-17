@@ -4,6 +4,7 @@ using ConsultingGroup.Data;
 using ConsultingGroup.Models;
 using ConsultingGroup.ViewModels;
 using ConsultingGroup.Attributes;
+using ConsultingGroup.Services;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.AspNetCore.Authorization;
 using OfficeOpenXml;
@@ -15,10 +16,12 @@ namespace ConsultingGroup.Controllers
     public class ClientiController : Controller
     {
         private readonly ApplicationDbContext _context;
+        private readonly ProformaService _proformaService;
 
-        public ClientiController(ApplicationDbContext context)
+        public ClientiController(ApplicationDbContext context, ProformaService proformaService)
         {
             _context = context;
+            _proformaService = proformaService;
         }
 
         // GET: Clienti/Statistiche
@@ -294,6 +297,22 @@ namespace ConsultingGroup.Controllers
                     TitolareEffettivo = viewModel.TitolareEffettivo,
                     
                     CodiceAteco = viewModel.CodiceAteco,
+                    
+                    // Nuovi campi dati cliente
+                    CfCliente = viewModel.CfCliente,
+                    PivaCliente = viewModel.PivaCliente,
+                    Indirizzo = viewModel.Indirizzo,
+                    Citta = viewModel.Citta,
+                    Provincia = viewModel.Provincia,
+                    Cap = viewModel.Cap,
+                    LegaleRappresentante = viewModel.LegaleRappresentante,
+                    CfLegaleRappresentante = viewModel.CfLegaleRappresentante,
+                    
+                    // Sezione mandati
+                    DataMandato = viewModel.DataMandato,
+                    ImportoMandatoAnnuo = viewModel.ImportoMandatoAnnuo,
+                    ProformaTipo = viewModel.ProformaTipo,
+                    
                     Attivo = true,
                     DataAttivazione = DateTime.UtcNow,
                     DataModifica = DateTime.UtcNow,
@@ -305,6 +324,9 @@ namespace ConsultingGroup.Controllers
 
                 _context.Clienti.Add(cliente);
                 await _context.SaveChangesAsync();
+                
+                // Genera automaticamente le proforma se ci sono dati mandato
+                await GeneraProformeAutomatiche(cliente.IdCliente, cliente.DataMandato, cliente.ImportoMandatoAnnuo, cliente.ProformaTipo);
                 
                 TempData["SuccessMessage"] = $"Cliente '{cliente.NomeCliente}' creato con successo.";
                 return RedirectToAction(nameof(Index));
@@ -551,6 +573,22 @@ namespace ConsultingGroup.Controllers
                     cliente.TitolareEffettivo = viewModel.TitolareEffettivo;
                     
                     cliente.CodiceAteco = viewModel.CodiceAteco;
+                    
+                    // Nuovi campi dati cliente
+                    cliente.CfCliente = viewModel.CfCliente;
+                    cliente.PivaCliente = viewModel.PivaCliente;
+                    cliente.Indirizzo = viewModel.Indirizzo;
+                    cliente.Citta = viewModel.Citta;
+                    cliente.Provincia = viewModel.Provincia;
+                    cliente.Cap = viewModel.Cap;
+                    cliente.LegaleRappresentante = viewModel.LegaleRappresentante;
+                    cliente.CfLegaleRappresentante = viewModel.CfLegaleRappresentante;
+                    
+                    // Sezione mandati
+                    cliente.DataMandato = viewModel.DataMandato;
+                    cliente.ImportoMandatoAnnuo = viewModel.ImportoMandatoAnnuo;
+                    cliente.ProformaTipo = viewModel.ProformaTipo;
+                    
                     cliente.DataModifica = DateTime.UtcNow;
                     cliente.UpdatedAt = DateTime.UtcNow;
                     cliente.RiattivatoPerAnno = viewModel.RiattivatoPerAnno;
@@ -567,6 +605,9 @@ namespace ConsultingGroup.Controllers
                     }
 
                     await _context.SaveChangesAsync();
+                    
+                    // Rigenera automaticamente le proforma se ci sono dati mandato
+                    await GeneraProformeAutomatiche(cliente.IdCliente, cliente.DataMandato, cliente.ImportoMandatoAnnuo, cliente.ProformaTipo);
                     
                     TempData["SuccessMessage"] = $"Cliente '{cliente.NomeCliente}' modificato con successo.";
                     return RedirectToAction(nameof(Index));
@@ -870,6 +911,22 @@ namespace ConsultingGroup.Controllers
                 TitolareEffettivo = cliente.TitolareEffettivo,
                 
                 CodiceAteco = cliente.CodiceAteco,
+                
+                // Nuovi campi dati cliente
+                CfCliente = cliente.CfCliente,
+                PivaCliente = cliente.PivaCliente,
+                Indirizzo = cliente.Indirizzo,
+                Citta = cliente.Citta,
+                Provincia = cliente.Provincia,
+                Cap = cliente.Cap,
+                LegaleRappresentante = cliente.LegaleRappresentante,
+                CfLegaleRappresentante = cliente.CfLegaleRappresentante,
+                
+                // Sezione mandati
+                DataMandato = cliente.DataMandato,
+                ImportoMandatoAnnuo = cliente.ImportoMandatoAnnuo,
+                ProformaTipo = cliente.ProformaTipo,
+                
                 Attivo = cliente.Attivo,
                 DataAttivazione = cliente.DataAttivazione,
                 DataModifica = cliente.DataModifica,
@@ -2045,6 +2102,97 @@ namespace ConsultingGroup.Controllers
             if (checkboxRimosse.Count > 0)
             {
                 await _context.SaveChangesAsync();
+            }
+        }
+
+        /// <summary>
+        /// API per rigenerare le proforma di un cliente (chiamata AJAX)
+        /// </summary>
+        [HttpPost]
+        public async Task<IActionResult> RigeneraProforma(int idCliente, DateTime? dataMandato, decimal? importoMandatoAnnuo, string proformaTipo)
+        {
+            try
+            {
+                if (dataMandato.HasValue && importoMandatoAnnuo.HasValue && importoMandatoAnnuo.Value > 0 && !string.IsNullOrEmpty(proformaTipo))
+                {
+                    var proformeGenerate = await _proformaService.RigeneraProformeAsync(idCliente, dataMandato, importoMandatoAnnuo, proformaTipo);
+                    if (proformeGenerate.Any())
+                    {
+                        var cliente = await _context.Clienti.FindAsync(idCliente);
+                        var numeroProforms = proformeGenerate.Count;
+                        var tipoDesc = proformaTipo.ToLower() == "trimestrale" ? "trimestrali" : "mensili";
+                        var message = $"Rigenerate {numeroProforms} proforma {tipoDesc} per {cliente?.NomeCliente}";
+                        TempData["ProformaMessage"] = message;
+                        return Json(new { success = true, message });
+                    }
+                }
+                return Json(new { success = false, message = "Dati mandato non completi" });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { success = false, message = $"Errore nella rigenerazione delle proforma: {ex.Message}" });
+            }
+        }
+
+        /// <summary>
+        /// API per verificare se un cliente ha proforma esistenti (chiamata AJAX)
+        /// </summary>
+        [HttpGet]
+        public async Task<IActionResult> HasProformeEsistenti(int idCliente)
+        {
+            var hasProforma = await _proformaService.HasProformeEsistentiAsync(idCliente);
+            return Json(new { hasProforma });
+        }
+
+        /// <summary>
+        /// API per ottenere l'anno fatturazione corrente
+        /// </summary>
+        [HttpGet]
+        public async Task<IActionResult> GetAnnoFatturazioneCorrente()
+        {
+            var annoCorrente = await _context.AnniFatturazione
+                .Where(a => a.AnnoCorrente)
+                .Select(a => a.Anno)
+                .FirstOrDefaultAsync();
+            
+            return Json(new { anno = annoCorrente });
+        }
+
+
+
+        /// <summary>
+        /// Genera automaticamente le proforma per un cliente se ha dati mandato completi
+        /// </summary>
+        private async Task GeneraProformeAutomatiche(int idCliente, DateTime? dataMandato, decimal? importoMandatoAnnuo, string? proformaTipo)
+        {
+            try
+            {
+                // Verifica che ci siano tutti i dati necessari
+                if (dataMandato.HasValue && 
+                    importoMandatoAnnuo.HasValue && 
+                    importoMandatoAnnuo.Value > 0 && 
+                    !string.IsNullOrEmpty(proformaTipo))
+                {
+                    var proformeGenerate = await _proformaService.GeneraProformeAsync(
+                        idCliente, 
+                        dataMandato, 
+                        importoMandatoAnnuo, 
+                        proformaTipo);
+
+                    if (proformeGenerate.Any())
+                    {
+                        var cliente = await _context.Clienti.FindAsync(idCliente);
+                        var numeroProforms = proformeGenerate.Count;
+                        var tipoDesc = proformaTipo.ToLower() == "trimestrale" ? "trimestrali" : "mensili";
+                        
+                        TempData["ProformaMessage"] = $"Generate automaticamente {numeroProforms} proforma {tipoDesc} per {cliente?.NomeCliente}";
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                // Log dell'errore ma non bloccare il salvataggio del cliente
+                TempData["ProformaError"] = $"Errore nella generazione automatica delle proforma: {ex.Message}";
             }
         }
     }

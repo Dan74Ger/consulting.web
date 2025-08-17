@@ -24,6 +24,23 @@
     <form asp-action="Create" method="post">
         <div asp-validation-summary="ModelOnly" class="alert alert-danger" role="alert"></div>
 
+        <!-- Messaggi proforma -->
+        @if (TempData["ProformaMessage"] != null)
+        {
+            <div class="alert alert-success alert-dismissible fade show" role="alert">
+                <i class="fas fa-file-invoice-dollar me-2"></i>@TempData["ProformaMessage"]
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+        }
+
+        @if (TempData["ProformaError"] != null)
+        {
+            <div class="alert alert-warning alert-dismissible fade show" role="alert">
+                <i class="fas fa-exclamation-triangle me-2"></i>@TempData["ProformaError"]
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+        }
+
         <!-- Sezione Anagrafica -->
         <div class="row mb-4">
             <div class="col-12">
@@ -51,6 +68,71 @@
                                 <span asp-validation-for="MailCliente" class="text-danger"></span>
                             </div>
                         </div>
+                        <!-- Nuovi campi dati cliente -->
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label asp-for="CfCliente" class="form-label">
+                                    <i class="fas fa-id-card me-1"></i>@Html.DisplayNameFor(model => model.CfCliente)
+                                </label>
+                                <input asp-for="CfCliente" class="form-control" placeholder="Es: RSSMRA80A01H501U">
+                                <span asp-validation-for="CfCliente" class="text-danger"></span>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label asp-for="PivaCliente" class="form-label">
+                                    <i class="fas fa-file-invoice me-1"></i>@Html.DisplayNameFor(model => model.PivaCliente)
+                                </label>
+                                <input asp-for="PivaCliente" class="form-control" placeholder="Es: 12345678901">
+                                <span asp-validation-for="PivaCliente" class="text-danger"></span>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-12 mb-3">
+                                <label asp-for="Indirizzo" class="form-label">
+                                    <i class="fas fa-map-marker-alt me-1"></i>@Html.DisplayNameFor(model => model.Indirizzo)
+                                </label>
+                                <input asp-for="Indirizzo" class="form-control" placeholder="Es: Via Roma, 123">
+                                <span asp-validation-for="Indirizzo" class="text-danger"></span>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-4 mb-3">
+                                <label asp-for="Citta" class="form-label">
+                                    <i class="fas fa-city me-1"></i>@Html.DisplayNameFor(model => model.Citta)
+                                </label>
+                                <input asp-for="Citta" class="form-control" placeholder="Es: Milano">
+                                <span asp-validation-for="Citta" class="text-danger"></span>
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <label asp-for="Provincia" class="form-label">
+                                    <i class="fas fa-map me-1"></i>@Html.DisplayNameFor(model => model.Provincia)
+                                </label>
+                                <input asp-for="Provincia" class="form-control" placeholder="Es: MI">
+                                <span asp-validation-for="Provincia" class="text-danger"></span>
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <label asp-for="Cap" class="form-label">
+                                    <i class="fas fa-mail-bulk me-1"></i>@Html.DisplayNameFor(model => model.Cap)
+                                </label>
+                                <input asp-for="Cap" class="form-control" placeholder="Es: 20100">
+                                <span asp-validation-for="Cap" class="text-danger"></span>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label asp-for="LegaleRappresentante" class="form-label">
+                                    <i class="fas fa-user-tie me-1"></i>@Html.DisplayNameFor(model => model.LegaleRappresentante)
+                                </label>
+                                <input asp-for="LegaleRappresentante" class="form-control" placeholder="Es: Mario Rossi">
+                                <span asp-validation-for="LegaleRappresentante" class="text-danger"></span>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label asp-for="CfLegaleRappresentante" class="form-label">
+                                    <i class="fas fa-id-card me-1"></i>@Html.DisplayNameFor(model => model.CfLegaleRappresentante)
+                                </label>
+                                <input asp-for="CfLegaleRappresentante" class="form-control" placeholder="Es: RSSMRA80A01H501U">
+                                <span asp-validation-for="CfLegaleRappresentante" class="text-danger"></span>
+                            </div>
+                        </div>
                         <div class="row">
                             <div class="col-md-6 mb-3">
                                 <label asp-for="CodiceAteco" class="form-label fw-bold">
@@ -62,6 +144,69 @@
                                 <div class="form-text">
                                     <i class="fas fa-info-circle me-1"></i>
                                     Campo master per la classificazione dell'attività
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Sezione Mandati -->
+        <div class="row mb-4">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-header bg-primary text-white">
+                        <h5 class="card-title mb-0">
+                            <i class="fas fa-handshake me-2"></i>Mandati
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-4 mb-3">
+                                <label asp-for="DataMandato" class="form-label">
+                                    <i class="fas fa-calendar me-1"></i>@Html.DisplayNameFor(model => model.DataMandato)
+                                </label>
+                                <input asp-for="DataMandato" type="date" class="form-control">
+                                <span asp-validation-for="DataMandato" class="text-danger"></span>
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <label asp-for="ImportoMandatoAnnuo" class="form-label">
+                                    <i class="fas fa-euro-sign me-1"></i>@Html.DisplayNameFor(model => model.ImportoMandatoAnnuo)
+                                </label>
+                                <input asp-for="ImportoMandatoAnnuo" type="number" step="0.01" class="form-control" placeholder="0.00" id="importoMandatoAnnuo">
+                                <span asp-validation-for="ImportoMandatoAnnuo" class="text-danger"></span>
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <label asp-for="ProformaTipo" class="form-label">
+                                    <i class="fas fa-calendar-check me-1"></i>@Html.DisplayNameFor(model => model.ProformaTipo)
+                                </label>
+                                <select asp-for="ProformaTipo" class="form-select" id="proformaTipo">
+                                    <option value="trimestrale" selected>Trimestrale</option>
+                                    <option value="mensile">Mensile</option>
+                                </select>
+                                <span asp-validation-for="ProformaTipo" class="text-danger"></span>
+                            </div>
+                        </div>
+                        <!-- Riepilogo Proforma Dinamico -->
+                        <div class="row" id="riepilogoProforma" style="display:none;">
+                            <div class="col-12">
+                                <div class="card border-success">
+                                    <div class="card-header bg-light">
+                                        <h6 class="mb-0">
+                                            <i class="fas fa-calculator me-2 text-success"></i>
+                                            <span id="titoloRiepilogo">Riepilogo Proforma</span>
+                                        </h6>
+                                    </div>
+                                    <div class="card-body">
+                                        <div id="contenutoRiepilogo" class="row">
+                                            <!-- Il contenuto verrà generato dinamicamente -->
+                                        </div>
+                                        <small class="text-muted mt-2 d-block">
+                                            <i class="fas fa-info-circle me-1"></i>
+                                            <strong>Nota:</strong> Le proforma verranno generate automaticamente nel database al salvataggio del cliente.
+                                        </small>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -429,4 +574,103 @@
 
 @section Scripts {
     @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    
+    <script>
+        // Script per gestire il riepilogo dinamico delle proforma
+        document.addEventListener('DOMContentLoaded', async function() {
+            const proformaTipoSelect = document.getElementById('proformaTipo');
+            const importoInput = document.getElementById('importoMandatoAnnuo');
+            const riepilogoContainer = document.getElementById('riepilogoProforma');
+            const titoloRiepilogo = document.getElementById('titoloRiepilogo');
+            const contenutoRiepilogo = document.getElementById('contenutoRiepilogo');
+            
+            // Ottiene l'anno fatturazione corrente
+            let annoCorrente = 2025; // Default
+            try {
+                const response = await fetch('/Clienti/GetAnnoFatturazioneCorrente');
+                const data = await response.json();
+                if (data.anno) annoCorrente = data.anno;
+            } catch (error) {
+                console.log('Usando anno default 2025');
+            }
+            
+            // Date fisse per trimestri
+            const dateTrimestrali = [
+                { data: `31/03/${annoCorrente}`, mese: 'Q1' },
+                { data: `30/06/${annoCorrente}`, mese: 'Q2' },
+                { data: `30/09/${annoCorrente}`, mese: 'Q3' },
+                { data: `31/12/${annoCorrente}`, mese: 'Q4' }
+            ];
+            
+            // Date per mesi (gestisce anni bisestili)
+            function getDateMensili(anno) {
+                const isLeapYear = anno % 4 === 0 && (anno % 100 !== 0 || anno % 400 === 0);
+                return [
+                    { data: `31/01/${anno}`, mese: 'Gen' },
+                    { data: `${isLeapYear ? '29' : '28'}/02/${anno}`, mese: 'Feb' },
+                    { data: `31/03/${anno}`, mese: 'Mar' },
+                    { data: `30/04/${anno}`, mese: 'Apr' },
+                    { data: `31/05/${anno}`, mese: 'Mag' },
+                    { data: `30/06/${anno}`, mese: 'Giu' },
+                    { data: `31/07/${anno}`, mese: 'Lug' },
+                    { data: `31/08/${anno}`, mese: 'Ago' },
+                    { data: `30/09/${anno}`, mese: 'Set' },
+                    { data: `31/10/${anno}`, mese: 'Ott' },
+                    { data: `30/11/${anno}`, mese: 'Nov' },
+                    { data: `31/12/${anno}`, mese: 'Dic' }
+                ];
+            }
+            
+            // Funzione per aggiornare il riepilogo
+            function updateRiepilogo() {
+                const importoAnnuo = parseFloat(importoInput.value) || 0;
+                const periodicita = proformaTipoSelect.value;
+                
+                if (importoAnnuo <= 0) {
+                    riepilogoContainer.style.display = 'none';
+                    return;
+                }
+                
+                riepilogoContainer.style.display = 'block';
+                
+                if (periodicita === 'trimestrale') {
+                    const importoTrimestrale = (importoAnnuo / 4).toFixed(2);
+                    titoloRiepilogo.textContent = 'Riepilogo Proforma Trimestrali';
+                    
+                    let html = '<div class="col-12"><div class="table-responsive"><table class="table table-sm table-striped">';
+                    html += '<thead class="table-success"><tr><th>Trimestre</th><th>Data Scadenza</th><th>Importo</th></tr></thead><tbody>';
+                    
+                    dateTrimestrali.forEach(item => {
+                        html += `<tr><td><strong>${item.mese}</strong></td><td>${item.data}</td><td><strong>€${importoTrimestrale}</strong></td></tr>`;
+                    });
+                    
+                    html += '</tbody></table></div></div>';
+                    contenutoRiepilogo.innerHTML = html;
+                    
+                } else if (periodicita === 'mensile') {
+                    const importoMensile = (importoAnnuo / 12).toFixed(2);
+                    titoloRiepilogo.textContent = 'Riepilogo Proforma Mensili';
+                    
+                    const dateMensili = getDateMensili(annoCorrente);
+                    
+                    let html = '<div class="col-12"><div class="table-responsive"><table class="table table-sm table-striped">';
+                    html += '<thead class="table-success"><tr><th>Mese</th><th>Data Scadenza</th><th>Importo</th></tr></thead><tbody>';
+                    
+                    dateMensili.forEach(item => {
+                        html += `<tr><td><strong>${item.mese}</strong></td><td>${item.data}</td><td><strong>€${importoMensile}</strong></td></tr>`;
+                    });
+                    
+                    html += '</tbody></table></div></div>';
+                    contenutoRiepilogo.innerHTML = html;
+                }
+            }
+            
+            // Event listeners
+            proformaTipoSelect.addEventListener('change', updateRiepilogo);
+            importoInput.addEventListener('input', updateRiepilogo);
+            
+            // Inizializza
+            updateRiepilogo();
+        });
+    </script>
 }

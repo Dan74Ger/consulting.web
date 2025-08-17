@@ -1,0 +1,150 @@
+@model ConsultingGroup.Models.AnnoFatturazione
+
+@{
+    ViewData["Title"] = "Crea Anno Fatturazione";
+}
+
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <div>
+                    <h2><i class="fas fa-plus text-success me-2"></i>Crea Nuovo Anno Fatturazione</h2>
+                    <p class="text-muted mb-0">Aggiungi un nuovo anno per la gestione delle fatturazioni</p>
+                </div>
+                <div>
+                    <a asp-action="Index" class="btn btn-secondary">
+                        <i class="fas fa-arrow-left me-1"></i>Torna all'Elenco
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="card">
+                <div class="card-header bg-success text-white">
+                    <h5 class="card-title mb-0">
+                        <i class="fas fa-euro-sign me-2"></i>Informazioni Anno Fatturazione
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <form asp-action="Create" method="post">
+                        <div asp-validation-summary="ModelOnly" class="alert alert-danger" role="alert"></div>
+
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label asp-for="Anno" class="form-label fw-bold">
+                                    <i class="fas fa-calendar me-1"></i>Anno
+                                    <span class="text-danger">*</span>
+                                </label>
+                                <input asp-for="Anno" type="number" min="2020" max="2050" class="form-control" placeholder="Es: 2025">
+                                <span asp-validation-for="Anno" class="text-danger"></span>
+                                <div class="form-text">
+                                    <i class="fas fa-info-circle me-1"></i>
+                                    Anno di riferimento per le fatturazioni
+                                </div>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label asp-for="Descrizione" class="form-label">
+                                    <i class="fas fa-edit me-1"></i>Descrizione
+                                </label>
+                                <input asp-for="Descrizione" class="form-control" placeholder="Es: Anno Fatturazione 2025">
+                                <span asp-validation-for="Descrizione" class="text-danger"></span>
+                                <div class="form-text">
+                                    Descrizione opzionale per identificare l'anno
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-12 mb-3">
+                                <label asp-for="Note" class="form-label">
+                                    <i class="fas fa-sticky-note me-1"></i>Note
+                                </label>
+                                <textarea asp-for="Note" class="form-control" rows="3" placeholder="Note aggiuntive sull'anno fatturazione..."></textarea>
+                                <span asp-validation-for="Note" class="text-danger"></span>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <div class="form-check form-switch">
+                                    <input asp-for="Attivo" class="form-check-input" type="checkbox" checked>
+                                    <label asp-for="Attivo" class="form-check-label">
+                                        <i class="fas fa-toggle-on me-1"></i>Anno Attivo
+                                    </label>
+                                </div>
+                                <div class="form-text">
+                                    Se disattivato, l'anno non sarà disponibile per le selezioni
+                                </div>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <div class="form-check form-switch">
+                                    <input asp-for="AnnoCorrente" class="form-check-input" type="checkbox">
+                                    <label asp-for="AnnoCorrente" class="form-check-label">
+                                        <i class="fas fa-star me-1"></i>Anno Corrente
+                                    </label>
+                                </div>
+                                <div class="form-text text-warning">
+                                    <i class="fas fa-exclamation-triangle me-1"></i>
+                                    Se selezionato, questo diventerà l'anno corrente (rimuoverà il flag dagli altri)
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-12">
+                                <div class="alert alert-info">
+                                    <i class="fas fa-lightbulb me-2"></i>
+                                    <strong>Nota:</strong> L'anno fatturazione viene utilizzato per calcolare automaticamente 
+                                    le date delle proforma (trimestrale/mensile) nella sezione mandati dei clienti.
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="d-flex justify-content-between">
+                            <a asp-action="Index" class="btn btn-outline-secondary">
+                                <i class="fas fa-times me-1"></i>Annulla
+                            </a>
+                            <button type="submit" class="btn btn-success">
+                                <i class="fas fa-save me-1"></i>Crea Anno Fatturazione
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    
+    <script>
+        // Impostazione automatica descrizione basata sull'anno
+        document.getElementById('Anno').addEventListener('input', function() {
+            const anno = this.value;
+            const descrizioneField = document.getElementById('Descrizione');
+            
+            if (anno && !descrizioneField.value) {
+                descrizioneField.value = `Anno Fatturazione ${anno}`;
+            }
+        });
+        
+        // Warning per anno corrente
+        document.getElementById('AnnoCorrente').addEventListener('change', function() {
+            const alert = document.querySelector('.alert-info');
+            if (this.checked) {
+                alert.classList.remove('alert-info');
+                alert.classList.add('alert-warning');
+                alert.innerHTML = '<i class="fas fa-exclamation-triangle me-2"></i><strong>Attenzione:</strong> Impostando questo anno come corrente, tutti gli altri anni perderanno automaticamente questo flag.';
+            } else {
+                alert.classList.remove('alert-warning');
+                alert.classList.add('alert-info');
+                alert.innerHTML = '<i class="fas fa-lightbulb me-2"></i><strong>Nota:</strong> L\'anno fatturazione viene utilizzato per calcolare automaticamente le date delle proforma (trimestrale/mensile) nella sezione mandati dei clienti.';
+            }
+        });
+    </script>
+}

@@ -67,7 +67,7 @@ namespace ConsultingGroup.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("AltriDati");
+                    b.ToTable("AltriDati", (string)null);
                 });
 
             modelBuilder.Entity("ConsultingGroup.Models.AnnoFiscale", b =>
@@ -186,7 +186,7 @@ namespace ConsultingGroup.Migrations
                         .IsUnique()
                         .HasFilter("[anno_corrente] = 1");
 
-                    b.ToTable("anni_fiscali");
+                    b.ToTable("anni_fiscali", (string)null);
                 });
 
             modelBuilder.Entity("ConsultingGroup.Models.ApplicationUser", b =>
@@ -362,7 +362,7 @@ namespace ConsultingGroup.Migrations
 
                     b.HasIndex("IdProfessionista");
 
-                    b.ToTable("attivita_730");
+                    b.ToTable("attivita_730", (string)null);
                 });
 
             modelBuilder.Entity("ConsultingGroup.Models.Attivita740", b =>
@@ -492,7 +492,7 @@ namespace ConsultingGroup.Migrations
 
                     b.HasIndex("IdProfessionista");
 
-                    b.ToTable("attivita_740");
+                    b.ToTable("attivita_740", (string)null);
                 });
 
             modelBuilder.Entity("ConsultingGroup.Models.Attivita750", b =>
@@ -626,7 +626,7 @@ namespace ConsultingGroup.Migrations
 
                     b.HasIndex("IdProfessionista");
 
-                    b.ToTable("attivita_750");
+                    b.ToTable("attivita_750", (string)null);
                 });
 
             modelBuilder.Entity("ConsultingGroup.Models.Attivita760", b =>
@@ -772,7 +772,7 @@ namespace ConsultingGroup.Migrations
 
                     b.HasIndex("IdProfessionista");
 
-                    b.ToTable("attivita_760");
+                    b.ToTable("attivita_760", (string)null);
                 });
 
             modelBuilder.Entity("ConsultingGroup.Models.Attivita770", b =>
@@ -849,7 +849,7 @@ namespace ConsultingGroup.Migrations
 
                     b.HasIndex("IdProfessionista");
 
-                    b.ToTable("attivita_770");
+                    b.ToTable("attivita_770", (string)null);
                 });
 
             modelBuilder.Entity("ConsultingGroup.Models.AttivitaCu", b =>
@@ -922,7 +922,7 @@ namespace ConsultingGroup.Migrations
 
                     b.HasIndex("IdProfessionista");
 
-                    b.ToTable("attivita_cu");
+                    b.ToTable("attivita_cu", (string)null);
                 });
 
             modelBuilder.Entity("ConsultingGroup.Models.AttivitaDriva", b =>
@@ -1057,7 +1057,7 @@ namespace ConsultingGroup.Migrations
 
                     b.HasIndex("IdProfessionista");
 
-                    b.ToTable("attivita_driva");
+                    b.ToTable("attivita_driva", (string)null);
                 });
 
             modelBuilder.Entity("ConsultingGroup.Models.AttivitaEnc", b =>
@@ -1185,7 +1185,7 @@ namespace ConsultingGroup.Migrations
 
                     b.HasIndex("IdProfessionista");
 
-                    b.ToTable("attivita_ENC");
+                    b.ToTable("attivita_ENC", (string)null);
                 });
 
             modelBuilder.Entity("ConsultingGroup.Models.AttivitaIrap", b =>
@@ -1313,7 +1313,7 @@ namespace ConsultingGroup.Migrations
 
                     b.HasIndex("IdProfessionista");
 
-                    b.ToTable("attivita_irap");
+                    b.ToTable("attivita_irap", (string)null);
                 });
 
             modelBuilder.Entity("ConsultingGroup.Models.Banche", b =>
@@ -1366,7 +1366,7 @@ namespace ConsultingGroup.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("Banche");
+                    b.ToTable("Banche", (string)null);
                 });
 
             modelBuilder.Entity("ConsultingGroup.Models.Cancelleria", b =>
@@ -1414,7 +1414,7 @@ namespace ConsultingGroup.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("Cancelleria");
+                    b.ToTable("Cancelleria", (string)null);
                 });
 
             modelBuilder.Entity("ConsultingGroup.Models.CarteCredito", b =>
@@ -1464,7 +1464,7 @@ namespace ConsultingGroup.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("CarteCredito");
+                    b.ToTable("CarteCredito", (string)null);
                 });
 
             modelBuilder.Entity("ConsultingGroup.Models.Cliente", b =>
@@ -1656,7 +1656,7 @@ namespace ConsultingGroup.Migrations
 
                     b.HasIndex("RiattivatoPerAnno");
 
-                    b.ToTable("clienti");
+                    b.ToTable("clienti", (string)null);
                 });
 
             modelBuilder.Entity("ConsultingGroup.Models.Entratel", b =>
@@ -1720,7 +1720,7 @@ namespace ConsultingGroup.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("Entratel");
+                    b.ToTable("Entratel", (string)null);
                 });
 
             modelBuilder.Entity("ConsultingGroup.Models.Mail", b =>
@@ -1764,7 +1764,7 @@ namespace ConsultingGroup.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("Mail");
+                    b.ToTable("Mail", (string)null);
                 });
 
             modelBuilder.Entity("ConsultingGroup.Models.Professionista", b =>
@@ -1824,7 +1824,7 @@ namespace ConsultingGroup.Migrations
 
                     b.HasIndex("RiattivatoPerAnno");
 
-                    b.ToTable("professionisti");
+                    b.ToTable("professionisti", (string)null);
                 });
 
             modelBuilder.Entity("ConsultingGroup.Models.Programma", b =>
@@ -1878,7 +1878,7 @@ namespace ConsultingGroup.Migrations
 
                     b.HasIndex("RiattivatoPerAnno");
 
-                    b.ToTable("tipo_programmi", t =>
+                    b.ToTable("tipo_programmi", null, t =>
                         {
                             t.HasTrigger("tr_tipo_programmi_update_date");
                         });
@@ -1937,7 +1937,7 @@ namespace ConsultingGroup.Migrations
 
                     b.HasIndex("RiattivatoPerAnno");
 
-                    b.ToTable("regimi_contabili");
+                    b.ToTable("regimi_contabili", (string)null);
                 });
 
             modelBuilder.Entity("ConsultingGroup.Models.Studio", b =>
@@ -1991,7 +1991,7 @@ namespace ConsultingGroup.Migrations
 
                     b.HasIndex("RiattivatoPerAnno");
 
-                    b.ToTable("studios", t =>
+                    b.ToTable("studios", null, t =>
                         {
                             t.HasTrigger("tr_studios_update_date");
                         });
@@ -2050,7 +2050,7 @@ namespace ConsultingGroup.Migrations
 
                     b.HasIndex("RiattivatoPerAnno");
 
-                    b.ToTable("tipologie_inps");
+                    b.ToTable("tipologie_inps", (string)null);
                 });
 
             modelBuilder.Entity("ConsultingGroup.Models.UserPermissions", b =>
@@ -2098,7 +2098,7 @@ namespace ConsultingGroup.Migrations
                     b.HasIndex("UserId")
                         .IsUnique();
 
-                    b.ToTable("UserPermissions");
+                    b.ToTable("UserPermissions", (string)null);
                 });
 
             modelBuilder.Entity("ConsultingGroup.Models.UtentiPC", b =>
@@ -2146,7 +2146,7 @@ namespace ConsultingGroup.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("UtentiPC");
+                    b.ToTable("UtentiPC", (string)null);
                 });
 
             modelBuilder.Entity("ConsultingGroup.Models.UtentiTS", b =>
@@ -2190,7 +2190,7 @@ namespace ConsultingGroup.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("UtentiTS");
+                    b.ToTable("UtentiTS", (string)null);
                 });
 
             modelBuilder.Entity("ConsultingGroup.Models.Utenze", b =>
@@ -2238,7 +2238,7 @@ namespace ConsultingGroup.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("Utenze");
+                    b.ToTable("Utenze", (string)null);
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRole", b =>
