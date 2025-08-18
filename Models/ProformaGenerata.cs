@@ -126,7 +126,18 @@ namespace ConsultingGroup.Models
         }
 
         [NotMapped]
-        public string DescrizioneCompleta => $"Rata {NumeroRata}/{(TipoProforma == "trimestrale" ? 4 : 12)} - {DataScadenza:dd/MM/yyyy} - €{ImportoRata:F2}";
+        public string DescrizioneCompleta => $"Rata {NumeroRata}/{GetNumeroTotaleRate()} - {DataScadenza:dd/MM/yyyy} - €{ImportoRata:F2}";
+
+        private int GetNumeroTotaleRate()
+        {
+            return TipoProforma?.ToLower() switch
+            {
+                "trimestrale" => 4,
+                "bimestrale" => 2,
+                "mensile" => 12,
+                _ => 1
+            };
+        }
 
         [NotMapped]
         public bool InRitardo => DataScadenza < DateTime.Today && !Pagata;

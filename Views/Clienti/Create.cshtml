@@ -182,8 +182,9 @@
                                     <i class="fas fa-calendar-check me-1"></i>@Html.DisplayNameFor(model => model.ProformaTipo)
                                 </label>
                                 <select asp-for="ProformaTipo" class="form-select" id="proformaTipo">
-                                    <option value="trimestrale" selected>Trimestrale</option>
-                                    <option value="mensile">Mensile</option>
+                                    <option value="trimestrale" selected="@(Model.ProformaTipo == "trimestrale" || string.IsNullOrEmpty(Model.ProformaTipo) ? "selected" : null)">Trimestrale</option>
+                                    <option value="bimestrale" selected="@(Model.ProformaTipo == "bimestrale" ? "selected" : null)">Bimestrale</option>
+                                    <option value="mensile" selected="@(Model.ProformaTipo == "mensile" ? "selected" : null)">Mensile</option>
                                 </select>
                                 <span asp-validation-for="ProformaTipo" class="text-danger"></span>
                             </div>
@@ -642,6 +643,26 @@
                     
                     dateTrimestrali.forEach(item => {
                         html += `<tr><td><strong>${item.mese}</strong></td><td>${item.data}</td><td><strong>€${importoTrimestrale}</strong></td></tr>`;
+                    });
+                    
+                    html += '</tbody></table></div></div>';
+                    contenutoRiepilogo.innerHTML = html;
+                    
+                } else if (periodicita === 'bimestrale') {
+                    const importoBimestrale = (importoAnnuo / 2).toFixed(2);
+                    titoloRiepilogo.textContent = 'Riepilogo Proforma Bimestrali';
+                    
+                    // Date bimestrali: 30/06 e 31/12
+                    const dateBimestrali = [
+                        { mese: '1° Semestre', data: `30/06/${annoCorrente}` },
+                        { mese: '2° Semestre', data: `31/12/${annoCorrente}` }
+                    ];
+                    
+                    let html = '<div class="col-12"><div class="table-responsive"><table class="table table-sm table-striped">';
+                    html += '<thead class="table-success"><tr><th>Periodo</th><th>Data Scadenza</th><th>Importo</th></tr></thead><tbody>';
+                    
+                    dateBimestrali.forEach(item => {
+                        html += `<tr><td><strong>${item.mese}</strong></td><td>${item.data}</td><td><strong>€${importoBimestrale}</strong></td></tr>`;
                     });
                     
                     html += '</tbody></table></div></div>';

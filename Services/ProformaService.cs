@@ -59,6 +59,16 @@ namespace ConsultingGroup.Services
                     importoMandatoAnnuo.Value, 
                     tipoProforma);
             }
+            else if (tipoProforma.ToLower() == "bimestrale")
+            {
+                proformeGenerate = GeneraProformeBimestrale(
+                    idCliente, 
+                    annoFatturazioneCorrente.IdAnnoFatturazione,
+                    annoFatturazioneCorrente.Anno,
+                    dataMandato.Value, 
+                    importoMandatoAnnuo.Value, 
+                    tipoProforma);
+            }
             else if (tipoProforma.ToLower() == "mensile")
             {
                 proformeGenerate = GeneraProformeMensile(
@@ -72,8 +82,21 @@ namespace ConsultingGroup.Services
 
             if (proformeGenerate.Any())
             {
-                _context.ProformeGenerate.AddRange(proformeGenerate);
-                await _context.SaveChangesAsync();
+                try
+                {
+                    _context.ProformeGenerate.AddRange(proformeGenerate);
+                    await _context.SaveChangesAsync();
+                }
+                catch (Exception ex)
+                {
+                    // Log dettagliato dell'errore
+                    var dettaglio = $"Errore nel salvataggio proforma: {ex.Message}";
+                    if (ex.InnerException != null)
+                    {
+                        dettaglio += $" Inner: {ex.InnerException.Message}";
+                    }
+                    throw new InvalidOperationException(dettaglio, ex);
+                }
             }
 
             return proformeGenerate;
@@ -108,6 +131,52 @@ namespace ConsultingGroup.Services
                 var importoRata = (i == 3) ? 
                     importoAnnuo - (importoTrimestrale * 3) : 
                     importoTrimestrale;
+
+                proforms.Add(new ProformaGenerata
+                {
+                    IdCliente = idCliente,
+                    IdAnnoFatturazione = idAnnoFatturazione,
+                    DataMandato = dataMandato,
+                    ImportoMandatoAnnuo = importoAnnuo,
+                    TipoProforma = tipoProforma,
+                    NumeroRata = i + 1,
+                    DataScadenza = dateScadenze[i],
+                    ImportoRata = importoRata,
+                    CreatedAt = DateTime.UtcNow,
+                    UpdatedAt = DateTime.UtcNow
+                });
+            }
+
+            return proforms;
+        }
+
+        /// <summary>
+        /// Genera 2 proforma bimestrali
+        /// </summary>
+        private List<ProformaGenerata> GeneraProformeBimestrale(
+            int idCliente, 
+            int idAnnoFatturazione,
+            int anno,
+            DateTime dataMandato, 
+            decimal importoAnnuo, 
+            string tipoProforma)
+        {
+            var proforms = new List<ProformaGenerata>();
+            var importoBimestrale = Math.Round(importoAnnuo / 2, 2);
+
+            // Date bimestrali: 30/06 e 31/12
+            var dateScadenze = new List<DateTime>
+            {
+                new DateTime(anno, 6, 30),   // 30/06/xxxx
+                new DateTime(anno, 12, 31)   // 31/12/xxxx
+            };
+
+            for (int i = 0; i < 2; i++)
+            {
+                // Per la seconda rata, aggiusta l'importo per compensare eventuali arrotondamenti
+                var importoRata = (i == 1) ? 
+                    importoAnnuo - importoBimestrale : 
+                    importoBimestrale;
 
                 proforms.Add(new ProformaGenerata
                 {
@@ -224,11 +293,23 @@ namespace ConsultingGroup.Services
             decimal? nuovoImportoMandatoAnnuo, 
             string nuovoTipoProforma)
         {
-            // Prima elimina le proforma esistenti
-            await EliminaProformeClienteAsync(idCliente);
-            
-            // Poi genera le nuove proforma
-            return await GeneraProformeAsync(idCliente, nuovaDataMandato, nuovoImportoMandatoAnnuo, nuovoTipoProforma);
+            try
+            {
+                // Prima elimina le proforma esistenti
+                await EliminaProformeClienteAsync(idCliente);
+                
+                // Poi genera le nuove proforma
+                return await GeneraProformeAsync(idCliente, nuovaDataMandato, nuovoImportoMandatoAnnuo, nuovoTipoProforma);
+            }
+            catch (Exception ex)
+            {
+                var dettaglio = $"Errore nella rigenerazione proforma per cliente {idCliente}: {ex.Message}";
+                if (ex.InnerException != null)
+                {
+                    dettaglio += $" Inner: {ex.InnerException.Message}";
+                }
+                throw new InvalidOperationException(dettaglio, ex);
+            }
         }
 
         /// <summary>
