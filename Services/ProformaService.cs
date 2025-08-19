@@ -69,6 +69,16 @@ namespace ConsultingGroup.Services
                     importoMandatoAnnuo.Value, 
                     tipoProforma);
             }
+            else if (tipoProforma.ToLower() == "semestrale")
+            {
+                proformeGenerate = GeneraProformeSemestrale(
+                    idCliente, 
+                    annoFatturazioneCorrente.IdAnnoFatturazione,
+                    annoFatturazioneCorrente.Anno,
+                    dataMandato.Value, 
+                    importoMandatoAnnuo.Value, 
+                    tipoProforma);
+            }
             else if (tipoProforma.ToLower() == "mensile")
             {
                 proformeGenerate = GeneraProformeMensile(
@@ -151,7 +161,7 @@ namespace ConsultingGroup.Services
         }
 
         /// <summary>
-        /// Genera 2 proforma bimestrali
+        /// Genera 6 proforma bimestrali (ogni 2 mesi)
         /// </summary>
         private List<ProformaGenerata> GeneraProformeBimestrale(
             int idCliente, 
@@ -162,9 +172,60 @@ namespace ConsultingGroup.Services
             string tipoProforma)
         {
             var proforms = new List<ProformaGenerata>();
-            var importoBimestrale = Math.Round(importoAnnuo / 2, 2);
+            var importoBimestrale = Math.Round(importoAnnuo / 6, 2);
 
-            // Date bimestrali: 30/06 e 31/12
+            // Date bimestrali: ogni 2 mesi
+            var isLeapYear = DateTime.IsLeapYear(anno);
+            var dateScadenze = new List<DateTime>
+            {
+                new DateTime(anno, 2, isLeapYear ? 29 : 28),  // Gen-Feb
+                new DateTime(anno, 4, 30),                    // Mar-Apr  
+                new DateTime(anno, 6, 30),                    // Mag-Giu
+                new DateTime(anno, 8, 31),                    // Lug-Ago
+                new DateTime(anno, 10, 31),                   // Set-Ott
+                new DateTime(anno, 12, 31)                    // Nov-Dic
+            };
+
+            for (int i = 0; i < 6; i++)
+            {
+                // Per l'ultima rata, aggiusta l'importo per compensare eventuali arrotondamenti
+                var importoRata = (i == 5) ? 
+                    importoAnnuo - (importoBimestrale * 5) : 
+                    importoBimestrale;
+
+                proforms.Add(new ProformaGenerata
+                {
+                    IdCliente = idCliente,
+                    IdAnnoFatturazione = idAnnoFatturazione,
+                    DataMandato = dataMandato,
+                    ImportoMandatoAnnuo = importoAnnuo,
+                    TipoProforma = tipoProforma,
+                    NumeroRata = i + 1,
+                    DataScadenza = dateScadenze[i],
+                    ImportoRata = importoRata,
+                    CreatedAt = DateTime.UtcNow,
+                    UpdatedAt = DateTime.UtcNow
+                });
+            }
+
+            return proforms;
+        }
+
+        /// <summary>
+        /// Genera 2 proforma semestrali
+        /// </summary>
+        private List<ProformaGenerata> GeneraProformeSemestrale(
+            int idCliente, 
+            int idAnnoFatturazione,
+            int anno,
+            DateTime dataMandato, 
+            decimal importoAnnuo, 
+            string tipoProforma)
+        {
+            var proforms = new List<ProformaGenerata>();
+            var importoSemestrale = Math.Round(importoAnnuo / 2, 2);
+
+            // Date semestrali: 30/06 e 31/12
             var dateScadenze = new List<DateTime>
             {
                 new DateTime(anno, 6, 30),   // 30/06/xxxx
@@ -175,8 +236,8 @@ namespace ConsultingGroup.Services
             {
                 // Per la seconda rata, aggiusta l'importo per compensare eventuali arrotondamenti
                 var importoRata = (i == 1) ? 
-                    importoAnnuo - importoBimestrale : 
-                    importoBimestrale;
+                    importoAnnuo - importoSemestrale : 
+                    importoSemestrale;
 
                 proforms.Add(new ProformaGenerata
                 {

@@ -181,10 +181,7 @@
                                 <label asp-for="ProformaTipo" class="form-label">
                                     <i class="fas fa-calendar-check me-1"></i>@Html.DisplayNameFor(model => model.ProformaTipo)
                                 </label>
-                                <select asp-for="ProformaTipo" class="form-select" id="proformaTipo">
-                                    <option value="trimestrale" selected="@(Model.ProformaTipo == "trimestrale" || string.IsNullOrEmpty(Model.ProformaTipo) ? "selected" : null)">Trimestrale</option>
-                                    <option value="bimestrale" selected="@(Model.ProformaTipo == "bimestrale" ? "selected" : null)">Bimestrale</option>
-                                    <option value="mensile" selected="@(Model.ProformaTipo == "mensile" ? "selected" : null)">Mensile</option>
+                                <select asp-for="ProformaTipo" asp-items="@Model.PeriodicittaDisponibili" class="form-select" id="proformaTipo">
                                 </select>
                                 <span asp-validation-for="ProformaTipo" class="text-danger"></span>
                             </div>
@@ -636,10 +633,11 @@
                 
                 if (periodicita === 'trimestrale') {
                     const importoTrimestrale = (importoAnnuo / 4).toFixed(2);
-                    titoloRiepilogo.textContent = 'Riepilogo Proforma Trimestrali';
+                    titoloRiepilogo.textContent = 'Riepilogo Proforma Trimestrali (Anteprima)';
                     
                     let html = '<div class="col-12"><div class="table-responsive"><table class="table table-sm table-striped">';
                     html += '<thead class="table-success"><tr><th>Trimestre</th><th>Data Scadenza</th><th>Importo</th></tr></thead><tbody>';
+                    html += '<tr><td colspan="3" class="text-muted text-center"><i class="fas fa-info-circle me-1"></i>Le proforma saranno generate automaticamente dopo il salvataggio del cliente</td></tr>';
                     
                     dateTrimestrali.forEach(item => {
                         html += `<tr><td><strong>${item.mese}</strong></td><td>${item.data}</td><td><strong>€${importoTrimestrale}</strong></td></tr>`;
@@ -649,17 +647,23 @@
                     contenutoRiepilogo.innerHTML = html;
                     
                 } else if (periodicita === 'bimestrale') {
-                    const importoBimestrale = (importoAnnuo / 2).toFixed(2);
-                    titoloRiepilogo.textContent = 'Riepilogo Proforma Bimestrali';
+                    const importoBimestrale = (importoAnnuo / 6).toFixed(2);
+                    titoloRiepilogo.textContent = 'Riepilogo Proforma Bimestrali (Anteprima)';
                     
-                    // Date bimestrali: 30/06 e 31/12
+                    // Date bimestrali: ogni 2 mesi (6 rate all'anno)
+                    const isLeapYear = annoCorrente % 4 === 0 && (annoCorrente % 100 !== 0 || annoCorrente % 400 === 0);
                     const dateBimestrali = [
-                        { mese: '1° Semestre', data: `30/06/${annoCorrente}` },
-                        { mese: '2° Semestre', data: `31/12/${annoCorrente}` }
+                        { mese: 'Gen-Feb', data: `${isLeapYear ? '29' : '28'}/02/${annoCorrente}` },
+                        { mese: 'Mar-Apr', data: `30/04/${annoCorrente}` },
+                        { mese: 'Mag-Giu', data: `30/06/${annoCorrente}` },
+                        { mese: 'Lug-Ago', data: `31/08/${annoCorrente}` },
+                        { mese: 'Set-Ott', data: `31/10/${annoCorrente}` },
+                        { mese: 'Nov-Dic', data: `31/12/${annoCorrente}` }
                     ];
                     
                     let html = '<div class="col-12"><div class="table-responsive"><table class="table table-sm table-striped">';
                     html += '<thead class="table-success"><tr><th>Periodo</th><th>Data Scadenza</th><th>Importo</th></tr></thead><tbody>';
+                    html += '<tr><td colspan="3" class="text-muted text-center"><i class="fas fa-info-circle me-1"></i>Le proforma saranno generate automaticamente dopo il salvataggio del cliente</td></tr>';
                     
                     dateBimestrali.forEach(item => {
                         html += `<tr><td><strong>${item.mese}</strong></td><td>${item.data}</td><td><strong>€${importoBimestrale}</strong></td></tr>`;
@@ -668,14 +672,36 @@
                     html += '</tbody></table></div></div>';
                     contenutoRiepilogo.innerHTML = html;
                     
+                } else if (periodicita === 'semestrale') {
+                    const importoSemestrale = (importoAnnuo / 2).toFixed(2);
+                    titoloRiepilogo.textContent = 'Riepilogo Proforma Semestrali (Anteprima)';
+                    
+                    // Date semestrali: 2 rate semestrali
+                    const dateSemestrali = [
+                        { mese: '1° Semestre', data: `30/06/${annoCorrente}` },
+                        { mese: '2° Semestre', data: `31/12/${annoCorrente}` }
+                    ];
+                    
+                    let html = '<div class="col-12"><div class="table-responsive"><table class="table table-sm table-striped">';
+                    html += '<thead class="table-success"><tr><th>Periodo</th><th>Data Scadenza</th><th>Importo</th></tr></thead><tbody>';
+                    html += '<tr><td colspan="3" class="text-muted text-center"><i class="fas fa-info-circle me-1"></i>Le proforma saranno generate automaticamente dopo il salvataggio del cliente</td></tr>';
+                    
+                    dateSemestrali.forEach(item => {
+                        html += `<tr><td><strong>${item.mese}</strong></td><td>${item.data}</td><td><strong>€${importoSemestrale}</strong></td></tr>`;
+                    });
+                    
+                    html += '</tbody></table></div></div>';
+                    contenutoRiepilogo.innerHTML = html;
+                    
                 } else if (periodicita === 'mensile') {
                     const importoMensile = (importoAnnuo / 12).toFixed(2);
-                    titoloRiepilogo.textContent = 'Riepilogo Proforma Mensili';
+                    titoloRiepilogo.textContent = 'Riepilogo Proforma Mensili (Anteprima)';
                     
                     const dateMensili = getDateMensili(annoCorrente);
                     
                     let html = '<div class="col-12"><div class="table-responsive"><table class="table table-sm table-striped">';
                     html += '<thead class="table-success"><tr><th>Mese</th><th>Data Scadenza</th><th>Importo</th></tr></thead><tbody>';
+                    html += '<tr><td colspan="3" class="text-muted text-center"><i class="fas fa-info-circle me-1"></i>Le proforma saranno generate automaticamente dopo il salvataggio del cliente</td></tr>';
                     
                     dateMensili.forEach(item => {
                         html += `<tr><td><strong>${item.mese}</strong></td><td>${item.data}</td><td><strong>€${importoMensile}</strong></td></tr>`;

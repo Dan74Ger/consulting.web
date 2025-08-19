@@ -212,10 +212,7 @@
                                 <label asp-for="ProformaTipo" class="form-label">
                                     <i class="fas fa-calendar-check me-1"></i>@Html.DisplayNameFor(model => model.ProformaTipo)
                                 </label>
-                                <select asp-for="ProformaTipo" class="form-select" id="proformaTipo">
-                                    <option value="trimestrale" selected="@(Model.ProformaTipo == "trimestrale" ? "selected" : null)">Trimestrale</option>
-                                    <option value="bimestrale" selected="@(Model.ProformaTipo == "bimestrale" ? "selected" : null)">Bimestrale</option>
-                                    <option value="mensile" selected="@(Model.ProformaTipo == "mensile" ? "selected" : null)">Mensile</option>
+                                <select asp-for="ProformaTipo" asp-items="@Model.PeriodicittaDisponibili" class="form-select" id="proformaTipo">
                                 </select>
                                 <span asp-validation-for="ProformaTipo" class="text-danger"></span>
                             </div>
@@ -231,6 +228,10 @@
                                         </h6>
                                     </div>
                                     <div class="card-body">
+                                        <div class="alert alert-info mb-3" id="istruzioniProforma" style="display: none;">
+                                            <i class="fas fa-info-circle me-2"></i>
+                                            <strong>Come modificare:</strong> Cambia date e/o importi negli input, poi premi il pulsante <strong>"💾 Salva"</strong> per ogni rata che vuoi aggiornare nel database.
+                                        </div>
                                         <div id="contenutoRiepilogo" class="row">
                                             <!-- Il contenuto verrà generato dinamicamente -->
                                         </div>
@@ -759,6 +760,154 @@
             }
         });
         
+        // Funzione globale per salvare una singola proforma modificata
+        async function salvaProformaSingola(periodo, tipoProforma) {
+            console.log('🔵 salvaProformaSingola chiamata:', periodo, tipoProforma);
+            const clienteId = @Model.IdCliente;
+            console.log('🔵 Cliente ID:', clienteId);
+            
+            // Trova gli input relativi a questo periodo
+            const dateInput = document.querySelector(`.date-input[data-periodo="${periodo}"]`);
+            const importoInput = document.querySelector(`.importo-input[data-periodo="${periodo}"]`);
+            const saveBtn = document.querySelector(`.save-proforma-btn[data-periodo="${periodo}"]`);
+            
+            console.log('🔵 Elementi trovati:', {
+                dateInput: dateInput,
+                importoInput: importoInput,
+                saveBtn: saveBtn
+            });
+            
+            if (!dateInput || !importoInput) {
+                alert('Errore: impossibile trovare i campi di input.');
+                console.error('❌ Elementi mancanti:', { dateInput, importoInput, saveBtn });
+                return;
+            }
+            
+            const dataScadenza = dateInput.value;
+            const importoRata = parseFloat(importoInput.value);
+            
+            console.log('🔵 Valori da salvare:', {
+                dataScadenza: dataScadenza,
+                importoRata: importoRata
+            });
+            
+            // Validazioni client-side
+            if (!dataScadenza) {
+                alert('Inserire una data di scadenza valida.');
+                dateInput.focus();
+                return;
+            }
+            
+            if (isNaN(importoRata) || importoRata <= 0) {
+                alert('Inserire un importo valido maggiore di zero.');
+                importoInput.focus();
+                return;
+            }
+            
+            // Validazione data: solo formato corretto, accettiamo anche date passate
+            const dataInserita = new Date(dataScadenza);
+            if (isNaN(dataInserita.getTime())) {
+                alert('Inserire una data valida.');
+                dateInput.focus();
+                return;
+            }
+            
+            // Disabilita il pulsante durante il salvataggio
+            saveBtn.disabled = true;
+            saveBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+            
+            try {
+                // Prima carica le proforma esistenti per trovare l'ID
+                const proformeResponse = await fetch(`/Clienti/GetProformeCliente?idCliente=${clienteId}`);
+                const proformeData = await proformeResponse.json();
+                
+                if (!proformeData.success || !proformeData.proforma || proformeData.proforma.length === 0) {
+                    alert('Errore: impossibile trovare le proforma esistenti. Assicurarsi di aver salvato il cliente prima.');
+                    return;
+                }
+                
+                // Trova la proforma corrispondente al periodo
+                const proforma = proformeData.proforma.find(p => p.numeroRata === periodo && p.tipoProforma === tipoProforma);
+                if (!proforma) {
+                    alert(`Errore: impossibile trovare la proforma per il periodo ${periodo}.`);
+                    return;
+                }
+                
+                // Effettua l'aggiornamento
+                console.log('Invio richiesta aggiornamento:', {
+                    idProforma: proforma.idProforma,
+                    dataScadenza: dataScadenza,
+                    importoRata: importoRata
+                });
+                
+                // Ottieni il token anti-forgery
+                const token = document.querySelector('input[name="__RequestVerificationToken"]')?.value;
+                
+                const formData = new URLSearchParams({
+                    idProforma: proforma.idProforma,
+                    dataScadenza: dataScadenza,
+                    importoRata: importoRata
+                });
+                
+                if (token) {
+                    formData.append('__RequestVerificationToken', token);
+                }
+                
+                const response = await fetch('/Clienti/UpdateProformaCustom', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                    },
+                    body: formData
+                });
+                
+                console.log('Response status:', response.status);
+                console.log('Response headers:', [...response.headers.entries()]);
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    // Feedback visivo di successo
+                    saveBtn.className = 'btn btn-sm btn-success save-proforma-btn';
+                    saveBtn.innerHTML = '<i class="fas fa-check"></i> Salvato!';
+                    
+                    // Mostra messaggio di conferma temporaneo
+                    const row = saveBtn.closest('tr');
+                    if (row) {
+                        row.style.backgroundColor = '#d4edda';
+                        setTimeout(() => {
+                            row.style.backgroundColor = '';
+                        }, 3000);
+                    }
+                    
+                    // Ripristina il pulsante dopo 3 secondi
+                    setTimeout(() => {
+                        saveBtn.className = 'btn btn-sm btn-outline-primary save-proforma-btn';
+                        saveBtn.innerHTML = '<i class="fas fa-save"></i> Salva';
+                        saveBtn.disabled = false;
+                    }, 3000);
+                    
+                    console.log('✅ Proforma aggiornata:', result);
+                    
+                    // Mostra toast di successo se disponibile
+                    if (typeof window.showToast === 'function') {
+                        window.showToast('Proforma salvata con successo!', 'success');
+                    }
+                } else {
+                    alert('Errore: ' + result.message);
+                }
+            } catch (error) {
+                console.error('❌ Errore durante il salvataggio:', error);
+                alert('Errore durante il salvataggio: ' + error.message);
+            } finally {
+                // Ripristina il pulsante in caso di errore
+                if (saveBtn.disabled) {
+                    saveBtn.disabled = false;
+                    saveBtn.innerHTML = '<i class="fas fa-save"></i> Salva';
+                }
+            }
+        }
+        
         // Script per gestire il riepilogo dinamico delle proforma con rigenerazione
         const proformaTipoSelect = document.getElementById('proformaTipo');
         const importoMandatoInput = document.getElementById('importoMandatoAnnuo');
@@ -822,36 +971,79 @@
             
             riepilogoContainer.style.display = 'block';
             
+            // Se l'utente ha modificato valori manualmente, non sovrascriverli
+            if (userHasModifiedValues) {
+                console.log('🚫 Evito di sovrascrivere valori modificati manualmente');
+                return;
+            }
+            
             if (periodicita === 'trimestrale') {
                 const importoTrimestrale = (importoAnnuo / 4).toFixed(2);
                 titoloRiepilogo.textContent = 'Riepilogo Proforma Trimestrali';
                 
                 const dateTrimestrali = getDateTrimestrali(annoCorrente);
                 let html = '<div class="col-12"><div class="table-responsive"><table class="table table-sm table-striped">';
-                html += '<thead class="table-warning"><tr><th>Trimestre</th><th>Data Scadenza</th><th>Importo</th></tr></thead><tbody>';
+                html += '<thead class="table-warning"><tr><th>Trimestre</th><th>Data Scadenza</th><th>Importo</th><th>Azioni</th></tr></thead><tbody>';
                 
-                dateTrimestrali.forEach(item => {
-                    html += `<tr><td><strong>${item.mese}</strong></td><td>${item.data}</td><td><strong>€${importoTrimestrale}</strong></td></tr>`;
+                dateTrimestrali.forEach((item, index) => {
+                    const dataInput = `<input type="date" class="form-control form-control-sm date-input" data-periodo="${index + 1}" value="${convertToInputDate(item.data)}" style="width: 140px;">`;
+                    const importoInput = `<input type="number" class="form-control form-control-sm importo-input" data-periodo="${index + 1}" value="${importoTrimestrale}" step="0.01" min="0" style="width: 100px;">`;
+                    const salvaBtn = `<button class="btn btn-sm btn-outline-primary save-proforma-btn" data-periodo="${index + 1}" onclick="salvaProformaSingola(${index + 1}, 'trimestrale')" title="Salva questa rata nel database"><i class="fas fa-save"></i> Salva</button>`;
+                    
+                    html += `<tr><td><strong>${item.mese}</strong></td><td>${dataInput}</td><td>€${importoInput}</td><td>${salvaBtn}</td></tr>`;
                 });
                 
                 html += '</tbody></table></div></div>';
                 contenutoRiepilogo.innerHTML = html;
                 
             } else if (periodicita === 'bimestrale') {
-                const importoBimestrale = (importoAnnuo / 2).toFixed(2);
+                const importoBimestrale = (importoAnnuo / 6).toFixed(2);
                 titoloRiepilogo.textContent = 'Riepilogo Proforma Bimestrali';
                 
-                // Date bimestrali: 30/06 e 31/12
+                // Date bimestrali: ogni 2 mesi (6 rate all'anno)
+                const isLeapYear = annoCorrente % 4 === 0 && (annoCorrente % 100 !== 0 || annoCorrente % 400 === 0);
                 const dateBimestrali = [
+                    { mese: 'Gen-Feb', data: `${isLeapYear ? '29' : '28'}/02/${annoCorrente}` },
+                    { mese: 'Mar-Apr', data: `30/04/${annoCorrente}` },
+                    { mese: 'Mag-Giu', data: `30/06/${annoCorrente}` },
+                    { mese: 'Lug-Ago', data: `31/08/${annoCorrente}` },
+                    { mese: 'Set-Ott', data: `31/10/${annoCorrente}` },
+                    { mese: 'Nov-Dic', data: `31/12/${annoCorrente}` }
+                ];
+                
+                let html = '<div class="col-12"><div class="table-responsive"><table class="table table-sm table-striped">';
+                html += '<thead class="table-warning"><tr><th>Periodo</th><th>Data Scadenza</th><th>Importo</th><th>Azioni</th></tr></thead><tbody>';
+                
+                dateBimestrali.forEach((item, index) => {
+                    const dataInput = `<input type="date" class="form-control form-control-sm date-input" data-periodo="${index + 1}" value="${convertToInputDate(item.data)}" style="width: 140px;">`;
+                    const importoInput = `<input type="number" class="form-control form-control-sm importo-input" data-periodo="${index + 1}" value="${importoBimestrale}" step="0.01" min="0" style="width: 100px;">`;
+                    const salvaBtn = `<button class="btn btn-sm btn-outline-primary save-proforma-btn" data-periodo="${index + 1}" onclick="salvaProformaSingola(${index + 1}, 'bimestrale')" title="Salva questa rata nel database"><i class="fas fa-save"></i> Salva</button>`;
+                    
+                    html += `<tr><td><strong>${item.mese}</strong></td><td>${dataInput}</td><td>€${importoInput}</td><td>${salvaBtn}</td></tr>`;
+                });
+                
+                html += '</tbody></table></div></div>';
+                contenutoRiepilogo.innerHTML = html;
+                
+            } else if (periodicita === 'semestrale') {
+                const importoSemestrale = (importoAnnuo / 2).toFixed(2);
+                titoloRiepilogo.textContent = 'Riepilogo Proforma Semestrali';
+                
+                // Date semestrali: 2 rate semestrali
+                const dateSemestrali = [
                     { mese: '1° Semestre', data: `30/06/${annoCorrente}` },
                     { mese: '2° Semestre', data: `31/12/${annoCorrente}` }
                 ];
                 
                 let html = '<div class="col-12"><div class="table-responsive"><table class="table table-sm table-striped">';
-                html += '<thead class="table-warning"><tr><th>Periodo</th><th>Data Scadenza</th><th>Importo</th></tr></thead><tbody>';
+                html += '<thead class="table-warning"><tr><th>Periodo</th><th>Data Scadenza</th><th>Importo</th><th>Azioni</th></tr></thead><tbody>';
                 
-                dateBimestrali.forEach(item => {
-                    html += `<tr><td><strong>${item.mese}</strong></td><td>${item.data}</td><td><strong>€${importoBimestrale}</strong></td></tr>`;
+                dateSemestrali.forEach((item, index) => {
+                    const dataInput = `<input type="date" class="form-control form-control-sm date-input" data-periodo="${index + 1}" value="${convertToInputDate(item.data)}" style="width: 140px;">`;
+                    const importoInput = `<input type="number" class="form-control form-control-sm importo-input" data-periodo="${index + 1}" value="${importoSemestrale}" step="0.01" min="0" style="width: 100px;">`;
+                    const salvaBtn = `<button class="btn btn-sm btn-outline-primary save-proforma-btn" data-periodo="${index + 1}" onclick="salvaProformaSingola(${index + 1}, 'semestrale')" title="Salva questa rata nel database"><i class="fas fa-save"></i> Salva</button>`;
+                    
+                    html += `<tr><td><strong>${item.mese}</strong></td><td>${dataInput}</td><td>€${importoInput}</td><td>${salvaBtn}</td></tr>`;
                 });
                 
                 html += '</tbody></table></div></div>';
@@ -863,16 +1055,41 @@
                 
                 const dateMensili = getDateMensili(annoCorrente);
                 let html = '<div class="col-12"><div class="table-responsive"><table class="table table-sm table-striped">';
-                html += '<thead class="table-warning"><tr><th>Mese</th><th>Data Scadenza</th><th>Importo</th></tr></thead><tbody>';
+                html += '<thead class="table-warning"><tr><th>Mese</th><th>Data Scadenza</th><th>Importo</th><th>Azioni</th></tr></thead><tbody>';
                 
-                dateMensili.forEach(item => {
-                    html += `<tr><td><strong>${item.mese}</strong></td><td>${item.data}</td><td><strong>€${importoMensile}</strong></td></tr>`;
+                dateMensili.forEach((item, index) => {
+                    const dataInput = `<input type="date" class="form-control form-control-sm date-input" data-periodo="${index + 1}" value="${convertToInputDate(item.data)}" style="width: 140px;">`;
+                    const importoInput = `<input type="number" class="form-control form-control-sm importo-input" data-periodo="${index + 1}" value="${importoMensile}" step="0.01" min="0" style="width: 100px;">`;
+                    const salvaBtn = `<button class="btn btn-sm btn-outline-primary save-proforma-btn" data-periodo="${index + 1}" onclick="salvaProformaSingola(${index + 1}, 'mensile')" title="Salva questa rata nel database"><i class="fas fa-save"></i> Salva</button>`;
+                    
+                    html += `<tr><td><strong>${item.mese}</strong></td><td>${dataInput}</td><td>€${importoInput}</td><td>${salvaBtn}</td></tr>`;
                 });
                 
                 html += '</tbody></table></div></div>';
                 contenutoRiepilogo.innerHTML = html;
             }
         }
+        
+        // Funzione per convertire data italiana in formato input date (YYYY-MM-DD)
+        function convertToInputDate(italianDate) {
+            // Converte da "30/06/2025" a "2025-06-30"
+            const parts = italianDate.split('/');
+            if (parts.length === 3) {
+                return `${parts[2]}-${parts[1].padStart(2, '0')}-${parts[0].padStart(2, '0')}`;
+            }
+            return '';
+        }
+        
+        // Funzione per convertire data input in formato italiano
+        function convertToItalianDate(inputDate) {
+            // Converte da "2025-06-30" a "30/06/2025"
+            const parts = inputDate.split('-');
+            if (parts.length === 3) {
+                return `${parts[2]}/${parts[1]}/${parts[0]}`;
+            }
+            return '';
+        }
+
         
         // Funzione per verificare se i dati mandato sono cambiati
         function checkMandatoChanges() {
@@ -944,14 +1161,49 @@
         
         // Event listeners per i cambiamenti dei dati mandato
         if (proformaTipoSelect) {
-            proformaTipoSelect.addEventListener('change', function() {
+            proformaTipoSelect.addEventListener('change', async function() {
                 console.log('Periodicità cambiata:', this.value);
                 console.log('Valore iniziale:', initialMandatoValues.proformaTipo);
                 
-                updateRiepilogo();
+                // Se è un cliente esistente, cambia la periodicità nel database
+                const clienteId = @Model.IdCliente;
+                if (clienteId > 0 && this.value !== initialMandatoValues.proformaTipo) {
+                    try {
+                        console.log('Cambio periodicità nel database...');
+                        const response = await fetch('/Clienti/CambiaPeriodicita', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/x-www-form-urlencoded',
+                            },
+                            body: new URLSearchParams({
+                                idCliente: clienteId,
+                                nuovaPeriodicita: this.value
+                            })
+                        });
+                        
+                        const result = await response.json();
+                        if (result.success) {
+                            console.log('Periodicità cambiata con successo:', result.message);
+                            // Aggiorna i valori iniziali
+                            initialMandatoValues.proformaTipo = this.value;
+                            userHasModifiedValues = false;
+                            // Carica le nuove proforma
+                            await caricaProformeEsistenti();
+                        } else {
+                            console.error('Errore nel cambio periodicità:', result.message);
+                            alert('Errore nel cambio di periodicità: ' + result.message);
+                        }
+                    } catch (error) {
+                        console.error('Errore nella richiesta di cambio periodicità:', error);
+                        alert('Errore nella comunicazione con il server');
+                    }
+                } else {
+                    // Cliente nuovo o stessa periodicità, usa calcolo automatico
+                    updateRiepilogo();
+                }
                 
-                // Se è in modifica e i dati sono cambiati, richiedi conferma
-                if (checkMandatoChanges()) {
+                // Se è in modifica e i dati sono cambiati, richiedi conferma (solo per altri campi)
+                if (checkMandatoChanges() && this.value === initialMandatoValues.proformaTipo) {
                     console.log('Dati mandato cambiati, richiedo conferma...');
                     regenerateProformaWithConfirmation();
                 }
@@ -988,8 +1240,143 @@
         // Cattura i valori iniziali dopo un breve delay per assicurarsi che il DOM sia pronto
         setTimeout(captureInitialValues, 100);
         
-        // Inizializza
-        updateRiepilogo();
+        // Funzione per caricare e popolare proforma esistenti
+        async function caricaProformeEsistenti() {
+            if (!importoMandatoInput || !proformaTipoSelect || !importoMandatoInput.value || !proformaTipoSelect.value) {
+                return; // Non ci sono dati mandato, usa il calcolo automatico
+            }
+            
+            try {
+                const clienteId = @Model.IdCliente;
+                const response = await fetch(`/Clienti/GetProformeCliente?idCliente=${clienteId}`);
+                const data = await response.json();
+                
+                if (data.success && data.proforma && data.proforma.length > 0) {
+                    console.log('Proforma esistenti trovate:', data.proforma);
+                    
+                    // Aggiorna il riepilogo con i dati reali
+                    const tipoProforma = proformaTipoSelect.value;
+                    await updateRiepilogoConProformeEsistenti(data.proforma, tipoProforma);
+                } else {
+                    // Nessuna proforma esistente, usa il calcolo automatico
+                    updateRiepilogo();
+                }
+            } catch (error) {
+                console.error('Errore nel caricamento proforma esistenti:', error);
+                // In caso di errore, fallback al calcolo automatico
+                updateRiepilogo();
+            }
+        }
+        
+        // Funzione per aggiornare il riepilogo con proforma esistenti
+        async function updateRiepilogoConProformeEsistenti(proformeEsistenti, tipoProforma) {
+            if (!proformeEsistenti || proformeEsistenti.length === 0) {
+                updateRiepilogo();
+                return;
+            }
+            
+            riepilogoContainer.style.display = 'block';
+            
+            // Mostra le istruzioni per la modifica
+            const istruzioniEl = document.getElementById('istruzioniProforma');
+            if (istruzioniEl) {
+                istruzioniEl.style.display = 'block';
+            }
+            
+            // Ordina le proforma per numero rata
+            const proformeOrdinate = proformeEsistenti.sort((a, b) => a.numeroRata - b.numeroRata);
+            
+            let html = '<div class="col-12"><div class="table-responsive"><table class="table table-sm table-striped">';
+            
+            if (tipoProforma === 'trimestrale') {
+                titoloRiepilogo.textContent = 'Riepilogo Proforma Trimestrali';
+                html += '<thead class="table-warning"><tr><th>Trimestre</th><th>Data Scadenza</th><th>Importo</th><th>Azioni</th></tr></thead><tbody>';
+                
+                const nomiTrimestri = ['1° Trimestre', '2° Trimestre', '3° Trimestre', '4° Trimestre'];
+                proformeOrdinate.forEach((proforma, index) => {
+                    const nomeperiodo = nomiTrimestri[index] || `${proforma.numeroRata}° Trimestre`;
+                    const dataFormatted = formatDateForInput(proforma.dataScadenza);
+                    const dataInput = `<input type="date" class="form-control form-control-sm date-input" data-periodo="${proforma.numeroRata}" value="${dataFormatted}" style="width: 140px;">`;
+                    const importoInput = `<input type="number" class="form-control form-control-sm importo-input" data-periodo="${proforma.numeroRata}" value="${proforma.importoRata}" step="0.01" min="0" style="width: 100px;">`;
+                    const salvaBtn = `<button class="btn btn-sm btn-outline-primary save-proforma-btn" data-periodo="${proforma.numeroRata}" onclick="salvaProformaSingola(${proforma.numeroRata}, 'trimestrale')" title="Salva questa rata nel database"><i class="fas fa-save"></i> Salva</button>`;
+                    
+                    html += `<tr><td><strong>${nomeperiodo}</strong></td><td>${dataInput}</td><td>€${importoInput}</td><td>${salvaBtn}</td></tr>`;
+                });
+                
+            } else if (tipoProforma === 'bimestrale') {
+                titoloRiepilogo.textContent = 'Riepilogo Proforma Bimestrali';
+                html += '<thead class="table-warning"><tr><th>Periodo</th><th>Data Scadenza</th><th>Importo</th><th>Azioni</th></tr></thead><tbody>';
+                
+                const nomiBimestrali = ['Gen-Feb', 'Mar-Apr', 'Mag-Giu', 'Lug-Ago', 'Set-Ott', 'Nov-Dic'];
+                proformeOrdinate.forEach((proforma, index) => {
+                    const nomeperiodo = nomiBimestrali[index] || `Bimestre ${proforma.numeroRata}`;
+                    const dataFormatted = formatDateForInput(proforma.dataScadenza);
+                    const dataInput = `<input type="date" class="form-control form-control-sm date-input" data-periodo="${proforma.numeroRata}" value="${dataFormatted}" style="width: 140px;">`;
+                    const importoInput = `<input type="number" class="form-control form-control-sm importo-input" data-periodo="${proforma.numeroRata}" value="${proforma.importoRata}" step="0.01" min="0" style="width: 100px;">`;
+                    const salvaBtn = `<button class="btn btn-sm btn-outline-primary save-proforma-btn" data-periodo="${proforma.numeroRata}" onclick="salvaProformaSingola(${proforma.numeroRata}, 'bimestrale')" title="Salva questa rata nel database"><i class="fas fa-save"></i> Salva</button>`;
+                    
+                    html += `<tr><td><strong>${nomeperiodo}</strong></td><td>${dataInput}</td><td>€${importoInput}</td><td>${salvaBtn}</td></tr>`;
+                });
+                
+            } else if (tipoProforma === 'semestrale') {
+                titoloRiepilogo.textContent = 'Riepilogo Proforma Semestrali';
+                html += '<thead class="table-warning"><tr><th>Periodo</th><th>Data Scadenza</th><th>Importo</th><th>Azioni</th></tr></thead><tbody>';
+                
+                const nomiSemestri = ['1° Semestre', '2° Semestre'];
+                proformeOrdinate.forEach((proforma, index) => {
+                    const nomeperiodo = nomiSemestri[index] || `${proforma.numeroRata}° Semestre`;
+                    const dataFormatted = formatDateForInput(proforma.dataScadenza);
+                    const dataInput = `<input type="date" class="form-control form-control-sm date-input" data-periodo="${proforma.numeroRata}" value="${dataFormatted}" style="width: 140px;">`;
+                    const importoInput = `<input type="number" class="form-control form-control-sm importo-input" data-periodo="${proforma.numeroRata}" value="${proforma.importoRata}" step="0.01" min="0" style="width: 100px;">`;
+                    const salvaBtn = `<button class="btn btn-sm btn-outline-primary save-proforma-btn" data-periodo="${proforma.numeroRata}" onclick="salvaProformaSingola(${proforma.numeroRata}, 'semestrale')" title="Salva questa rata nel database"><i class="fas fa-save"></i> Salva</button>`;
+                    
+                    html += `<tr><td><strong>${nomeperiodo}</strong></td><td>${dataInput}</td><td>€${importoInput}</td><td>${salvaBtn}</td></tr>`;
+                });
+                
+            } else if (tipoProforma === 'mensile') {
+                titoloRiepilogo.textContent = 'Riepilogo Proforma Mensili';
+                html += '<thead class="table-warning"><tr><th>Mese</th><th>Data Scadenza</th><th>Importo</th><th>Azioni</th></tr></thead><tbody>';
+                
+                const nomiMesi = ['Gennaio', 'Febbraio', 'Marzo', 'Aprile', 'Maggio', 'Giugno', 
+                                 'Luglio', 'Agosto', 'Settembre', 'Ottobre', 'Novembre', 'Dicembre'];
+                proformeOrdinate.forEach((proforma, index) => {
+                    const nomeMese = nomiMesi[index] || `Mese ${proforma.numeroRata}`;
+                    const dataFormatted = formatDateForInput(proforma.dataScadenza);
+                    const dataInput = `<input type="date" class="form-control form-control-sm date-input" data-periodo="${proforma.numeroRata}" value="${dataFormatted}" style="width: 140px;">`;
+                    const importoInput = `<input type="number" class="form-control form-control-sm importo-input" data-periodo="${proforma.numeroRata}" value="${proforma.importoRata}" step="0.01" min="0" style="width: 100px;">`;
+                    const salvaBtn = `<button class="btn btn-sm btn-outline-primary save-proforma-btn" data-periodo="${proforma.numeroRata}" onclick="salvaProformaSingola(${proforma.numeroRata}, 'mensile')" title="Salva questa rata nel database"><i class="fas fa-save"></i> Salva</button>`;
+                    
+                    html += `<tr><td><strong>${nomeMese}</strong></td><td>${dataInput}</td><td>€${importoInput}</td><td>${salvaBtn}</td></tr>`;
+                });
+            }
+            
+            html += '</tbody></table></div></div>';
+            contenutoRiepilogo.innerHTML = html;
+        }
+        
+        // Funzione per formattare data da backend per input HTML
+        function formatDateForInput(dateString) {
+            // Il backend restituisce "yyyy-mm-dd", che è già il formato corretto per input date
+            return dateString;
+        }
+        
+        // Flag per tracciare se l'utente ha modificato valori manualmente
+        let userHasModifiedValues = false;
+        
+        // Aggiungi event listeners per rilevare modifiche manuali
+        document.addEventListener('change', function(event) {
+            if (event.target.classList.contains('date-input') || event.target.classList.contains('importo-input')) {
+                userHasModifiedValues = true;
+                console.log('🔄 Rilevata modifica manuale dall\'utente');
+            }
+        });
+        
+        // Inizializza - prima carica proforma esistenti, poi fallback a calcolo automatico
+        setTimeout(async () => {
+            if (!userHasModifiedValues) {
+                await caricaProformeEsistenti();
+            }
+        }, 200);
     </script>
     @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
 }

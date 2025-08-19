@@ -798,6 +798,92 @@ namespace ConsultingGroup.Controllers
             return _context.Clienti.Any(e => e.IdCliente == id);
         }
 
+        [HttpPost]
+        [IgnoreAntiforgeryToken]
+        public async Task<IActionResult> CambiaPeriodicita(int idCliente, string nuovaPeriodicita)
+        {
+            try
+            {
+                Console.WriteLine($"[CambiaPeriodicita] Inizio: idCliente={idCliente}, nuovaPeriodicita={nuovaPeriodicita}");
+                
+                var cliente = await _context.Clienti.FindAsync(idCliente);
+                if (cliente == null)
+                {
+                    Console.WriteLine($"[CambiaPeriodicita] Cliente non trovato: {idCliente}");
+                    return Json(new { success = false, message = "Cliente non trovato" });
+                }
+
+                Console.WriteLine($"[CambiaPeriodicita] Cliente trovato: {cliente.NomeCliente}, ImportoMandato={cliente.ImportoMandatoAnnuo}, DataMandato={cliente.DataMandato}");
+
+                // Elimina tutte le proforma esistenti per questo cliente
+                var proformeEsistenti = await _context.ProformeGenerate
+                    .Where(p => p.IdCliente == idCliente)
+                    .ToListAsync();
+                
+                Console.WriteLine($"[CambiaPeriodicita] Proforma esistenti da eliminare: {proformeEsistenti.Count}");
+                
+                if (proformeEsistenti.Any())
+                {
+                    _context.ProformeGenerate.RemoveRange(proformeEsistenti);
+                }
+
+                // Aggiorna il tipo di proforma del cliente
+                cliente.ProformaTipo = nuovaPeriodicita;
+                cliente.UpdatedAt = DateTime.Now;
+
+                // Crea nuove proforma del nuovo tipo
+                if (!string.IsNullOrEmpty(nuovaPeriodicita) && cliente.ImportoMandatoAnnuo.HasValue && cliente.ImportoMandatoAnnuo > 0)
+                {
+                    Console.WriteLine($"[CambiaPeriodicita] Creazione nuove proforma...");
+                    await _proformaService.GeneraProformeAsync(
+                        idCliente, 
+                        cliente.DataMandato, 
+                        cliente.ImportoMandatoAnnuo.Value, 
+                        nuovaPeriodicita
+                    );
+                    Console.WriteLine($"[CambiaPeriodicita] Nuove proforma create");
+                }
+                else
+                {
+                    Console.WriteLine($"[CambiaPeriodicita] Condizioni non soddisfatte per creare proforma");
+                    Console.WriteLine($"[CambiaPeriodicita] - nuovaPeriodicita vuota: {string.IsNullOrEmpty(nuovaPeriodicita)}");
+                    Console.WriteLine($"[CambiaPeriodicita] - ImportoMandatoAnnuo null: {!cliente.ImportoMandatoAnnuo.HasValue}");
+                    Console.WriteLine($"[CambiaPeriodicita] - ImportoMandatoAnnuo <= 0: {cliente.ImportoMandatoAnnuo <= 0}");
+                }
+
+                await _context.SaveChangesAsync();
+
+                // Ricarica le nuove proforma per restituirle
+                var nuoveProformeCreate = await _context.ProformeGenerate
+                    .Where(p => p.IdCliente == idCliente)
+                    .OrderBy(p => p.NumeroRata)
+                    .Select(p => new {
+                        p.IdProforma,
+                        p.NumeroRata,
+                        p.DataScadenza,
+                        p.ImportoRata,
+                        p.TipoProforma
+                    })
+                    .ToListAsync();
+
+                Console.WriteLine($"[CambiaPeriodicita] Proforma finali trovate: {nuoveProformeCreate.Count}");
+                foreach (var proforma in nuoveProformeCreate)
+                {
+                    Console.WriteLine($"[CambiaPeriodicita] - ID: {proforma.IdProforma}, Rata: {proforma.NumeroRata}, Data: {proforma.DataScadenza:yyyy-MM-dd}, Importo: {proforma.ImportoRata}");
+                }
+
+                return Json(new { 
+                    success = true, 
+                    message = $"Periodicità cambiata in {nuovaPeriodicita}",
+                    proforma = nuoveProformeCreate
+                });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { success = false, message = $"Errore: {ex.Message}" });
+            }
+        }
+
         private async Task PopulateDropdowns(ClientiViewModel viewModel)
         {
             // Programmi
@@ -864,6 +950,16 @@ namespace ConsultingGroup.Controllers
                 })
                 .ToListAsync();
             viewModel.AnniFiscaliDisponibili = anniFiscali;
+
+            // Periodicità Proforma
+            var periodicita = new List<SelectListItem>
+            {
+                new SelectListItem { Value = "trimestrale", Text = "Trimestrale", Selected = viewModel.ProformaTipo == "trimestrale" || (string.IsNullOrEmpty(viewModel.ProformaTipo) && viewModel.IdCliente == 0) },
+                new SelectListItem { Value = "bimestrale", Text = "Bimestrale", Selected = viewModel.ProformaTipo == "bimestrale" },
+                new SelectListItem { Value = "semestrale", Text = "Semestrale", Selected = viewModel.ProformaTipo == "semestrale" },
+                new SelectListItem { Value = "mensile", Text = "Mensile", Selected = viewModel.ProformaTipo == "mensile" }
+            };
+            viewModel.PeriodicittaDisponibili = periodicita;
         }
 
         private ClientiViewModel MapToViewModel(Cliente cliente)
@@ -2158,6 +2254,142 @@ namespace ConsultingGroup.Controllers
             return Json(new { anno = annoCorrente });
         }
 
+        /// <summary>
+        /// API per ottenere le proforma esistenti di un cliente
+        /// </summary>
+        [HttpGet]
+        public async Task<IActionResult> GetProformeCliente(int idCliente)
+        {
+            try
+            {
+                var proformeEsistenti = await _proformaService.GetProformeClienteAsync(idCliente);
+                var proformeData = proformeEsistenti.Select(p => new
+                {
+                    idProforma = p.IdProforma,
+                    numeroRata = p.NumeroRata,
+                    dataScadenza = p.DataScadenza.ToString("yyyy-MM-dd"),
+                    importoRata = p.ImportoRata,
+                    tipoProforma = p.TipoProforma
+                }).ToList();
+
+                return Json(new { success = true, proforma = proformeData });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { success = false, message = $"Errore nel caricamento proforma: {ex.Message}" });
+            }
+        }
+
+        /// <summary>
+        /// API per aggiornare una singola proforma (data e/o importo)
+        /// </summary>
+        [HttpPost]
+        [IgnoreAntiforgeryToken]
+        public async Task<IActionResult> UpdateProformaCustom(int idProforma, DateTime dataScadenza, decimal importoRata)
+        {
+            try
+            {
+                Console.WriteLine($"[UpdateProformaCustom] Ricevuta richiesta: idProforma={idProforma}, dataScadenza={dataScadenza:yyyy-MM-dd}, importoRata={importoRata}");
+                
+                // Validazioni essenziali
+                if (importoRata <= 0)
+                {
+                    return Json(new { success = false, message = "L'importo deve essere maggiore di zero." });
+                }
+                
+                // Validazione data: solo date valide, non importa se passate
+                if (dataScadenza == DateTime.MinValue)
+                {
+                    return Json(new { success = false, message = "Inserire una data di scadenza valida." });
+                }
+
+                var proforma = await _context.ProformeGenerate.FindAsync(idProforma);
+                if (proforma == null)
+                {
+                    Console.WriteLine($"[UpdateProformaCustom] Proforma non trovata con ID: {idProforma}");
+                    return Json(new { success = false, message = "Proforma non trovata." });
+                }
+
+                Console.WriteLine($"[UpdateProformaCustom] Proforma trovata: ID={proforma.IdProforma}, Cliente={proforma.IdCliente}, Rata={proforma.NumeroRata}");
+                Console.WriteLine($"[UpdateProformaCustom] Valori precedenti: Data={proforma.DataScadenza:yyyy-MM-dd}, Importo={proforma.ImportoRata}");
+
+                // Aggiorna i valori
+                proforma.DataScadenza = dataScadenza;
+                proforma.ImportoRata = importoRata;
+                proforma.UpdatedAt = DateTime.UtcNow;
+
+                Console.WriteLine($"[UpdateProformaCustom] Valori aggiornati: Data={proforma.DataScadenza:yyyy-MM-dd}, Importo={proforma.ImportoRata}");
+
+                var changesCount = await _context.SaveChangesAsync();
+                Console.WriteLine($"[UpdateProformaCustom] Salvataggio completato. Righe modificate: {changesCount}");
+
+                return Json(new { 
+                    success = true, 
+                    message = "Proforma aggiornata con successo.",
+                    dataScadenza = dataScadenza.ToString("dd/MM/yyyy"),
+                    importoRata = importoRata.ToString("F2")
+                });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { success = false, message = $"Errore nell'aggiornamento: {ex.Message}" });
+            }
+        }
+
+        /// <summary>
+        /// API per aggiornare multiple proforma in batch
+        /// </summary>
+        [HttpPost]
+        [IgnoreAntiforgeryToken]
+        public async Task<IActionResult> UpdateProformeBatch([FromBody] List<ProformaUpdateDto> updates)
+        {
+            try
+            {
+                if (updates == null || !updates.Any())
+                {
+                    return Json(new { success = false, message = "Nessuna modifica da applicare." });
+                }
+
+                var proformaIds = updates.Select(u => u.IdProforma).ToList();
+                var proformeEsistenti = await _context.ProformeGenerate
+                    .Where(p => proformaIds.Contains(p.IdProforma))
+                    .ToListAsync();
+
+                foreach (var update in updates)
+                {
+                    var proforma = proformeEsistenti.FirstOrDefault(p => p.IdProforma == update.IdProforma);
+                    if (proforma != null)
+                    {
+                        // Validazioni essenziali
+                        if (update.ImportoRata <= 0)
+                        {
+                            return Json(new { success = false, message = $"L'importo per la rata {proforma.NumeroRata} deve essere maggiore di zero." });
+                        }
+                        
+                        if (update.DataScadenza == DateTime.MinValue)
+                        {
+                            return Json(new { success = false, message = $"Data di scadenza non valida per la rata {proforma.NumeroRata}." });
+                        }
+
+                        proforma.DataScadenza = update.DataScadenza;
+                        proforma.ImportoRata = update.ImportoRata;
+                        proforma.UpdatedAt = DateTime.UtcNow;
+                    }
+                }
+
+                await _context.SaveChangesAsync();
+
+                return Json(new { 
+                    success = true, 
+                    message = $"Aggiornate {updates.Count} proforma con successo."
+                });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { success = false, message = $"Errore nell'aggiornamento batch: {ex.Message}" });
+            }
+        }
+
 
 
         /// <summary>
@@ -2195,5 +2427,15 @@ namespace ConsultingGroup.Controllers
                 TempData["ProformaError"] = $"Errore nella generazione automatica delle proforma: {ex.Message}";
             }
         }
+    }
+
+    /// <summary>
+    /// DTO per l'aggiornamento batch delle proforma
+    /// </summary>
+    public class ProformaUpdateDto
+    {
+        public int IdProforma { get; set; }
+        public DateTime DataScadenza { get; set; }
+        public decimal ImportoRata { get; set; }
     }
 }

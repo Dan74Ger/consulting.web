@@ -199,6 +199,7 @@ namespace ConsultingGroup.ViewModels
         public List<SelectListItem> RegimiContabiliDisponibili { get; set; } = new List<SelectListItem>();
         public List<SelectListItem> TipologieInpsDisponibili { get; set; } = new List<SelectListItem>();
         public List<SelectListItem> AnniFiscaliDisponibili { get; set; } = new List<SelectListItem>();
+        public List<SelectListItem> PeriodicittaDisponibili { get; set; } = new List<SelectListItem>();
 
         // Proprietà helper per raggruppamento attività
         public int TotaleAttivitaRedditi => 
