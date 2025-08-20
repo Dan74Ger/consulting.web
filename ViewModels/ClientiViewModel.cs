@@ -35,6 +35,9 @@ namespace ConsultingGroup.ViewModels
         [Display(Name = "Periodo Contabilità")]
         public bool PeriodoContabilita { get; set; } = false; // false=Trimestrale, true=Mensile
 
+        [Display(Name = "Tasso per IVA Trimestrale")]
+        public decimal? TassoIvaTrimestrale { get; set; } = 0.01m; // Default: 1%
+
         // ATTIVITÀ REDDITI
         [Display(Name = "Mod. 730")]
         public bool Mod730 { get; set; } = false;

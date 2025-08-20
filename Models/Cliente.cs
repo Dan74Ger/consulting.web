@@ -46,6 +46,10 @@ namespace ConsultingGroup.Models
         [Display(Name = "Periodo Contabilità")]
         public bool PeriodoContabilita { get; set; } = false; // false=Trimestrale, true=Mensile
 
+        [Column("tasso_iva_trimestrale")]
+        [Display(Name = "Tasso per IVA Trimestrale")]
+        public decimal? TassoIvaTrimestrale { get; set; } = 0.01m; // Default: 1%
+
         // ATTIVITÀ REDDITI
         [Column("mod_730")]
         [Display(Name = "Mod. 730")]

@@ -265,6 +265,7 @@ namespace ConsultingGroup.Controllers
                     IdTipologiaInps = viewModel.IdTipologiaInps,
                     Contabilita = viewModel.Contabilita,
                     PeriodoContabilita = viewModel.PeriodoContabilita,
+                    TassoIvaTrimestrale = viewModel.TassoIvaTrimestrale,
                     
                     // Attività Redditi
                     Mod730 = viewModel.Mod730,
@@ -541,6 +542,7 @@ namespace ConsultingGroup.Controllers
                     cliente.IdTipologiaInps = viewModel.IdTipologiaInps;
                     cliente.Contabilita = viewModel.Contabilita;
                     cliente.PeriodoContabilita = viewModel.PeriodoContabilita;
+                    cliente.TassoIvaTrimestrale = viewModel.TassoIvaTrimestrale;
                     
                     // Attività Redditi
                     cliente.Mod730 = viewModel.Mod730;
@@ -975,6 +977,7 @@ namespace ConsultingGroup.Controllers
                 IdTipologiaInps = cliente.IdTipologiaInps,
                 Contabilita = cliente.Contabilita,
                 PeriodoContabilita = cliente.PeriodoContabilita,
+                TassoIvaTrimestrale = cliente.TassoIvaTrimestrale,
                 
                 // Attività Redditi
                 Mod730 = cliente.Mod730,
