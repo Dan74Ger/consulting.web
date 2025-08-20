@@ -139,7 +139,7 @@
                     <div class="contabilita-client-card mb-4" data-client-name="@item.Cliente?.NomeCliente?.ToLower()" data-cliente-id="@item.IdContabilitaInternaTrimestrale">
                         <!-- Header Cliente -->
                         <div class="card border-primary">
-                            <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+                            <div class="card-header bg-secondary text-white d-flex justify-content-between align-items-center">
                                 <div class="d-flex align-items-center gap-3">
                                     <h6 class="mb-0 fw-bold">
                                         <i class="fas fa-user me-2"></i>@item.Cliente?.NomeCliente
@@ -206,12 +206,12 @@
                                                            data-field="PrimoTrimestreLiqIvaImporto">
                                                 </div>
                                                 <div class="col-md-3">
-                                                    <label class="form-label fw-bold">Debito/Credito</label>
-                                                    <select class="form-select" data-field="PrimoTrimestreDebitoCredito">
-                                                        <option value="">--</option>
-                                                        <option value="debito" selected="@(item.PrimoTrimestreDebitoCredito == "debito")">Debito</option>
-                                                        <option value="credito" selected="@(item.PrimoTrimestreDebitoCredito == "credito")">Credito</option>
-                                                    </select>
+                                                    <label class="form-label fw-bold">Debito/Credito <small class="text-muted">(automatico)</small></label>
+                                                    <input type="text" class="form-control bg-light fw-bold text-center" 
+                                                           data-field="PrimoTrimestreDebitoCredito" 
+                                                           value="@item.PrimoTrimestreDebitoCredito" 
+                                                           readonly 
+                                                           style="font-size: 0.9em;">
                                                 </div>
                                             </div>
                                             <div class="row g-3 mt-2">
@@ -288,12 +288,12 @@
                                                            data-field="SecondoTrimestreLiqIvaImporto">
                                                 </div>
                                                 <div class="col-md-3">
-                                                    <label class="form-label fw-bold">Debito/Credito</label>
-                                                    <select class="form-select" data-field="SecondoTrimestreDebitoCredito">
-                                                        <option value="">--</option>
-                                                        <option value="debito" selected="@(item.SecondoTrimestreDebitoCredito == "debito")">Debito</option>
-                                                        <option value="credito" selected="@(item.SecondoTrimestreDebitoCredito == "credito")">Credito</option>
-                                                    </select>
+                                                    <label class="form-label fw-bold">Debito/Credito <small class="text-muted">(automatico)</small></label>
+                                                    <input type="text" class="form-control bg-light fw-bold text-center" 
+                                                           data-field="SecondoTrimestreDebitoCredito" 
+                                                           value="@item.SecondoTrimestreDebitoCredito" 
+                                                           readonly 
+                                                           style="font-size: 0.9em;">
                                                 </div>
                                             </div>
                                             <div class="row g-3 mt-2">
@@ -370,12 +370,12 @@
                                                            data-field="TerzoTrimestreLiqIvaImporto">
                                                 </div>
                                                 <div class="col-md-3">
-                                                    <label class="form-label fw-bold">Debito/Credito</label>
-                                                    <select class="form-select" data-field="TerzoTrimestreDebitoCredito">
-                                                        <option value="">--</option>
-                                                        <option value="debito" selected="@(item.TerzoTrimestreDebitoCredito == "debito")">Debito</option>
-                                                        <option value="credito" selected="@(item.TerzoTrimestreDebitoCredito == "credito")">Credito</option>
-                                                    </select>
+                                                    <label class="form-label fw-bold">Debito/Credito <small class="text-muted">(automatico)</small></label>
+                                                    <input type="text" class="form-control bg-light fw-bold text-center" 
+                                                           data-field="TerzoTrimestreDebitoCredito" 
+                                                           value="@item.TerzoTrimestreDebitoCredito" 
+                                                           readonly 
+                                                           style="font-size: 0.9em;">
                                                 </div>
                                             </div>
                                             <div class="row g-3 mt-2">
@@ -452,12 +452,12 @@
                                                            data-field="QuartoTrimestreLiqIvaImporto">
                                                 </div>
                                                 <div class="col-md-3">
-                                                    <label class="form-label fw-bold">Debito/Credito</label>
-                                                    <select class="form-select" data-field="QuartoTrimestreDebitoCredito">
-                                                        <option value="">--</option>
-                                                        <option value="debito" selected="@(item.QuartoTrimestreDebitoCredito == "debito")">Debito</option>
-                                                        <option value="credito" selected="@(item.QuartoTrimestreDebitoCredito == "credito")">Credito</option>
-                                                    </select>
+                                                    <label class="form-label fw-bold">Debito/Credito <small class="text-muted">(automatico)</small></label>
+                                                    <input type="text" class="form-control bg-light fw-bold text-center" 
+                                                           data-field="QuartoTrimestreDebitoCredito" 
+                                                           value="@item.QuartoTrimestreDebitoCredito" 
+                                                           readonly 
+                                                           style="font-size: 0.9em;">
                                                 </div>
                                             </div>
                                             <div class="row g-3 mt-2">
@@ -839,7 +839,7 @@
                         } else {
                             // Logica originale per filtri F24 e Debito/Credito
                             var f24Value = clientCard.find(`select[data-field="${prefisso}TrimestreF24Consegnato"]`).val();
-                            var debitoCredito = clientCard.find(`select[data-field="${prefisso}TrimestreDebitoCredito"]`).val();
+                            var debitoCredito = clientCard.find(`input[data-field="${prefisso}TrimestreDebitoCredito"]`).val();
                             
                             var matchesTrimestre = true;
                             var matchesF24 = true;
@@ -1002,9 +1002,10 @@
             console.log(`  Step 2: ${credito1 + importoCredito1} - ${importoDebito1} = ${liqIva1}`);
             console.log('T1 CALCOLO FINALE - Formula:', `${credito1} + ${importoCredito1} - ${importoDebito1} = ${liqIva1}`);
             
-            clientCard.find('[data-field="PrimoTrimestreLiqIvaImporto"]').val(liqIva1.toFixed(2));
+                        clientCard.find('[data-field="PrimoTrimestreLiqIvaImporto"]').val(liqIva1.toFixed(2));
+            aggiornaDebitoCredito(clientCard, 'PrimoTrimestre', liqIva1);
             aggiornaTitoloAccordion(clientCard, 'trim1', liqIva1);
-            
+
             console.log('T1 FINALE - LIQ IVA RISULTATO:', liqIva1);
             
             // CALCOLO 2° TRIMESTRE
@@ -1017,6 +1018,7 @@
             
             const liqIva2 = creditoT1perT2 + importoCredito2 - importoDebito2;
             clientCard.find('[data-field="SecondoTrimestreLiqIvaImporto"]').val(liqIva2.toFixed(2));
+            aggiornaDebitoCredito(clientCard, 'SecondoTrimestre', liqIva2);
             aggiornaTitoloAccordion(clientCard, 'trim2', liqIva2);
             
             console.log('T2 - Credito T1:', creditoT1perT2, 'Imp.Credito:', importoCredito2, 'Imp.Debito:', importoDebito2, 'LIQ IVA:', liqIva2);
@@ -1031,6 +1033,7 @@
             
             const liqIva3 = creditoT2perT3 + importoCredito3 - importoDebito3;
             clientCard.find('[data-field="TerzoTrimestreLiqIvaImporto"]').val(liqIva3.toFixed(2));
+            aggiornaDebitoCredito(clientCard, 'TerzoTrimestre', liqIva3);
             aggiornaTitoloAccordion(clientCard, 'trim3', liqIva3);
             
             console.log('T3 - Credito T2:', creditoT2perT3, 'Imp.Credito:', importoCredito3, 'Imp.Debito:', importoDebito3, 'LIQ IVA:', liqIva3);
@@ -1045,13 +1048,38 @@
             
             const liqIva4 = creditoT3perT4 + importoCredito4 - importoDebito4;
             clientCard.find('[data-field="QuartoTrimestreLiqIvaImporto"]').val(liqIva4.toFixed(2));
+            aggiornaDebitoCredito(clientCard, 'QuartoTrimestre', liqIva4);
             aggiornaTitoloAccordion(clientCard, 'trim4', liqIva4);
             
             console.log('T4 - Credito T3:', creditoT3perT4, 'Imp.Credito:', importoCredito4, 'Imp.Debito:', importoDebito4, 'LIQ IVA:', liqIva4);
             
-            console.log('Calcolo completato per cliente:', clienteId);
+                        console.log('Calcolo completato per cliente:', clienteId);
         }
-        
+
+        // ✅ NUOVA FUNZIONE: Aggiorna automaticamente il campo Debito/Credito
+        function aggiornaDebitoCredito(clientCard, prefissoTrimestre, liqIvaImporto) {
+            let testoDebitoCredito = '';
+            let coloreClasse = '';
+            
+            if (liqIvaImporto > 0) {
+                testoDebitoCredito = 'CREDITO';
+                coloreClasse = 'text-primary fw-bold'; // Blu scuro
+            } else if (liqIvaImporto < 0) {
+                testoDebitoCredito = 'DEBITO';
+                coloreClasse = 'text-danger fw-bold'; // Rosso
+            } else {
+                testoDebitoCredito = 'ZERO';
+                coloreClasse = 'text-dark fw-bold'; // Neutro
+            }
+            
+            const campo = clientCard.find(`[data-field="${prefissoTrimestre}DebitoCredito"]`);
+            campo.val(testoDebitoCredito.toLowerCase()); // Per il database (minuscolo)
+            campo.removeClass('text-primary text-danger text-dark');
+            campo.addClass(coloreClasse);
+            
+            console.log(`📊 ${prefissoTrimestre} - LIQ IVA: €${liqIvaImporto.toFixed(2)} → ${testoDebitoCredito} (${coloreClasse})`);
+        }
+
         function aggiornaTitoloAccordion(clientCard, trimestreId, liqIvaImporto) {
             const clienteId = clientCard.data('cliente-id');
             // Il button è nel div precedente al collapse, non dentro
