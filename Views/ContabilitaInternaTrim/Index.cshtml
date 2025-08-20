@@ -136,7 +136,7 @@
                 @{ var index = 0; }
                 @foreach (var item in Model)
                 {
-                    <div class="contabilita-client-card mb-4" data-client-name="@item.Cliente?.NomeCliente?.ToLower()" data-cliente-id="@item.IdContabilitaInternaTrimestrale">
+                    <div class="contabilita-client-card mb-4" data-client-name="@item.Cliente?.NomeCliente?.ToLower()" data-cliente-id="@item.IdContabilitaInternaTrimestrale" data-tasso-iva="@(item.Cliente?.TassoIvaTrimestrale?.ToString("F4", System.Globalization.CultureInfo.InvariantCulture) ?? "0.01")">
                         <!-- Header Cliente -->
                         <div class="card border-primary">
                             <div class="card-header bg-secondary text-white d-flex justify-content-between align-items-center">
@@ -212,6 +212,14 @@
                                                            value="@item.PrimoTrimestreDebitoCredito" 
                                                            readonly 
                                                            style="font-size: 0.9em;">
+                                                </div>
+                                                <div class="col-md-3">
+                                                    <label class="form-label fw-bold">IVA da versare con int. € <small class="text-muted">(calcolato)</small></label>
+                                                    <input type="number" class="form-control bg-light fw-bold text-center" step="0.01"
+                                                           data-field="PrimoTrimestreIvaVersare" 
+                                                           value="@item.PrimoTrimestreIvaVersare" 
+                                                           readonly 
+                                                           style="font-size: 0.9em; color: #dc3545;">
                                                 </div>
                                             </div>
                                             <div class="row g-3 mt-2">
@@ -295,6 +303,14 @@
                                                            readonly 
                                                            style="font-size: 0.9em;">
                                                 </div>
+                                                <div class="col-md-3">
+                                                    <label class="form-label fw-bold">IVA da versare con int. € <small class="text-muted">(calcolato)</small></label>
+                                                    <input type="number" class="form-control bg-light fw-bold text-center" step="0.01"
+                                                           data-field="SecondoTrimestreIvaVersare" 
+                                                           value="@item.SecondoTrimestreIvaVersare" 
+                                                           readonly 
+                                                           style="font-size: 0.9em; color: #dc3545;">
+                                                </div>
                                             </div>
                                             <div class="row g-3 mt-2">
                                                 <div class="col-md-3">
@@ -377,6 +393,14 @@
                                                            readonly 
                                                            style="font-size: 0.9em;">
                                                 </div>
+                                                <div class="col-md-3">
+                                                    <label class="form-label fw-bold">IVA da versare con int. € <small class="text-muted">(calcolato)</small></label>
+                                                    <input type="number" class="form-control bg-light fw-bold text-center" step="0.01"
+                                                           data-field="TerzoTrimestreIvaVersare" 
+                                                           value="@item.TerzoTrimestreIvaVersare" 
+                                                           readonly 
+                                                           style="font-size: 0.9em; color: #dc3545;">
+                                                </div>
                                             </div>
                                             <div class="row g-3 mt-2">
                                                 <div class="col-md-3">
@@ -458,6 +482,14 @@
                                                            value="@item.QuartoTrimestreDebitoCredito" 
                                                            readonly 
                                                            style="font-size: 0.9em;">
+                                                </div>
+                                                <div class="col-md-3">
+                                                    <label class="form-label fw-bold">IVA da versare con int. € <small class="text-muted">(calcolato)</small></label>
+                                                    <input type="number" class="form-control bg-light fw-bold text-center" step="0.01"
+                                                           data-field="QuartoTrimestreIvaVersare" 
+                                                           value="@item.QuartoTrimestreIvaVersare" 
+                                                           readonly 
+                                                           style="font-size: 0.9em; color: #dc3545;">
                                                 </div>
                                             </div>
                                             <div class="row g-3 mt-2">
@@ -920,16 +952,24 @@
         // CALCOLO AUTOMATICO LIQ IVA IMPORTO IN TEMPO REALE
         // ===================================================================
         
-        function calcolaLiqIvaImporto(clienteId) {
+                function calcolaLiqIvaImporto(clienteId) {
             console.log('🚀🚀🚀 AVVIO CALCOLO AUTOMATICO PER CLIENTE:', clienteId, '🚀🚀🚀');
-            
+
             const clientCard = $(`.contabilita-client-card[data-cliente-id="${clienteId}"]`);
-            
+
             if (clientCard.length === 0) {
                 console.error('❌ CLIENT CARD NON TROVATA per cliente:', clienteId);
                 return;
             }
+
+            // Ottieni il tasso IVA trimestrale del cliente
+            const tassoIvaRaw = clientCard.attr('data-tasso-iva');
+            const tassoIva = tassoIvaRaw && tassoIvaRaw !== '' ? parseFloat(tassoIvaRaw) : 0.01; // Default 1%
             
+            console.log('🔍 DEBUG TASSO IVA:');
+            console.log(`   Raw data-tasso-iva: "${tassoIvaRaw}" (tipo: ${typeof tassoIvaRaw})`);
+            console.log(`   tassoIva parsed: ${tassoIva} (tipo: ${typeof tassoIva})`);
+            console.log(`   Tasso %: ${(tassoIva * 100).toFixed(4)}%`);
             console.log('✅ CLIENT CARD TROVATA, procedo con calcolo T1...');
             
             // CALCOLO 1° TRIMESTRE - SOMMA ALGEBRICA
@@ -1004,6 +1044,7 @@
             
                         clientCard.find('[data-field="PrimoTrimestreLiqIvaImporto"]').val(liqIva1.toFixed(2));
             aggiornaDebitoCredito(clientCard, 'PrimoTrimestre', liqIva1);
+            calcolaIvaVersareInteressi(clientCard, 'PrimoTrimestre', liqIva1, tassoIva);
             aggiornaTitoloAccordion(clientCard, 'trim1', liqIva1);
 
             console.log('T1 FINALE - LIQ IVA RISULTATO:', liqIva1);
@@ -1019,6 +1060,7 @@
             const liqIva2 = creditoT1perT2 + importoCredito2 - importoDebito2;
             clientCard.find('[data-field="SecondoTrimestreLiqIvaImporto"]').val(liqIva2.toFixed(2));
             aggiornaDebitoCredito(clientCard, 'SecondoTrimestre', liqIva2);
+            calcolaIvaVersareInteressi(clientCard, 'SecondoTrimestre', liqIva2, tassoIva);
             aggiornaTitoloAccordion(clientCard, 'trim2', liqIva2);
             
             console.log('T2 - Credito T1:', creditoT1perT2, 'Imp.Credito:', importoCredito2, 'Imp.Debito:', importoDebito2, 'LIQ IVA:', liqIva2);
@@ -1034,6 +1076,7 @@
             const liqIva3 = creditoT2perT3 + importoCredito3 - importoDebito3;
             clientCard.find('[data-field="TerzoTrimestreLiqIvaImporto"]').val(liqIva3.toFixed(2));
             aggiornaDebitoCredito(clientCard, 'TerzoTrimestre', liqIva3);
+            calcolaIvaVersareInteressi(clientCard, 'TerzoTrimestre', liqIva3, tassoIva);
             aggiornaTitoloAccordion(clientCard, 'trim3', liqIva3);
             
             console.log('T3 - Credito T2:', creditoT2perT3, 'Imp.Credito:', importoCredito3, 'Imp.Debito:', importoDebito3, 'LIQ IVA:', liqIva3);
@@ -1049,6 +1092,7 @@
             const liqIva4 = creditoT3perT4 + importoCredito4 - importoDebito4;
             clientCard.find('[data-field="QuartoTrimestreLiqIvaImporto"]').val(liqIva4.toFixed(2));
             aggiornaDebitoCredito(clientCard, 'QuartoTrimestre', liqIva4);
+            calcolaIvaVersareInteressi(clientCard, 'QuartoTrimestre', liqIva4, tassoIva);
             aggiornaTitoloAccordion(clientCard, 'trim4', liqIva4);
             
             console.log('T4 - Credito T3:', creditoT3perT4, 'Imp.Credito:', importoCredito4, 'Imp.Debito:', importoDebito4, 'LIQ IVA:', liqIva4);
@@ -1080,23 +1124,58 @@
             console.log(`📊 ${prefissoTrimestre} - LIQ IVA: €${liqIvaImporto.toFixed(2)} → ${testoDebitoCredito} (${coloreClasse})`);
         }
 
-        function aggiornaTitoloAccordion(clientCard, trimestreId, liqIvaImporto) {
+        // ✅ NUOVA FUNZIONE: Calcola IVA da versare con interessi
+        function calcolaIvaVersareInteressi(clientCard, prefissoTrimestre, liqIvaImporto, tassoCliente) {
+            let ivaVersare = 0;
+            
+            console.log(`🔍 DEBUG IVA VERSARE - ${prefissoTrimestre}:`);
+            console.log(`   LIQ IVA: ${liqIvaImporto} (tipo: ${typeof liqIvaImporto})`);
+            console.log(`   Tasso Cliente: ${tassoCliente} (tipo: ${typeof tassoCliente})`);
+            console.log(`   LIQ IVA < 0? ${liqIvaImporto < 0}`);
+            
+            // Solo se LIQ IVA è DEBITO (negativo)
+            if (liqIvaImporto < 0) {
+                // Formula CORRETTA: LiqIva + (LiqIva × TassoCliente) - mantiene il segno negativo
+                const moltiplicazione = liqIvaImporto * tassoCliente;
+                ivaVersare = liqIvaImporto + moltiplicazione;
+                
+                console.log(`   📊 CALCOLO DETTAGLIATO:`);
+                console.log(`      ${liqIvaImporto} + (${liqIvaImporto} × ${tassoCliente})`);
+                console.log(`      ${liqIvaImporto} + ${moltiplicazione}`);
+                console.log(`      = ${ivaVersare} (prima di Math.abs)`);
+                
+                // Mostriamo il valore assoluto nel campo
+                ivaVersare = Math.abs(ivaVersare);
+                console.log(`      = ${ivaVersare} (dopo Math.abs - FINALE)`);
+            } else {
+                console.log(`   ✅ LIQ IVA non è negativo (${liqIvaImporto}), IVA versare rimane 0`);
+            }
+            
+            const campo = clientCard.find(`[data-field="${prefissoTrimestre}IvaVersare"]`);
+            campo.val(ivaVersare.toFixed(2));
+            
+            console.log(`💰 ${prefissoTrimestre} - RISULTATO FINALE: €${ivaVersare.toFixed(2)}`);
+            
+            return ivaVersare;
+        }
+
+                function aggiornaTitoloAccordion(clientCard, trimestreId, liqIvaImporto) {
             const clienteId = clientCard.data('cliente-id');
             // Il button è nel div precedente al collapse, non dentro
             const accordionButton = clientCard.find(`[data-bs-target="#${trimestreId}-${clienteId}"]`);
             let trimestre = '';
             let classes = 'bg-light text-dark'; // Default grigio chiaro
             let stato = 'Da compilare';
-            
+
             console.log('Aggiornando titolo accordion:', trimestreId, 'per cliente:', clienteId, 'LIQ IVA:', liqIvaImporto);
-            
+
             switch(trimestreId) {
                 case 'trim1': trimestre = '1° TRIMESTRE (Gen-Mar)'; break;
                 case 'trim2': trimestre = '2° TRIMESTRE (Apr-Giu)'; break;
                 case 'trim3': trimestre = '3° TRIMESTRE (Lug-Set)'; break;
                 case 'trim4': trimestre = '4° TRIMESTRE (Ott-Dic)'; break;
             }
-            
+
             // LOGICA COLORI SEMPLICE E FUNZIONANTE
             let prefisso = '';
             switch(trimestreId) {
@@ -1105,14 +1184,14 @@
                 case 'trim3': prefisso = 'TerzoTrimestre'; break;
                 case 'trim4': prefisso = 'QuartoTrimestre'; break;
             }
-            
+
             const creditoVal = clientCard.find(`[data-field="${prefisso}ImportoCredito"]`).val();
             const debitoVal = clientCard.find(`[data-field="${prefisso}ImportoDebito"]`).val();
-            
+
             // Se ENTRAMBI i campi Importo Credito/Debito sono VUOTI → GRIGIO
             const creditoVuoto = !creditoVal || creditoVal.trim() === '';
             const debitoVuoto = !debitoVal || debitoVal.trim() === '';
-            
+
             if (creditoVuoto && debitoVuoto) {
                 // 🔘 GRIGIO: Campi NON compilati
                 classes = 'bg-light text-dark';
@@ -1120,11 +1199,14 @@
             } else {
                 // Campi compilati, guarda LIQ IVA
                 if (liqIvaImporto < 0) {
-                    // 🔴 ROSSO: LIQ IVA negativo = DEBITO
+                    // 🔴 ROSSO: LIQ IVA negativo = DEBITO + aggiungi IVA da versare
+                    const ivaVersareVal = clientCard.find(`[data-field="${prefisso}IvaVersare"]`).val();
+                    const ivaVersare = ivaVersareVal && ivaVersareVal !== '' ? parseFloat(ivaVersareVal) : 0;
+                    
                     classes = 'bg-danger text-white';
-                    stato = `Liq IVA: €${liqIvaImporto.toFixed(2)} (DEBITO)`;
+                    stato = `Liq IVA: €${liqIvaImporto.toFixed(2)} (DEBITO) - IVA vers.: €${ivaVersare.toFixed(2)}`;
                 } else if (liqIvaImporto > 0) {
-                    // 🔵 BLU SCURO: LIQ IVA positivo = CREDITO
+                    // 🔵 BLU SCURO: LIQ IVA positivo = CREDITO (non cambia)
                     classes = 'bg-primary text-white';
                     stato = `Liq IVA: €${liqIvaImporto.toFixed(2)} (CREDITO)`;
                 } else {
@@ -1133,9 +1215,9 @@
                     stato = `Liq IVA: €0,00`;
                 }
             }
-            
+
             console.log('Selector accordion:', `[data-bs-target="#${trimestreId}-${clienteId}"]`, 'Found:', accordionButton.length, 'Classe:', classes);
-            
+
             accordionButton.attr('class', `accordion-button collapsed ${classes}`)
                           .html(`<strong>${trimestre}</strong> - ${stato}`);
         }

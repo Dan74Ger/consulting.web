@@ -143,6 +143,7 @@ namespace ConsultingGroup.Controllers
                         esistente.PrimoTrimestreF24Consegnato = item.PrimoTrimestreF24Consegnato;
                         esistente.PrimoTrimestreImportoCredito = item.PrimoTrimestreImportoCredito;
                         esistente.PrimoTrimestreImportoDebito = item.PrimoTrimestreImportoDebito;
+                        esistente.PrimoTrimestreIvaVersare = item.PrimoTrimestreIvaVersare;
                         esistente.PrimoTrimestreCreditoAnnoPrecedente = item.PrimoTrimestreCreditoAnnoPrecedente;
 
                         // Secondo Trimestre
@@ -153,6 +154,7 @@ namespace ConsultingGroup.Controllers
                         esistente.SecondoTrimestreF24Consegnato = item.SecondoTrimestreF24Consegnato;
                         esistente.SecondoTrimestreImportoCredito = item.SecondoTrimestreImportoCredito;
                         esistente.SecondoTrimestreImportoDebito = item.SecondoTrimestreImportoDebito;
+                        esistente.SecondoTrimestreIvaVersare = item.SecondoTrimestreIvaVersare;
                         esistente.SecondoTrimestreCreditoTrimestrePrecedente = item.SecondoTrimestreCreditoTrimestrePrecedente;
 
                         // Terzo Trimestre
@@ -163,6 +165,7 @@ namespace ConsultingGroup.Controllers
                         esistente.TerzoTrimestreF24Consegnato = item.TerzoTrimestreF24Consegnato;
                         esistente.TerzoTrimestreImportoCredito = item.TerzoTrimestreImportoCredito;
                         esistente.TerzoTrimestreImportoDebito = item.TerzoTrimestreImportoDebito;
+                        esistente.TerzoTrimestreIvaVersare = item.TerzoTrimestreIvaVersare;
                         esistente.TerzoTrimestreCreditoTrimestrePrecedente = item.TerzoTrimestreCreditoTrimestrePrecedente;
 
                         // Quarto Trimestre
@@ -173,6 +176,7 @@ namespace ConsultingGroup.Controllers
                         esistente.QuartoTrimestreF24Consegnato = item.QuartoTrimestreF24Consegnato;
                         esistente.QuartoTrimestreImportoCredito = item.QuartoTrimestreImportoCredito;
                         esistente.QuartoTrimestreImportoDebito = item.QuartoTrimestreImportoDebito;
+                        esistente.QuartoTrimestreIvaVersare = item.QuartoTrimestreIvaVersare;
                         esistente.QuartoTrimestreCreditoTrimestrePrecedente = item.QuartoTrimestreCreditoTrimestrePrecedente;
 
                         esistente.UpdatedAt = DateTime.UtcNow;

@@ -49,6 +49,11 @@ namespace ConsultingGroup.Models
         [Display(Name = "1° Trim. F24 Consegnato")]
         public string? PrimoTrimestreF24Consegnato { get; set; }
 
+        [Column("primo_trimestre_iva_versare")]
+        [Display(Name = "1° Trim. IVA da versare con int.")]
+        [DataType(DataType.Currency)]
+        public decimal? PrimoTrimestreIvaVersare { get; set; }
+
         [Column("primo_trimestre_importo_credito")]
         [Display(Name = "1° Trim. Importo Credito")]
         [DataType(DataType.Currency)]
@@ -89,6 +94,11 @@ namespace ConsultingGroup.Models
         [StringLength(20)]
         [Display(Name = "2° Trim. F24 Consegnato")]
         public string? SecondoTrimestreF24Consegnato { get; set; }
+
+        [Column("secondo_trimestre_iva_versare")]
+        [Display(Name = "2° Trim. IVA da versare con int.")]
+        [DataType(DataType.Currency)]
+        public decimal? SecondoTrimestreIvaVersare { get; set; }
 
         [Column("secondo_trimestre_importo_credito")]
         [Display(Name = "2° Trim. Importo Credito")]
@@ -131,6 +141,11 @@ namespace ConsultingGroup.Models
         [Display(Name = "3° Trim. F24 Consegnato")]
         public string? TerzoTrimestreF24Consegnato { get; set; }
 
+        [Column("terzo_trimestre_iva_versare")]
+        [Display(Name = "3° Trim. IVA da versare con int.")]
+        [DataType(DataType.Currency)]
+        public decimal? TerzoTrimestreIvaVersare { get; set; }
+
         [Column("terzo_trimestre_importo_credito")]
         [Display(Name = "3° Trim. Importo Credito")]
         [DataType(DataType.Currency)]
@@ -171,6 +186,11 @@ namespace ConsultingGroup.Models
         [StringLength(20)]
         [Display(Name = "4° Trim. F24 Consegnato")]
         public string? QuartoTrimestreF24Consegnato { get; set; }
+
+        [Column("quarto_trimestre_iva_versare")]
+        [Display(Name = "4° Trim. IVA da versare con int.")]
+        [DataType(DataType.Currency)]
+        public decimal? QuartoTrimestreIvaVersare { get; set; }
 
         [Column("quarto_trimestre_importo_credito")]
         [Display(Name = "4° Trim. Importo Credito")]
