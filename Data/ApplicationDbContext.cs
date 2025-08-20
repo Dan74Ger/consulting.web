@@ -47,6 +47,7 @@ namespace ConsultingGroup.Data
         public DbSet<AttivitaDriva> AttivitaDriva { get; set; } = default!;
         public DbSet<AttivitaLipe> AttivitaLipe { get; set; } = default!;
         public DbSet<AttivitaTriva> AttivitaTriva { get; set; } = default!;
+        public DbSet<ContabilitaInternaTrimestrale> ContabilitaInternaTrimestrale { get; set; } = default!;
 
 
         protected override void OnModelCreating(ModelBuilder builder)

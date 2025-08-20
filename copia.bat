@@ -1,236 +1,154 @@
 @echo off
 setlocal enabledelayedexpansion
+chcp 65001 >nul
 
 echo ============================================
-echo BACKUP AUTOMATICO DATABASE E CODICE SITO
+echo   BACKUP AUTOMATICO DATABASE E CODICE
 echo ============================================
 echo Server: IT15\SQLEXPRESS
 echo Database: Consulting
-echo Codice sorgente: C:\dev\prova
+echo Codice: C:\dev\prova
+echo ============================================
 echo.
 
-REM ===== RILEVA VERSIONE DATABASE =====
-set "max_db_ver=0"
+REM ===== RILEVA VERSIONE AUTOMATICAMENTE =====
+set "max_ver=0"
 for /d %%i in ("C:\dev\vprova_backup_ver*_database") do (
     set "folder=%%~ni"
     set "folder=!folder:vprova_backup_ver=!"
     set "folder=!folder:_database=!"
-    if !folder! gtr !max_db_ver! set "max_db_ver=!folder!"
+    if !folder! gtr !max_ver! set "max_ver=!folder!"
 )
 
-set /a "new_db_ver=max_db_ver+1"
-
-REM ===== RILEVA VERSIONE CODICE =====
-set "max_code_ver=0"
-for /d %%i in ("C:\dev\vprova_backup_ver*_codice") do (
-    set "folder=%%~ni"
-    set "folder=!folder:vprova_backup_ver=!"
-    set "folder=!folder:_codice=!"
-    if !folder! gtr !max_code_ver! set "max_code_ver=!folder!"
+REM Se non trova directory esistenti, parte da 0
+if !max_ver! equ 0 (
+    for /d %%i in ("C:\dev\vprova_backup_ver*_codice") do (
+        set "folder=%%~ni"
+        set "folder=!folder:vprova_backup_ver=!"
+        set "folder=!folder:_codice=!"
+        if !folder! gtr !max_ver! set "max_ver=!folder!"
+    )
 )
 
-set /a "new_code_ver=max_code_ver+1"
+set /a "new_ver=max_ver+1"
 
-REM ===== MOSTRA INFORMAZIONI =====
-echo 📋 INFORMAZIONI VERSIONI:
-echo    Ultima versione database: %max_db_ver%
-echo    Prossima versione database: %new_db_ver%
-echo    Ultima versione codice: %max_code_ver%
-echo    Prossima versione codice: %new_code_ver%
+set "db_dir=C:\dev\vprova_backup_ver!new_ver!_database"
+set "code_dir=C:\dev\vprova_backup_ver!new_ver!_codice"
+set "db_file=!db_dir!\Consulting_backup_ver!new_ver!.bak"
+
+echo NUOVA VERSIONE: !new_ver!
+echo.
+echo DESTINAZIONI:
+echo   Database: !db_file!
+echo   Codice:   !code_dir!
 echo.
 
-set "db_dir=C:\dev\vprova_backup_ver%new_db_ver%_database"
-set "code_dir=C:\dev\vprova_backup_ver%new_code_ver%_codice"
-set "db_file=%db_dir%\Consulting_backup_ver%new_db_ver%.bak"
-
-echo 📁 DESTINAZIONI BACKUP:
-echo    Database: %db_file%
-echo    Codice: %code_dir%
+REM ===== CHIEDI COSA FARE =====
+echo Cosa vuoi fare?
+echo [1] Solo DATABASE
+echo [2] Solo CODICE
+echo [3] ENTRAMBI
+echo [4] ANNULLA
 echo.
+set /p "scelta=Scegli (1-4): "
 
-REM ===== VERIFICA PERMESSI DIRECTORY =====
-echo 🔍 Verifica permessi creazione directory...
-set "test_dir=C:\dev\test_temp_permissions"
-md "%test_dir%" 2>nul
-if exist "%test_dir%" (
-    rd "%test_dir%" 2>nul
-    echo ✓ Permessi directory OK
-) else (
-    echo ❌ ERRORE: Impossibile creare directory in C:\dev\
-    echo    Verifica i permessi di scrittura nella directory C:\dev\
+if "!scelta!"=="4" (
+    echo.
+    echo Operazione annullata.
+    pause
+    exit /b 0
+)
+
+if "!scelta!"=="1" set "do_db=true" & set "do_code=false"
+if "!scelta!"=="2" set "do_db=false" & set "do_code=true"
+if "!scelta!"=="3" set "do_db=true" & set "do_code=true"
+
+if not "!scelta!"=="1" if not "!scelta!"=="2" if not "!scelta!"=="3" (
+    echo.
+    echo Scelta non valida. Uscita.
     pause
     exit /b 1
 )
+
 echo.
-
-REM ===== CHIEDI CONFERMA DATABASE =====
-echo ❓ Vuoi fare il backup del DATABASE? (S/N)
-set /p "choice_db=Risposta: "
-if /i not "%choice_db%"=="S" if /i not "%choice_db%"=="Si" (
-    echo ⏭ Backup database saltato.
-    set "do_db_backup=false"
-) else (
-    echo ✓ Backup database confermato.
-    set "do_db_backup=true"
-)
-echo.
-
-REM ===== CHIEDI CONFERMA CODICE =====
-echo ❓ Vuoi fare il backup del CODICE SORGENTE? (S/N)
-set /p "choice_code=Risposta: "
-if /i not "%choice_code%"=="S" if /i not "%choice_code%"=="Si" (
-    echo ⏭ Backup codice saltato.
-    set "do_code_backup=false"
-) else (
-    echo ✓ Backup codice confermato.
-    set "do_code_backup=true"
-)
-echo.
-
-REM ===== VERIFICA SE FARE QUALCOSA =====
-if "%do_db_backup%"=="false" if "%do_code_backup%"=="false" (
-    echo ⚠ Nessun backup selezionato. Uscita...
-    pause
-    exit /b 0
-)
-
-REM ===== RIEPILOGO FINALE =====
 echo ==========================================
-echo 📋 RIEPILOGO OPERAZIONI
+echo           AVVIO BACKUP VER !new_ver!
 echo ==========================================
-if "%do_db_backup%"=="true" (
-    echo ✓ Database ver%new_db_ver%: %db_file%
-)
-if "%do_code_backup%"=="true" (
-    echo ✓ Codice ver%new_code_ver%: %code_dir%
-)
-echo.
-echo ❓ Confermi di procedere con i backup? (S/N)
-set /p "final_confirm=Risposta finale: "
-if /i not "%final_confirm%"=="S" if /i not "%final_confirm%"=="Si" (
-    echo ❌ Operazione annullata dall'utente.
-    pause
-    exit /b 0
-)
-
-echo.
-echo 🚀 Avvio backup...
-echo.
 
 REM ===== BACKUP DATABASE =====
-if "%do_db_backup%"=="true" (
-    echo ==========================================
-    echo 💾 BACKUP DATABASE - VERSIONE %new_db_ver%
-    echo ==========================================
-    
-    REM Crea directory se non esiste
-    echo 🔧 Controllo directory: %db_dir%
-    if not exist "%db_dir%" (
-        echo 🔧 Directory non esiste, creazione in corso...
-        md "%db_dir%" 2>nul
-        timeout /t 1 /nobreak >nul
-        if exist "%db_dir%" (
-            echo ✓ Creata directory: %db_dir%
+if "!do_db!"=="true" (
+    echo.
+    echo [DATABASE] Creazione directory...
+    if not exist "!db_dir!" (
+        md "!db_dir!" 2>nul
+        if exist "!db_dir!" (
+            echo [DATABASE] Directory creata: !db_dir!
         ) else (
-            echo ❌ ERRORE: Impossibile creare directory %db_dir%
-            echo 🔧 Debug: Tentativo creazione manuale...
-            mkdir "%db_dir%"
-            if exist "%db_dir%" (
-                echo ✓ Directory creata con mkdir
-            ) else (
-                echo ❌ Fallito anche mkdir - problema di permessi
-                pause
-                exit /b 1
-            )
+            echo [DATABASE] ERRORE: Impossibile creare directory
+            pause
+            exit /b 1
         )
     ) else (
-        echo ℹ Directory già esistente: %db_dir%
+        echo [DATABASE] Directory gia' esistente: !db_dir!
     )
     
-    echo 📁 Destinazione: %db_file%
-    echo 🔄 Avvio backup database...
+    echo [DATABASE] Avvio backup su IT15\SQLEXPRESS...
     echo.
     
-    set "db_name=Consulting-Full Database Backup Ver%new_db_ver%"
-    sqlcmd -S "IT15\SQLEXPRESS" -Q "BACKUP DATABASE [Consulting] TO DISK = N'%db_file%' WITH FORMAT, INIT, NAME = N'%db_name%', SKIP, NOREWIND, NOUNLOAD, STATS = 10"
+    sqlcmd -S "IT15\SQLEXPRESS" -Q "BACKUP DATABASE [Consulting] TO DISK = N'!db_file!' WITH FORMAT, INIT, NAME = N'Consulting-Backup-Ver!new_ver!', SKIP, NOREWIND, NOUNLOAD, STATS = 10"
     
-    if !ERRORLEVEL! EQU 0 (
+    if !ERRORLEVEL! equ 0 (
         echo.
-        echo ✅ BACKUP DATABASE COMPLETATO!
-        echo 📁 File: %db_file%
-        echo 🏷 Versione: %new_db_ver%
+        echo [DATABASE] COMPLETATO! File: !db_file!
     ) else (
         echo.
-        echo ❌ ERRORE NEL BACKUP DATABASE
-        echo Codice errore: !ERRORLEVEL!
+        echo [DATABASE] ERRORE durante il backup
         pause
         exit /b 1
     )
-    echo.
 )
 
 REM ===== BACKUP CODICE =====
-if "%do_code_backup%"=="true" (
-    echo ==========================================
-    echo 📂 BACKUP CODICE SORGENTE - VERSIONE %new_code_ver%
-    echo ==========================================
-    
-    REM Crea directory se non esiste
-    echo 🔧 Controllo directory: %code_dir%
-    if not exist "%code_dir%" (
-        echo 🔧 Directory non esiste, creazione in corso...
-        md "%code_dir%" 2>nul
-        timeout /t 1 /nobreak >nul
-        if exist "%code_dir%" (
-            echo ✓ Creata directory: %code_dir%
+if "!do_code!"=="true" (
+    echo.
+    echo [CODICE] Creazione directory...
+    if not exist "!code_dir!" (
+        md "!code_dir!" 2>nul
+        if exist "!code_dir!" (
+            echo [CODICE] Directory creata: !code_dir!
         ) else (
-            echo ❌ ERRORE: Impossibile creare directory %code_dir%
-            echo 🔧 Debug: Tentativo creazione manuale...
-            mkdir "%code_dir%"
-            if exist "%code_dir%" (
-                echo ✓ Directory creata con mkdir
-            ) else (
-                echo ❌ Fallito anche mkdir - problema di permessi
-                pause
-                exit /b 1
-            )
+            echo [CODICE] ERRORE: Impossibile creare directory
+            pause
+            exit /b 1
         )
     ) else (
-        echo ℹ Directory già esistente: %code_dir%
+        echo [CODICE] Directory gia' esistente: !code_dir!
     )
     
-    echo 📁 Sorgente: C:\dev\prova
-    echo 📁 Destinazione: %code_dir%
-    echo 🔄 Avvio copia codice...
+    echo [CODICE] Copia da C:\dev\prova...
     echo.
     
-    xcopy "C:\dev\prova" "%code_dir%" /E /I /H /Y
+    xcopy "C:\dev\prova" "!code_dir!" /E /I /H /Y /Q
     
-    if !ERRORLEVEL! EQU 0 (
+    if !ERRORLEVEL! equ 0 (
         echo.
-        echo ✅ BACKUP CODICE COMPLETATO!
-        echo 📁 Directory: %code_dir%
-        echo 🏷 Versione: %new_code_ver%
+        echo [CODICE] COMPLETATO! Directory: !code_dir!
     ) else (
         echo.
-        echo ❌ ERRORE NEL BACKUP CODICE
-        echo Codice errore: !ERRORLEVEL!
+        echo [CODICE] ERRORE durante la copia
         pause
         exit /b 1
     )
-    echo.
 )
 
-echo ==========================================
-echo 🎉 TUTTI I BACKUP COMPLETATI!
-echo ==========================================
-if "%do_db_backup%"=="true" (
-    echo 💾 Database Ver%new_db_ver%: %db_file%
-)
-if "%do_code_backup%"=="true" (
-    echo 📂 Codice Ver%new_code_ver%: %code_dir%
-)
 echo.
-echo ✅ Operazione completata con successo!
+echo ==========================================
+echo            BACKUP COMPLETATO!
+echo ==========================================
+echo Versione: !new_ver!
+if "!do_db!"=="true" echo Database: !db_file!
+if "!do_code!"=="true" echo Codice: !code_dir!
+echo.
+echo Tutto fatto con successo!
 echo.
 pause
