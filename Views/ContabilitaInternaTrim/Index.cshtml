@@ -447,7 +447,7 @@
                                             <i class="fas fa-calendar-alt me-2"></i>
                                             <strong>4° TRIMESTRE (Ott-Dic)</strong>
                                             <span class="ms-auto me-3 progress-badge" id="progress-t4-@item.IdContabilitaInternaTrimestrale">
-                                                <span class="badge bg-light text-dark">0/7</span>
+                                                <span class="badge bg-light text-dark">0/8</span>
                                             </span>
                                         </button>
                                     </h2>
@@ -521,6 +521,13 @@
                                                         <option value="consegnato" selected="@(item.QuartoTrimestreF24Consegnato == "consegnato")">Consegnato</option>
                                                         <option value="entratel" selected="@(item.QuartoTrimestreF24Consegnato == "entratel")">Entratel</option>
                                                     </select>
+                                                </div>
+                                                <div class="col-md-3">
+                                                    <label class="form-label fw-bold">Acconto IVA €</label>
+                                                    <input type="number" class="form-control" step="0.01" 
+                                                           value="@item.QuartoTrimestreAccontoIva" 
+                                                           placeholder="0,00"
+                                                           data-field="QuartoTrimestreAccontoIva">
                                                 </div>
                                             </div>
                                         </div>
@@ -611,13 +618,16 @@
             Object.keys(progressByTrimester).forEach(function(trimester) {
                 var count = progressByTrimester[trimester];
                 var badge = $(`#progress-${trimester}-${clientId} .badge`);
-                badge.text(`${count}/7`);
+                
+                // Il 4° trimestre ha 8 campi, gli altri 7
+                var maxFields = (trimester === 't4') ? 8 : 7;
+                badge.text(`${count}/${maxFields}`);
                 
                 // Colora il badge in base al progresso
                 badge.removeClass('bg-light bg-success bg-warning bg-danger text-dark text-white');
-                if (count === 7) {
+                if (count === maxFields) {
                     badge.addClass('bg-success text-white');
-                } else if (count >= 4) {
+                } else if (count >= Math.floor(maxFields * 0.6)) {
                     badge.addClass('bg-warning text-dark');
                 } else if (count > 0) {
                     badge.addClass('bg-info text-white');
@@ -628,7 +638,7 @@
             
             // Aggiorna progresso totale
             var totalFilled = Object.values(progressByTrimester).reduce((a, b) => a + b, 0);
-            var totalFields = 28; // 7 campi × 4 trimestri
+            var totalFields = 29; // 7 campi × 3 trimestri + 8 campi × 1 trimestre (4°)
             var progressText = $(`#progress-${clientId} .progress-text`);
             progressText.text(`${totalFilled}/${totalFields}`);
             
@@ -1088,14 +1098,15 @@
             
             const importoCredito4 = parseFloat(clientCard.find('[data-field="QuartoTrimestreImportoCredito"]').val()) || 0;
             const importoDebito4 = Math.abs(parseFloat(clientCard.find('[data-field="QuartoTrimestreImportoDebito"]').val()) || 0);
+            const accontoIva4 = parseFloat(clientCard.find('[data-field="QuartoTrimestreAccontoIva"]').val()) || 0;
             
-            const liqIva4 = creditoT3perT4 + importoCredito4 - importoDebito4;
+            const liqIva4 = creditoT3perT4 + importoCredito4 - importoDebito4 + accontoIva4;
             clientCard.find('[data-field="QuartoTrimestreLiqIvaImporto"]').val(liqIva4.toFixed(2));
             aggiornaDebitoCredito(clientCard, 'QuartoTrimestre', liqIva4);
             calcolaIvaVersareInteressi(clientCard, 'QuartoTrimestre', liqIva4, tassoIva);
             aggiornaTitoloAccordion(clientCard, 'trim4', liqIva4);
             
-            console.log('T4 - Credito T3:', creditoT3perT4, 'Imp.Credito:', importoCredito4, 'Imp.Debito:', importoDebito4, 'LIQ IVA:', liqIva4);
+            console.log('T4 - Credito T3:', creditoT3perT4, 'Imp.Credito:', importoCredito4, 'Imp.Debito:', importoDebito4, 'Acconto IVA:', accontoIva4, 'LIQ IVA:', liqIva4);
             
                         console.log('Calcolo completato per cliente:', clienteId);
         }
@@ -1223,7 +1234,7 @@
         }
         
         // Event listeners per calcolo automatico in tempo reale
-        $(document).on('input change', '[data-field*="CreditoAnnoPrecedente"], [data-field*="CreditoTrimestrePrecedente"], [data-field*="ImportoCredito"], [data-field*="ImportoDebito"]', function() {
+        $(document).on('input change', '[data-field*="CreditoAnnoPrecedente"], [data-field*="CreditoTrimestrePrecedente"], [data-field*="ImportoCredito"], [data-field*="ImportoDebito"], [data-field="QuartoTrimestreAccontoIva"]', function() {
             console.log('Event triggered su campo:', $(this).attr('data-field'), 'Valore:', $(this).val());
             
             const clientCard = $(this).closest('.contabilita-client-card');

@@ -174,6 +174,7 @@ namespace ConsultingGroup.Controllers
                         esistente.QuartoTrimestreLiqIvaImporto = item.QuartoTrimestreLiqIvaImporto;
                         esistente.QuartoTrimestreDebitoCredito = item.QuartoTrimestreDebitoCredito;
                         esistente.QuartoTrimestreF24Consegnato = item.QuartoTrimestreF24Consegnato;
+                        esistente.QuartoTrimestreAccontoIva = item.QuartoTrimestreAccontoIva;
                         esistente.QuartoTrimestreImportoCredito = item.QuartoTrimestreImportoCredito;
                         esistente.QuartoTrimestreImportoDebito = item.QuartoTrimestreImportoDebito;
                         esistente.QuartoTrimestreIvaVersare = item.QuartoTrimestreIvaVersare;
@@ -355,7 +356,7 @@ namespace ConsultingGroup.Controllers
                     "T1 Ultima FT", "T1 Data FT", "T1 Liq IVA", "T1 Deb/Cred", "T1 F24", "T1 Cred.Anno Prec", "T1 Imp.Credito", "T1 Imp.Debito",
                     "T2 Ultima FT", "T2 Data FT", "T2 Liq IVA", "T2 Deb/Cred", "T2 F24", "T2 Cred.Trim Prec", "T2 Imp.Credito", "T2 Imp.Debito",
                     "T3 Ultima FT", "T3 Data FT", "T3 Liq IVA", "T3 Deb/Cred", "T3 F24", "T3 Cred.Trim Prec", "T3 Imp.Credito", "T3 Imp.Debito",
-                    "T4 Ultima FT", "T4 Data FT", "T4 Liq IVA", "T4 Deb/Cred", "T4 F24", "T4 Cred.Trim Prec", "T4 Imp.Credito", "T4 Imp.Debito",
+                    "T4 Ultima FT", "T4 Data FT", "T4 Liq IVA", "T4 Deb/Cred", "T4 F24", "T4 Acconto IVA", "T4 Cred.Trim Prec", "T4 Imp.Credito", "T4 Imp.Debito",
                     "Completamento %"
                 };
 
@@ -608,8 +609,9 @@ namespace ConsultingGroup.Controllers
                     worksheet.Cells[row, 27].Value = item.QuartoTrimestreLiqIvaImporto;
                     worksheet.Cells[row, 28].Value = item.QuartoTrimestreDebitoCredito ?? "";
                     worksheet.Cells[row, 29].Value = item.QuartoTrimestreF24Consegnato ?? "";
-                    worksheet.Cells[row, 30].Value = item.QuartoTrimestreImportoCredito;
-                    worksheet.Cells[row, 31].Value = item.QuartoTrimestreImportoDebito;
+                    worksheet.Cells[row, 30].Value = item.QuartoTrimestreAccontoIva;
+                    worksheet.Cells[row, 31].Value = item.QuartoTrimestreImportoCredito;
+                    worksheet.Cells[row, 32].Value = item.QuartoTrimestreImportoDebito;
                     
                     // Formattazione T4 - Liq IVA Importo
                     if (item.QuartoTrimestreLiqIvaImporto.HasValue)
@@ -664,8 +666,8 @@ namespace ConsultingGroup.Controllers
                         }
                     }
 
-                    // Calcola percentuale completamento (4 trimestri x 7 campi = 28 totali)
-                    var totalFields = 28;
+                    // Calcola percentuale completamento (4 trimestri x 8 campi = 32 totali, il 4° trimestre ha un campo extra: Acconto IVA)
+                    var totalFields = 29;
                     var completedFields = 0;
                     
                     // T1
@@ -701,14 +703,15 @@ namespace ConsultingGroup.Controllers
                     if (item.QuartoTrimestreLiqIvaImporto.HasValue) completedFields++;
                     if (!string.IsNullOrEmpty(item.QuartoTrimestreDebitoCredito)) completedFields++;
                     if (!string.IsNullOrEmpty(item.QuartoTrimestreF24Consegnato)) completedFields++;
+                    if (item.QuartoTrimestreAccontoIva.HasValue) completedFields++;
                     if (item.QuartoTrimestreImportoCredito.HasValue) completedFields++;
                     if (item.QuartoTrimestreImportoDebito.HasValue) completedFields++;
 
                     var percentage = (int)((double)completedFields / totalFields * 100);
-                    worksheet.Cells[row, 32].Value = $"{percentage}%";
+                    worksheet.Cells[row, 33].Value = $"{percentage}%";
 
                     // Colora la percentuale
-                    var percentageCell = worksheet.Cells[row, 32];
+                    var percentageCell = worksheet.Cells[row, 33];
                     if (percentage == 100)
                     {
                         percentageCell.Style.Fill.PatternType = OfficeOpenXml.Style.ExcelFillStyle.Solid;

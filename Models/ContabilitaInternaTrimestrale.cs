@@ -207,6 +207,11 @@ namespace ConsultingGroup.Models
         [DataType(DataType.Currency)]
         public decimal? QuartoTrimestreCreditoTrimestrePrecedente { get; set; }
 
+        [Column("quarto_trimestre_acconto_iva")]
+        [Display(Name = "4° Trim. Acconto IVA")]
+        [DataType(DataType.Currency)]
+        public decimal? QuartoTrimestreAccontoIva { get; set; }
+
         [Column("created_at")]
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 
