@@ -67,51 +67,7 @@ namespace ConsultingGroup.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("AltriDati");
-                });
-
-            modelBuilder.Entity("ConsultingGroup.Models.AnnoFatturazione", b =>
-                {
-                    b.Property<int>("IdAnnoFatturazione")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int")
-                        .HasColumnName("id_anno_fatturazione");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("IdAnnoFatturazione"));
-
-                    b.Property<int>("Anno")
-                        .HasColumnType("int")
-                        .HasColumnName("anno");
-
-                    b.Property<bool>("AnnoCorrente")
-                        .HasColumnType("bit")
-                        .HasColumnName("anno_corrente");
-
-                    b.Property<bool>("Attivo")
-                        .HasColumnType("bit")
-                        .HasColumnName("attivo");
-
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("datetime2")
-                        .HasColumnName("created_at");
-
-                    b.Property<string>("Descrizione")
-                        .HasMaxLength(200)
-                        .HasColumnType("nvarchar(200)")
-                        .HasColumnName("descrizione");
-
-                    b.Property<string>("Note")
-                        .HasMaxLength(500)
-                        .HasColumnType("nvarchar(500)")
-                        .HasColumnName("note");
-
-                    b.Property<DateTime>("UpdatedAt")
-                        .HasColumnType("datetime2")
-                        .HasColumnName("updated_at");
-
-                    b.HasKey("IdAnnoFatturazione");
-
-                    b.ToTable("anni_fatturazione");
+                    b.ToTable("AltriDati", (string)null);
                 });
 
             modelBuilder.Entity("ConsultingGroup.Models.AnnoFiscale", b =>
@@ -230,7 +186,7 @@ namespace ConsultingGroup.Migrations
                         .IsUnique()
                         .HasFilter("[anno_corrente] = 1");
 
-                    b.ToTable("anni_fiscali");
+                    b.ToTable("anni_fiscali", (string)null);
                 });
 
             modelBuilder.Entity("ConsultingGroup.Models.ApplicationUser", b =>
@@ -406,7 +362,7 @@ namespace ConsultingGroup.Migrations
 
                     b.HasIndex("IdProfessionista");
 
-                    b.ToTable("attivita_730");
+                    b.ToTable("attivita_730", (string)null);
                 });
 
             modelBuilder.Entity("ConsultingGroup.Models.Attivita740", b =>
@@ -536,7 +492,7 @@ namespace ConsultingGroup.Migrations
 
                     b.HasIndex("IdProfessionista");
 
-                    b.ToTable("attivita_740");
+                    b.ToTable("attivita_740", (string)null);
                 });
 
             modelBuilder.Entity("ConsultingGroup.Models.Attivita750", b =>
@@ -670,7 +626,7 @@ namespace ConsultingGroup.Migrations
 
                     b.HasIndex("IdProfessionista");
 
-                    b.ToTable("attivita_750");
+                    b.ToTable("attivita_750", (string)null);
                 });
 
             modelBuilder.Entity("ConsultingGroup.Models.Attivita760", b =>
@@ -816,7 +772,7 @@ namespace ConsultingGroup.Migrations
 
                     b.HasIndex("IdProfessionista");
 
-                    b.ToTable("attivita_760");
+                    b.ToTable("attivita_760", (string)null);
                 });
 
             modelBuilder.Entity("ConsultingGroup.Models.Attivita770", b =>
@@ -893,7 +849,7 @@ namespace ConsultingGroup.Migrations
 
                     b.HasIndex("IdProfessionista");
 
-                    b.ToTable("attivita_770");
+                    b.ToTable("attivita_770", (string)null);
                 });
 
             modelBuilder.Entity("ConsultingGroup.Models.AttivitaCu", b =>
@@ -966,7 +922,7 @@ namespace ConsultingGroup.Migrations
 
                     b.HasIndex("IdProfessionista");
 
-                    b.ToTable("attivita_cu");
+                    b.ToTable("attivita_cu", (string)null);
                 });
 
             modelBuilder.Entity("ConsultingGroup.Models.AttivitaDriva", b =>
@@ -1063,11 +1019,11 @@ namespace ConsultingGroup.Migrations
                         .HasColumnName("id_professionista");
 
                     b.Property<decimal?>("ImportoAccontoIva")
-                        .HasColumnType("decimal(10,2)")
+                        .HasColumnType("decimal(18,2)")
                         .HasColumnName("importo_acconto_iva");
 
                     b.Property<decimal?>("ImportoDrIva")
-                        .HasColumnType("decimal(10,2)")
+                        .HasColumnType("decimal(18,2)")
                         .HasColumnName("importo_dr_iva");
 
                     b.Property<string>("Note")
@@ -1101,7 +1057,7 @@ namespace ConsultingGroup.Migrations
 
                     b.HasIndex("IdProfessionista");
 
-                    b.ToTable("attivita_driva");
+                    b.ToTable("attivita_driva", (string)null);
                 });
 
             modelBuilder.Entity("ConsultingGroup.Models.AttivitaEnc", b =>
@@ -1229,7 +1185,7 @@ namespace ConsultingGroup.Migrations
 
                     b.HasIndex("IdProfessionista");
 
-                    b.ToTable("attivita_ENC");
+                    b.ToTable("attivita_ENC", (string)null);
                 });
 
             modelBuilder.Entity("ConsultingGroup.Models.AttivitaIrap", b =>
@@ -1357,285 +1313,7 @@ namespace ConsultingGroup.Migrations
 
                     b.HasIndex("IdProfessionista");
 
-                    b.ToTable("attivita_irap");
-                });
-
-            modelBuilder.Entity("ConsultingGroup.Models.AttivitaLipe", b =>
-                {
-                    b.Property<int>("IdAttivitaLipe")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int")
-                        .HasColumnName("id_attivita_lipe");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("IdAttivitaLipe"));
-
-                    b.Property<int>("IdAnno")
-                        .HasColumnType("int")
-                        .HasColumnName("id_anno");
-
-                    b.Property<int>("IdCliente")
-                        .HasColumnType("int")
-                        .HasColumnName("id_cliente");
-
-                    b.Property<int?>("IdProfessionista")
-                        .HasColumnType("int")
-                        .HasColumnName("id_professionista");
-
-                    b.Property<DateTime>("T1CreatedAt")
-                        .HasColumnType("datetime2")
-                        .HasColumnName("t1_created_at");
-
-                    b.Property<bool>("T1LipeControllata")
-                        .HasColumnType("bit")
-                        .HasColumnName("t1_lipe_controllata");
-
-                    b.Property<DateTime?>("T1LipeControllataData")
-                        .HasColumnType("datetime2")
-                        .HasColumnName("t1_lipe_controllata_data");
-
-                    b.Property<bool>("T1LipeInserita")
-                        .HasColumnType("bit")
-                        .HasColumnName("t1_lipe_inserita");
-
-                    b.Property<DateTime?>("T1LipeInseritaData")
-                        .HasColumnType("datetime2")
-                        .HasColumnName("t1_lipe_inserita_data");
-
-                    b.Property<bool>("T1LipeSpedita")
-                        .HasColumnType("bit")
-                        .HasColumnName("t1_lipe_spedita");
-
-                    b.Property<DateTime?>("T1LipeSpeditaData")
-                        .HasColumnType("datetime2")
-                        .HasColumnName("t1_lipe_spedita_data");
-
-                    b.Property<string>("T1RaccoltaDocumenti")
-                        .IsRequired()
-                        .HasMaxLength(20)
-                        .HasColumnType("nvarchar(20)")
-                        .HasColumnName("t1_raccolta_documenti");
-
-                    b.Property<DateTime>("T1UpdatedAt")
-                        .HasColumnType("datetime2")
-                        .HasColumnName("t1_updated_at");
-
-                    b.Property<DateTime>("T2CreatedAt")
-                        .HasColumnType("datetime2")
-                        .HasColumnName("t2_created_at");
-
-                    b.Property<bool>("T2LipeControllata")
-                        .HasColumnType("bit")
-                        .HasColumnName("t2_lipe_controllata");
-
-                    b.Property<DateTime?>("T2LipeControllataData")
-                        .HasColumnType("datetime2")
-                        .HasColumnName("t2_lipe_controllata_data");
-
-                    b.Property<bool>("T2LipeInserita")
-                        .HasColumnType("bit")
-                        .HasColumnName("t2_lipe_inserita");
-
-                    b.Property<DateTime?>("T2LipeInseritaData")
-                        .HasColumnType("datetime2")
-                        .HasColumnName("t2_lipe_inserita_data");
-
-                    b.Property<bool>("T2LipeSpedita")
-                        .HasColumnType("bit")
-                        .HasColumnName("t2_lipe_spedita");
-
-                    b.Property<DateTime?>("T2LipeSpeditaData")
-                        .HasColumnType("datetime2")
-                        .HasColumnName("t2_lipe_spedita_data");
-
-                    b.Property<string>("T2RaccoltaDocumenti")
-                        .IsRequired()
-                        .HasMaxLength(20)
-                        .HasColumnType("nvarchar(20)")
-                        .HasColumnName("t2_raccolta_documenti");
-
-                    b.Property<DateTime>("T2UpdatedAt")
-                        .HasColumnType("datetime2")
-                        .HasColumnName("t2_updated_at");
-
-                    b.Property<DateTime>("T3CreatedAt")
-                        .HasColumnType("datetime2")
-                        .HasColumnName("t3_created_at");
-
-                    b.Property<bool>("T3LipeControllata")
-                        .HasColumnType("bit")
-                        .HasColumnName("t3_lipe_controllata");
-
-                    b.Property<DateTime?>("T3LipeControllataData")
-                        .HasColumnType("datetime2")
-                        .HasColumnName("t3_lipe_controllata_data");
-
-                    b.Property<bool>("T3LipeInserita")
-                        .HasColumnType("bit")
-                        .HasColumnName("t3_lipe_inserita");
-
-                    b.Property<DateTime?>("T3LipeInseritaData")
-                        .HasColumnType("datetime2")
-                        .HasColumnName("t3_lipe_inserita_data");
-
-                    b.Property<bool>("T3LipeSpedita")
-                        .HasColumnType("bit")
-                        .HasColumnName("t3_lipe_spedita");
-
-                    b.Property<DateTime?>("T3LipeSpeditaData")
-                        .HasColumnType("datetime2")
-                        .HasColumnName("t3_lipe_spedita_data");
-
-                    b.Property<string>("T3RaccoltaDocumenti")
-                        .IsRequired()
-                        .HasMaxLength(20)
-                        .HasColumnType("nvarchar(20)")
-                        .HasColumnName("t3_raccolta_documenti");
-
-                    b.Property<DateTime>("T3UpdatedAt")
-                        .HasColumnType("datetime2")
-                        .HasColumnName("t3_updated_at");
-
-                    b.Property<DateTime>("T4CreatedAt")
-                        .HasColumnType("datetime2")
-                        .HasColumnName("t4_created_at");
-
-                    b.Property<bool>("T4LipeControllata")
-                        .HasColumnType("bit")
-                        .HasColumnName("t4_lipe_controllata");
-
-                    b.Property<DateTime?>("T4LipeControllataData")
-                        .HasColumnType("datetime2")
-                        .HasColumnName("t4_lipe_controllata_data");
-
-                    b.Property<bool>("T4LipeInserita")
-                        .HasColumnType("bit")
-                        .HasColumnName("t4_lipe_inserita");
-
-                    b.Property<DateTime?>("T4LipeInseritaData")
-                        .HasColumnType("datetime2")
-                        .HasColumnName("t4_lipe_inserita_data");
-
-                    b.Property<bool>("T4LipeSpedita")
-                        .HasColumnType("bit")
-                        .HasColumnName("t4_lipe_spedita");
-
-                    b.Property<DateTime?>("T4LipeSpeditaData")
-                        .HasColumnType("datetime2")
-                        .HasColumnName("t4_lipe_spedita_data");
-
-                    b.Property<string>("T4RaccoltaDocumenti")
-                        .IsRequired()
-                        .HasMaxLength(20)
-                        .HasColumnType("nvarchar(20)")
-                        .HasColumnName("t4_raccolta_documenti");
-
-                    b.Property<DateTime>("T4UpdatedAt")
-                        .HasColumnType("datetime2")
-                        .HasColumnName("t4_updated_at");
-
-                    b.HasKey("IdAttivitaLipe");
-
-                    b.HasIndex("IdAnno");
-
-                    b.HasIndex("IdCliente");
-
-                    b.HasIndex("IdProfessionista");
-
-                    b.ToTable("attivita_lipe");
-                });
-
-            modelBuilder.Entity("ConsultingGroup.Models.AttivitaTriva", b =>
-                {
-                    b.Property<int>("IdModTrIva")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int")
-                        .HasColumnName("id_mod_tr_iva");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("IdModTrIva"));
-
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("datetime2")
-                        .HasColumnName("created_at");
-
-                    b.Property<int>("IdAnno")
-                        .HasColumnType("int")
-                        .HasColumnName("id_anno");
-
-                    b.Property<int>("IdCliente")
-                        .HasColumnType("int")
-                        .HasColumnName("id_cliente");
-
-                    b.Property<bool>("PrimoTrimestre")
-                        .HasColumnType("bit")
-                        .HasColumnName("primo_trimestre");
-
-                    b.Property<bool>("PrimoTrimestreCompilato")
-                        .HasColumnType("bit")
-                        .HasColumnName("primo_trimestre_compilato");
-
-                    b.Property<bool>("PrimoTrimestreMailCliente")
-                        .HasColumnType("bit")
-                        .HasColumnName("primo_trimestre_mail_cliente");
-
-                    b.Property<bool>("PrimoTrimestreRicevuta")
-                        .HasColumnType("bit")
-                        .HasColumnName("primo_trimestre_ricevuta");
-
-                    b.Property<bool>("PrimoTrimestreSpedito")
-                        .HasColumnType("bit")
-                        .HasColumnName("primo_trimestre_spedito");
-
-                    b.Property<bool>("SecondoTrimestre")
-                        .HasColumnType("bit")
-                        .HasColumnName("secondo_trimestre");
-
-                    b.Property<bool>("SecondoTrimestreCompilato")
-                        .HasColumnType("bit")
-                        .HasColumnName("secondo_trimestre_compilato");
-
-                    b.Property<bool>("SecondoTrimestreMailCliente")
-                        .HasColumnType("bit")
-                        .HasColumnName("secondo_trimestre_mail_cliente");
-
-                    b.Property<bool>("SecondoTrimestreRicevuta")
-                        .HasColumnType("bit")
-                        .HasColumnName("secondo_trimestre_ricevuta");
-
-                    b.Property<bool>("SecondoTrimestreSpedito")
-                        .HasColumnType("bit")
-                        .HasColumnName("secondo_trimestre_spedito");
-
-                    b.Property<bool>("TerzoTrimestre")
-                        .HasColumnType("bit")
-                        .HasColumnName("terzo_trimestre");
-
-                    b.Property<bool>("TerzoTrimestreCompilato")
-                        .HasColumnType("bit")
-                        .HasColumnName("terzo_trimestre_compilato");
-
-                    b.Property<bool>("TerzoTrimestreMailCliente")
-                        .HasColumnType("bit")
-                        .HasColumnName("terzo_trimestre_mail_cliente");
-
-                    b.Property<bool>("TerzoTrimestreRicevuta")
-                        .HasColumnType("bit")
-                        .HasColumnName("terzo_trimestre_ricevuta");
-
-                    b.Property<bool>("TerzoTrimestreSpedito")
-                        .HasColumnType("bit")
-                        .HasColumnName("terzo_trimestre_spedito");
-
-                    b.Property<DateTime>("UpdatedAt")
-                        .HasColumnType("datetime2")
-                        .HasColumnName("updated_at");
-
-                    b.HasKey("IdModTrIva");
-
-                    b.HasIndex("IdAnno");
-
-                    b.HasIndex("IdCliente");
-
-                    b.ToTable("attivita_mod_tr_iva");
+                    b.ToTable("attivita_irap", (string)null);
                 });
 
             modelBuilder.Entity("ConsultingGroup.Models.Banche", b =>
@@ -1688,7 +1366,7 @@ namespace ConsultingGroup.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("Banche");
+                    b.ToTable("Banche", (string)null);
                 });
 
             modelBuilder.Entity("ConsultingGroup.Models.Cancelleria", b =>
@@ -1736,7 +1414,7 @@ namespace ConsultingGroup.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("Cancelleria");
+                    b.ToTable("Cancelleria", (string)null);
                 });
 
             modelBuilder.Entity("ConsultingGroup.Models.CarteCredito", b =>
@@ -1786,7 +1464,7 @@ namespace ConsultingGroup.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("CarteCredito");
+                    b.ToTable("CarteCredito", (string)null);
                 });
 
             modelBuilder.Entity("ConsultingGroup.Models.Cliente", b =>
@@ -1802,29 +1480,9 @@ namespace ConsultingGroup.Migrations
                         .HasColumnType("bit")
                         .HasColumnName("attivo");
 
-                    b.Property<string>("Cap")
-                        .HasMaxLength(10)
-                        .HasColumnType("nvarchar(10)")
-                        .HasColumnName("cap");
-
                     b.Property<bool>("CassettoFiscale")
                         .HasColumnType("bit")
                         .HasColumnName("cassetto_fiscale");
-
-                    b.Property<string>("CfCliente")
-                        .HasMaxLength(16)
-                        .HasColumnType("nvarchar(16)")
-                        .HasColumnName("cf_cliente");
-
-                    b.Property<string>("CfLegaleRappresentante")
-                        .HasMaxLength(16)
-                        .HasColumnType("nvarchar(16)")
-                        .HasColumnName("cf_legale_rappresentante");
-
-                    b.Property<string>("Citta")
-                        .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)")
-                        .HasColumnName("citta");
 
                     b.Property<string>("CodiceAteco")
                         .HasMaxLength(20)
@@ -1850,10 +1508,6 @@ namespace ConsultingGroup.Migrations
                     b.Property<DateTime?>("DataCessazione")
                         .HasColumnType("datetime2")
                         .HasColumnName("data_cessazione");
-
-                    b.Property<DateTime?>("DataMandato")
-                        .HasColumnType("datetime2")
-                        .HasColumnName("data_mandato");
 
                     b.Property<DateTime>("DataModifica")
                         .HasColumnType("datetime2")
@@ -1891,10 +1545,6 @@ namespace ConsultingGroup.Migrations
                         .HasColumnType("int")
                         .HasColumnName("id_tipologia_inps");
 
-                    b.Property<decimal?>("ImportoMandatoAnnuo")
-                        .HasColumnType("decimal(18,2)")
-                        .HasColumnName("importo_mandato_annuo");
-
                     b.Property<bool>("Imu")
                         .HasColumnType("bit")
                         .HasColumnName("imu");
@@ -1903,19 +1553,9 @@ namespace ConsultingGroup.Migrations
                         .HasColumnType("bit")
                         .HasColumnName("inail");
 
-                    b.Property<string>("Indirizzo")
-                        .HasMaxLength(200)
-                        .HasColumnType("nvarchar(200)")
-                        .HasColumnName("indirizzo");
-
                     b.Property<bool>("Inventari")
                         .HasColumnType("bit")
                         .HasColumnName("inventari");
-
-                    b.Property<string>("LegaleRappresentante")
-                        .HasMaxLength(200)
-                        .HasColumnType("nvarchar(200)")
-                        .HasColumnName("legale_rappresentante");
 
                     b.Property<bool>("LettereIntento")
                         .HasColumnType("bit")
@@ -1984,21 +1624,6 @@ namespace ConsultingGroup.Migrations
                         .HasColumnType("bit")
                         .HasColumnName("periodo_contabilita");
 
-                    b.Property<string>("PivaCliente")
-                        .HasMaxLength(20)
-                        .HasColumnType("nvarchar(20)")
-                        .HasColumnName("piva_cliente");
-
-                    b.Property<string>("ProformaTipo")
-                        .HasMaxLength(20)
-                        .HasColumnType("nvarchar(20)")
-                        .HasColumnName("proforma_tipo");
-
-                    b.Property<string>("Provincia")
-                        .HasMaxLength(5)
-                        .HasColumnType("nvarchar(5)")
-                        .HasColumnName("provincia");
-
                     b.Property<bool>("RegCespiti")
                         .HasColumnType("bit")
                         .HasColumnName("reg_cespiti");
@@ -2031,170 +1656,7 @@ namespace ConsultingGroup.Migrations
 
                     b.HasIndex("RiattivatoPerAnno");
 
-                    b.ToTable("clienti");
-                });
-
-            modelBuilder.Entity("ConsultingGroup.Models.ContabilitaInternaTrimestrale", b =>
-                {
-                    b.Property<int>("IdContabilitaInternaTrimestrale")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int")
-                        .HasColumnName("id_contabilita_interna_trimestrale");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("IdContabilitaInternaTrimestrale"));
-
-                    b.Property<string>("CodiceContabilita")
-                        .HasMaxLength(50)
-                        .HasColumnType("nvarchar(50)")
-                        .HasColumnName("codice_contabilita");
-
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("datetime2")
-                        .HasColumnName("created_at");
-
-                    b.Property<int>("IdAnno")
-                        .HasColumnType("int")
-                        .HasColumnName("id_anno");
-
-                    b.Property<int>("IdCliente")
-                        .HasColumnType("int")
-                        .HasColumnName("id_cliente");
-
-                    b.Property<DateTime?>("PrimoTrimestreDataFt")
-                        .HasColumnType("datetime2")
-                        .HasColumnName("primo_trimestre_data_ft");
-
-                    b.Property<string>("PrimoTrimestreDebitoCredito")
-                        .HasMaxLength(10)
-                        .HasColumnType("nvarchar(10)")
-                        .HasColumnName("primo_trimestre_debito_credito");
-
-                    b.Property<string>("PrimoTrimestreF24Consegnato")
-                        .HasMaxLength(20)
-                        .HasColumnType("nvarchar(20)")
-                        .HasColumnName("primo_trimestre_f24_consegnato");
-
-                    b.Property<decimal?>("PrimoTrimestreImportoCredito")
-                        .HasColumnType("decimal(18,2)")
-                        .HasColumnName("primo_trimestre_importo_credito");
-
-                    b.Property<decimal?>("PrimoTrimestreImportoDebito")
-                        .HasColumnType("decimal(18,2)")
-                        .HasColumnName("primo_trimestre_importo_debito");
-
-                    b.Property<decimal?>("PrimoTrimestreLiqIvaImporto")
-                        .HasColumnType("decimal(18,2)")
-                        .HasColumnName("primo_trimestre_liq_iva_importo");
-
-                    b.Property<string>("PrimoTrimestreUltimaFtVendita")
-                        .HasMaxLength(50)
-                        .HasColumnType("nvarchar(50)")
-                        .HasColumnName("primo_trimestre_ultima_ft_vendita");
-
-                    b.Property<DateTime?>("QuartoTrimestreDataFt")
-                        .HasColumnType("datetime2")
-                        .HasColumnName("quarto_trimestre_data_ft");
-
-                    b.Property<string>("QuartoTrimestreDebitoCredito")
-                        .HasMaxLength(10)
-                        .HasColumnType("nvarchar(10)")
-                        .HasColumnName("quarto_trimestre_debito_credito");
-
-                    b.Property<string>("QuartoTrimestreF24Consegnato")
-                        .HasMaxLength(20)
-                        .HasColumnType("nvarchar(20)")
-                        .HasColumnName("quarto_trimestre_f24_consegnato");
-
-                    b.Property<decimal?>("QuartoTrimestreImportoCredito")
-                        .HasColumnType("decimal(18,2)")
-                        .HasColumnName("quarto_trimestre_importo_credito");
-
-                    b.Property<decimal?>("QuartoTrimestreImportoDebito")
-                        .HasColumnType("decimal(18,2)")
-                        .HasColumnName("quarto_trimestre_importo_debito");
-
-                    b.Property<decimal?>("QuartoTrimestreLiqIvaImporto")
-                        .HasColumnType("decimal(18,2)")
-                        .HasColumnName("quarto_trimestre_liq_iva_importo");
-
-                    b.Property<string>("QuartoTrimestreUltimaFtVendita")
-                        .HasMaxLength(50)
-                        .HasColumnType("nvarchar(50)")
-                        .HasColumnName("quarto_trimestre_ultima_ft_vendita");
-
-                    b.Property<DateTime?>("SecondoTrimestreDataFt")
-                        .HasColumnType("datetime2")
-                        .HasColumnName("secondo_trimestre_data_ft");
-
-                    b.Property<string>("SecondoTrimestreDebitoCredito")
-                        .HasMaxLength(10)
-                        .HasColumnType("nvarchar(10)")
-                        .HasColumnName("secondo_trimestre_debito_credito");
-
-                    b.Property<string>("SecondoTrimestreF24Consegnato")
-                        .HasMaxLength(20)
-                        .HasColumnType("nvarchar(20)")
-                        .HasColumnName("secondo_trimestre_f24_consegnato");
-
-                    b.Property<decimal?>("SecondoTrimestreImportoCredito")
-                        .HasColumnType("decimal(18,2)")
-                        .HasColumnName("secondo_trimestre_importo_credito");
-
-                    b.Property<decimal?>("SecondoTrimestreImportoDebito")
-                        .HasColumnType("decimal(18,2)")
-                        .HasColumnName("secondo_trimestre_importo_debito");
-
-                    b.Property<decimal?>("SecondoTrimestreLiqIvaImporto")
-                        .HasColumnType("decimal(18,2)")
-                        .HasColumnName("secondo_trimestre_liq_iva_importo");
-
-                    b.Property<string>("SecondoTrimestreUltimaFtVendita")
-                        .HasMaxLength(50)
-                        .HasColumnType("nvarchar(50)")
-                        .HasColumnName("secondo_trimestre_ultima_ft_vendita");
-
-                    b.Property<DateTime?>("TerzoTrimestreDataFt")
-                        .HasColumnType("datetime2")
-                        .HasColumnName("terzo_trimestre_data_ft");
-
-                    b.Property<string>("TerzoTrimestreDebitoCredito")
-                        .HasMaxLength(10)
-                        .HasColumnType("nvarchar(10)")
-                        .HasColumnName("terzo_trimestre_debito_credito");
-
-                    b.Property<string>("TerzoTrimestreF24Consegnato")
-                        .HasMaxLength(20)
-                        .HasColumnType("nvarchar(20)")
-                        .HasColumnName("terzo_trimestre_f24_consegnato");
-
-                    b.Property<decimal?>("TerzoTrimestreImportoCredito")
-                        .HasColumnType("decimal(18,2)")
-                        .HasColumnName("terzo_trimestre_importo_credito");
-
-                    b.Property<decimal?>("TerzoTrimestreImportoDebito")
-                        .HasColumnType("decimal(18,2)")
-                        .HasColumnName("terzo_trimestre_importo_debito");
-
-                    b.Property<decimal?>("TerzoTrimestreLiqIvaImporto")
-                        .HasColumnType("decimal(18,2)")
-                        .HasColumnName("terzo_trimestre_liq_iva_importo");
-
-                    b.Property<string>("TerzoTrimestreUltimaFtVendita")
-                        .HasMaxLength(50)
-                        .HasColumnType("nvarchar(50)")
-                        .HasColumnName("terzo_trimestre_ultima_ft_vendita");
-
-                    b.Property<DateTime>("UpdatedAt")
-                        .HasColumnType("datetime2")
-                        .HasColumnName("updated_at");
-
-                    b.HasKey("IdContabilitaInternaTrimestrale");
-
-                    b.HasIndex("IdAnno");
-
-                    b.HasIndex("IdCliente");
-
-                    b.ToTable("contabilita_interna_trimestrale");
+                    b.ToTable("clienti", (string)null);
                 });
 
             modelBuilder.Entity("ConsultingGroup.Models.Entratel", b =>
@@ -2258,7 +1720,7 @@ namespace ConsultingGroup.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("Entratel");
+                    b.ToTable("Entratel", (string)null);
                 });
 
             modelBuilder.Entity("ConsultingGroup.Models.Mail", b =>
@@ -2302,7 +1764,7 @@ namespace ConsultingGroup.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("Mail");
+                    b.ToTable("Mail", (string)null);
                 });
 
             modelBuilder.Entity("ConsultingGroup.Models.Professionista", b =>
@@ -2362,88 +1824,7 @@ namespace ConsultingGroup.Migrations
 
                     b.HasIndex("RiattivatoPerAnno");
 
-                    b.ToTable("professionisti");
-                });
-
-            modelBuilder.Entity("ConsultingGroup.Models.ProformaGenerata", b =>
-                {
-                    b.Property<int>("IdProforma")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int")
-                        .HasColumnName("id_proforma");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("IdProforma"));
-
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("datetime2")
-                        .HasColumnName("created_at");
-
-                    b.Property<DateTime?>("DataInvio")
-                        .HasColumnType("datetime2")
-                        .HasColumnName("data_invio");
-
-                    b.Property<DateTime?>("DataMandato")
-                        .HasColumnType("datetime2")
-                        .HasColumnName("data_mandato");
-
-                    b.Property<DateTime?>("DataPagamento")
-                        .HasColumnType("datetime2")
-                        .HasColumnName("data_pagamento");
-
-                    b.Property<DateTime>("DataScadenza")
-                        .HasColumnType("datetime2")
-                        .HasColumnName("data_scadenza");
-
-                    b.Property<int>("IdAnnoFatturazione")
-                        .HasColumnType("int")
-                        .HasColumnName("id_anno_fatturazione");
-
-                    b.Property<int>("IdCliente")
-                        .HasColumnType("int")
-                        .HasColumnName("id_cliente");
-
-                    b.Property<decimal?>("ImportoMandatoAnnuo")
-                        .HasColumnType("decimal(18,2)")
-                        .HasColumnName("importo_mandato_annuo");
-
-                    b.Property<decimal>("ImportoRata")
-                        .HasColumnType("decimal(18,2)")
-                        .HasColumnName("importo_rata");
-
-                    b.Property<bool>("Inviata")
-                        .HasColumnType("bit")
-                        .HasColumnName("inviata");
-
-                    b.Property<string>("Note")
-                        .HasMaxLength(500)
-                        .HasColumnType("nvarchar(500)")
-                        .HasColumnName("note");
-
-                    b.Property<int>("NumeroRata")
-                        .HasColumnType("int")
-                        .HasColumnName("numero_rata");
-
-                    b.Property<bool>("Pagata")
-                        .HasColumnType("bit")
-                        .HasColumnName("pagata");
-
-                    b.Property<string>("TipoProforma")
-                        .IsRequired()
-                        .HasMaxLength(20)
-                        .HasColumnType("nvarchar(20)")
-                        .HasColumnName("tipo_proforma");
-
-                    b.Property<DateTime>("UpdatedAt")
-                        .HasColumnType("datetime2")
-                        .HasColumnName("updated_at");
-
-                    b.HasKey("IdProforma");
-
-                    b.HasIndex("IdAnnoFatturazione");
-
-                    b.HasIndex("IdCliente");
-
-                    b.ToTable("proforma_generate");
+                    b.ToTable("professionisti", (string)null);
                 });
 
             modelBuilder.Entity("ConsultingGroup.Models.Programma", b =>
@@ -2497,7 +1878,7 @@ namespace ConsultingGroup.Migrations
 
                     b.HasIndex("RiattivatoPerAnno");
 
-                    b.ToTable("tipo_programmi", t =>
+                    b.ToTable("tipo_programmi", null, t =>
                         {
                             t.HasTrigger("tr_tipo_programmi_update_date");
                         });
@@ -2556,7 +1937,7 @@ namespace ConsultingGroup.Migrations
 
                     b.HasIndex("RiattivatoPerAnno");
 
-                    b.ToTable("regimi_contabili");
+                    b.ToTable("regimi_contabili", (string)null);
                 });
 
             modelBuilder.Entity("ConsultingGroup.Models.Studio", b =>
@@ -2610,7 +1991,7 @@ namespace ConsultingGroup.Migrations
 
                     b.HasIndex("RiattivatoPerAnno");
 
-                    b.ToTable("studios", t =>
+                    b.ToTable("studios", null, t =>
                         {
                             t.HasTrigger("tr_studios_update_date");
                         });
@@ -2669,7 +2050,7 @@ namespace ConsultingGroup.Migrations
 
                     b.HasIndex("RiattivatoPerAnno");
 
-                    b.ToTable("tipologie_inps");
+                    b.ToTable("tipologie_inps", (string)null);
                 });
 
             modelBuilder.Entity("ConsultingGroup.Models.UserPermissions", b =>
@@ -2717,7 +2098,7 @@ namespace ConsultingGroup.Migrations
                     b.HasIndex("UserId")
                         .IsUnique();
 
-                    b.ToTable("UserPermissions");
+                    b.ToTable("UserPermissions", (string)null);
                 });
 
             modelBuilder.Entity("ConsultingGroup.Models.UtentiPC", b =>
@@ -2765,7 +2146,7 @@ namespace ConsultingGroup.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("UtentiPC");
+                    b.ToTable("UtentiPC", (string)null);
                 });
 
             modelBuilder.Entity("ConsultingGroup.Models.UtentiTS", b =>
@@ -2809,7 +2190,7 @@ namespace ConsultingGroup.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("UtentiTS");
+                    b.ToTable("UtentiTS", (string)null);
                 });
 
             modelBuilder.Entity("ConsultingGroup.Models.Utenze", b =>
@@ -2857,7 +2238,7 @@ namespace ConsultingGroup.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("Utenze");
+                    b.ToTable("Utenze", (string)null);
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRole", b =>
@@ -3229,50 +2610,6 @@ namespace ConsultingGroup.Migrations
                     b.Navigation("Professionista");
                 });
 
-            modelBuilder.Entity("ConsultingGroup.Models.AttivitaLipe", b =>
-                {
-                    b.HasOne("ConsultingGroup.Models.AnnoFiscale", "AnnoFiscale")
-                        .WithMany()
-                        .HasForeignKey("IdAnno")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("ConsultingGroup.Models.Cliente", "Cliente")
-                        .WithMany()
-                        .HasForeignKey("IdCliente")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("ConsultingGroup.Models.Professionista", "Professionista")
-                        .WithMany()
-                        .HasForeignKey("IdProfessionista");
-
-                    b.Navigation("AnnoFiscale");
-
-                    b.Navigation("Cliente");
-
-                    b.Navigation("Professionista");
-                });
-
-            modelBuilder.Entity("ConsultingGroup.Models.AttivitaTriva", b =>
-                {
-                    b.HasOne("ConsultingGroup.Models.AnnoFiscale", "AnnoFiscale")
-                        .WithMany()
-                        .HasForeignKey("IdAnno")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("ConsultingGroup.Models.Cliente", "Cliente")
-                        .WithMany()
-                        .HasForeignKey("IdCliente")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("AnnoFiscale");
-
-                    b.Navigation("Cliente");
-                });
-
             modelBuilder.Entity("ConsultingGroup.Models.Banche", b =>
                 {
                     b.HasOne("ConsultingGroup.Models.ApplicationUser", "User")
@@ -3339,25 +2676,6 @@ namespace ConsultingGroup.Migrations
                     b.Navigation("TipologiaInps");
                 });
 
-            modelBuilder.Entity("ConsultingGroup.Models.ContabilitaInternaTrimestrale", b =>
-                {
-                    b.HasOne("ConsultingGroup.Models.AnnoFiscale", "AnnoFiscale")
-                        .WithMany()
-                        .HasForeignKey("IdAnno")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("ConsultingGroup.Models.Cliente", "Cliente")
-                        .WithMany()
-                        .HasForeignKey("IdCliente")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("AnnoFiscale");
-
-                    b.Navigation("Cliente");
-                });
-
             modelBuilder.Entity("ConsultingGroup.Models.Entratel", b =>
                 {
                     b.HasOne("ConsultingGroup.Models.ApplicationUser", "User")
@@ -3387,25 +2705,6 @@ namespace ConsultingGroup.Migrations
                         .HasForeignKey("RiattivatoPerAnno");
 
                     b.Navigation("AnnoFiscaleRiattivazione");
-                });
-
-            modelBuilder.Entity("ConsultingGroup.Models.ProformaGenerata", b =>
-                {
-                    b.HasOne("ConsultingGroup.Models.AnnoFatturazione", "AnnoFatturazione")
-                        .WithMany()
-                        .HasForeignKey("IdAnnoFatturazione")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("ConsultingGroup.Models.Cliente", "Cliente")
-                        .WithMany()
-                        .HasForeignKey("IdCliente")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("AnnoFatturazione");
-
-                    b.Navigation("Cliente");
                 });
 
             modelBuilder.Entity("ConsultingGroup.Models.Programma", b =>

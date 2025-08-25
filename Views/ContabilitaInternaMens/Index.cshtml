@@ -1,0 +1,1083 @@
+@model IEnumerable<ConsultingGroup.Models.ContabilitaInternaMensile>
+@{
+    ViewData["Title"] = "Contabilità Interna Mensile";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+@* Token antiforgery per AJAX *@
+<form style="display: none;">
+    @Html.AntiForgeryToken()
+</form>
+
+<partial name="_Messages" />
+
+<div class="container-fluid">
+    <!-- Header con filtri -->
+    <div class="row mb-4">
+        <div class="col">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <div>
+                    <h1 class="h3 mb-2">
+                        <i class="fas fa-calendar-alt text-primary me-2"></i>
+                        Contabilità Interna Mensile
+                    </h1>
+                    <p class="text-muted">Gestione mensile delle attività contabili interne - Anno @ViewBag.AnnoSelezionato</p>
+                </div>
+                <div class="d-flex gap-2">
+                    <a href="@Url.Action("Index", "GestioneAttivita")" class="btn btn-outline-primary btn-sm">
+                        <i class="fas fa-arrow-left me-1"></i>Gestione Attività
+                    </a>
+                    <a href="@Url.Action("Index", "Clienti")" class="btn btn-outline-success btn-sm">
+                        <i class="fas fa-users me-1"></i>Gestione Clienti
+                    </a>
+                </div>
+            </div>
+
+            <!-- Filtri -->
+            <div class="card shadow-sm mb-4">
+                <div class="card-body">
+                    <div class="row align-items-end g-3">
+                        <!-- Dropdown Anno -->
+                        <div class="col-md-2">
+                            <label for="selectAnno" class="form-label fw-bold">Anno Fiscale:</label>
+                            @Html.DropDownList("annoSelezionato", (SelectList)ViewBag.AnniFiscali, new { 
+                                @class = "form-select", 
+                                @id = "selectAnno",
+                                onchange = "location.href='@Url.Action(\"Index\")?annoSelezionato=' + this.value;" 
+                            })
+                        </div>
+
+                        <!-- Filtro Cliente -->
+                        <div class="col-md-2">
+                            <label for="filtroNomeCliente" class="form-label fw-bold">Cliente:</label>
+                            <input type="text" id="filtroNomeCliente" class="form-control" placeholder="Cerca per nome...">
+                        </div>
+
+                        <!-- Filtro Mese -->
+                        <div class="col-md-2">
+                            <label for="filtroMese" class="form-label fw-bold">Mese:</label>
+                            <select id="filtroMese" class="form-select form-select-sm">
+                                <option value="">Tutti</option>
+                                <option value="1">Gennaio</option>
+                                <option value="2">Febbraio</option>
+                                <option value="3">Marzo</option>
+                                <option value="4">Aprile</option>
+                                <option value="5">Maggio</option>
+                                <option value="6">Giugno</option>
+                                <option value="7">Luglio</option>
+                                <option value="8">Agosto</option>
+                                <option value="9">Settembre</option>
+                                <option value="10">Ottobre</option>
+                                <option value="11">Novembre</option>
+                                <option value="12">Dicembre</option>
+                            </select>
+                        </div>
+
+                        <!-- Filtro F24 -->
+                        <div class="col-md-2">
+                            <label for="filtroF24" class="form-label fw-bold">F24:</label>
+                            <select id="filtroF24" class="form-select form-select-sm">
+                                <option value="">Tutti</option>
+                                <option value="consegnato">Consegnato</option>
+                                <option value="entratel">Entratel</option>
+                                <option value="consegnato_entratel">Consegnato / Entratel</option>
+                                <option value="non_consegnato_entratel">Non Consegnato/Entratel</option>
+                            </select>
+                        </div>
+
+                        <!-- Filtro Debito/Credito -->
+                        <div class="col-md-2">
+                            <label for="filtroDebitoCredito" class="form-label fw-bold">Tipo:</label>
+                            <select id="filtroDebitoCredito" class="form-select form-select-sm">
+                                <option value="">Tutti</option>
+                                <option value="debito">Solo Debiti</option>
+                                <option value="credito">Solo Crediti</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="row align-items-center mt-3">
+                        <div class="col-md-10">
+                        </div>
+                        <div class="col-md-2 text-end">
+                            <div class="d-flex gap-2 justify-content-end">
+                                <button type="button" id="btnSalvaTutto" class="btn btn-success btn-sm">
+                                    <i class="fas fa-save me-1"></i>Salva Tutto
+                                </button>
+                                <a href="@Url.Action("ExportExcel", new { annoSelezionato = ViewBag.AnnoSelezionato })" class="btn btn-warning btn-sm">
+                                    <i class="fas fa-file-excel me-1"></i>Export Excel
+                                </a>
+                                <button type="button" class="btn btn-danger btn-sm" onclick="showDeleteAllModal()">
+                                    <i class="fas fa-trash-alt me-1"></i>Elimina Contenuto
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Contenuto principale -->
+    <div class="row">
+        @if (Model.Any())
+        {
+            <div class="col-12">
+                @{
+                    int index = 0;
+                }
+                @foreach (var item in Model)
+                {
+                    <div class="card contabilita-client-card shadow-sm mb-4" data-cliente-id="@item.IdContabilitaInternaMensile">
+                        <div class="card-header d-flex justify-content-between align-items-center" 
+                             style="background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%); color: white;">
+                            <div class="d-flex align-items-center">
+                                <i class="fas fa-user-tie me-2"></i>
+                                <span class="fw-bold">@item.Cliente?.NomeCliente</span>
+                                <span class="badge bg-light text-dark ms-2 progress-text" id="progress-@item.IdContabilitaInternaMensile">0/97</span>
+                            </div>
+                            <div class="d-flex align-items-center gap-3">
+                                <div class="d-flex align-items-center">
+                                    <label class="form-label text-white me-2 mb-0">Codice:</label>
+                                    <input type="text" class="form-control form-control-sm codice-contabilita" 
+                                           value="@item.CodiceContabilita" 
+                                           placeholder="Codice contabilità..." 
+                                           data-field="CodiceContabilita"
+                                           style="width: 150px;">
+                                </div>
+                                <button type="button" class="btn btn-sm btn-success me-2" onclick="salvaCliente(@item.IdContabilitaInternaMensile)">
+                                    <i class="fas fa-save me-1"></i>Salva
+                                </button>
+                                <button class="btn btn-outline-light btn-sm" type="button" data-bs-toggle="collapse" 
+                                        data-bs-target="#accordion-@item.IdContabilitaInternaMensile">
+                                    <i class="fas fa-chevron-down"></i>
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="collapse" id="accordion-@item.IdContabilitaInternaMensile">
+                            <div class="card-body p-0">
+                                <div class="accordion" id="accordion-mesi-@item.IdContabilitaInternaMensile">
+
+                                    <!-- GENNAIO -->
+                                    <div class="accordion-item">
+                                        <h2 class="accordion-header">
+                                            <button class="accordion-button collapsed mese-header" type="button" 
+                                                    data-bs-toggle="collapse" data-bs-target="#gen-@item.IdContabilitaInternaMensile"
+                                                    data-mese="1" data-cliente-id="@item.IdContabilitaInternaMensile"
+                                                    data-liq-iva="@item.GennaioLiqIvaImporto">
+                                                <i class="fas fa-calendar-alt me-2"></i>
+                                                <strong>GENNAIO</strong>
+                                                <span class="ms-auto me-3 progress-badge" id="progress-gen-@item.IdContabilitaInternaMensile">
+                                                    <span class="badge bg-light text-dark">0/8</span>
+                                                </span>
+                                            </button>
+                                        </h2>
+                                        <div id="gen-@item.IdContabilitaInternaMensile" class="accordion-collapse collapse" 
+                                             data-bs-parent="#accordion-mesi-@item.IdContabilitaInternaMensile">
+                                            <div class="accordion-body bg-light">
+                                                <div class="row g-3">
+                                                    <div class="col-md-3">
+                                                        <label class="form-label fw-bold">Ultima FT Vendita</label>
+                                                        <input type="text" class="form-control" 
+                                                               value="@item.GennaioUltimaFtVendita" 
+                                                               placeholder="N° Fattura..."
+                                                               data-field="GennaioUltimaFtVendita">
+                                                    </div>
+                                                    <div class="col-md-3">
+                                                        <label class="form-label fw-bold">Data FT</label>
+                                                        <input type="date" class="form-control" 
+                                                               value="@(item.GennaioDataFt?.ToString("yyyy-MM-dd"))"
+                                                               data-field="GennaioDataFt">
+                                                    </div>
+                                                    <div class="col-md-3">
+                                                        <label class="form-label fw-bold">Liq. IVA Importo € <small class="text-muted">(calcolato)</small></label>
+                                                        <input type="number" class="form-control bg-light" step="0.01" 
+                                                               value="@item.GennaioLiqIvaImporto" 
+                                                               placeholder="0,00"
+                                                               data-field="GennaioLiqIvaImporto">
+                                                    </div>
+                                                    <div class="col-md-3">
+                                                        <label class="form-label fw-bold">Debito/Credito <small class="text-muted">(automatico)</small></label>
+                                                        <input type="text" class="form-control bg-light fw-bold text-center" 
+                                                               data-field="GennaioDebitoCredito" 
+                                                               value="@item.GennaioDebitoCredito" 
+                                                               readonly 
+                                                               style="font-size: 0.9em;">
+                                                    </div>
+                                                </div>
+                                                <div class="row g-3 mt-2">
+                                                    <div class="col-md-3">
+                                                        <label class="form-label fw-bold">Credito Anno Precedente € <small class="text-muted">(auto)</small></label>
+                                                        <input type="number" class="form-control bg-light" step="0.01" 
+                                                               value="@item.GennaioCreditoAnnoPrecedente" 
+                                                               placeholder="0,00"
+                                                               data-field="GennaioCreditoAnnoPrecedente">
+                                                    </div>
+                                                    <div class="col-md-3">
+                                                        <label class="form-label fw-bold">Importo Credito €</label>
+                                                        <input type="number" class="form-control" step="0.01" 
+                                                               value="@item.GennaioImportoCredito" 
+                                                               placeholder="0,00"
+                                                               data-field="GennaioImportoCredito">
+                                                    </div>
+                                                    <div class="col-md-3">
+                                                        <label class="form-label fw-bold">Importo Debito €</label>
+                                                        <input type="number" class="form-control" step="0.01" min="0"
+                                                               value="@(item.GennaioImportoDebito != null ? Math.Abs(item.GennaioImportoDebito.Value) : (decimal?)null)" 
+                                                               placeholder="0,00"
+                                                               data-field="GennaioImportoDebito">
+                                                    </div>
+                                                    <div class="col-md-3">
+                                                        <label class="form-label fw-bold">F24 Consegnato</label>
+                                                        <select class="form-select" data-field="GennaioF24Consegnato">
+                                                            <option value="">--</option>
+                                                            <option value="consegnato" selected="@(item.GennaioF24Consegnato == "consegnato")">Consegnato</option>
+                                                            <option value="entratel" selected="@(item.GennaioF24Consegnato == "entratel")">Entratel</option>
+                                                        </select>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- FEBBRAIO -->
+                                    <div class="accordion-item">
+                                        <h2 class="accordion-header">
+                                            <button class="accordion-button collapsed mese-header" type="button" 
+                                                    data-bs-toggle="collapse" data-bs-target="#feb-@item.IdContabilitaInternaMensile"
+                                                    data-mese="2" data-cliente-id="@item.IdContabilitaInternaMensile"
+                                                    data-liq-iva="@item.FebbraioLiqIvaImporto">
+                                                <i class="fas fa-calendar-alt me-2"></i>
+                                                <strong>FEBBRAIO</strong>
+                                                <span class="ms-auto me-3 progress-badge" id="progress-feb-@item.IdContabilitaInternaMensile">
+                                                    <span class="badge bg-light text-dark">0/8</span>
+                                                </span>
+                                            </button>
+                                        </h2>
+                                        <div id="feb-@item.IdContabilitaInternaMensile" class="accordion-collapse collapse" 
+                                             data-bs-parent="#accordion-mesi-@item.IdContabilitaInternaMensile">
+                                            <div class="accordion-body bg-light">
+                                                <div class="row g-3">
+                                                    <div class="col-md-3">
+                                                        <label class="form-label fw-bold">Ultima FT Vendita</label>
+                                                        <input type="text" class="form-control" 
+                                                               value="@item.FebbraioUltimaFtVendita" 
+                                                               placeholder="N° Fattura..."
+                                                               data-field="FebbraioUltimaFtVendita">
+                                                    </div>
+                                                    <div class="col-md-3">
+                                                        <label class="form-label fw-bold">Data FT</label>
+                                                        <input type="date" class="form-control" 
+                                                               value="@(item.FebbraioDataFt?.ToString("yyyy-MM-dd"))"
+                                                               data-field="FebbraioDataFt">
+                                                    </div>
+                                                    <div class="col-md-3">
+                                                        <label class="form-label fw-bold">Liq. IVA Importo € <small class="text-muted">(calcolato)</small></label>
+                                                        <input type="number" class="form-control bg-light" step="0.01" 
+                                                               value="@item.FebbraioLiqIvaImporto" 
+                                                               placeholder="0,00"
+                                                               data-field="FebbraioLiqIvaImporto">
+                                                    </div>
+                                                    <div class="col-md-3">
+                                                        <label class="form-label fw-bold">Debito/Credito <small class="text-muted">(automatico)</small></label>
+                                                        <input type="text" class="form-control bg-light fw-bold text-center" 
+                                                               data-field="FebbraioDebitoCredito" 
+                                                               value="@item.FebbraioDebitoCredito" 
+                                                               readonly 
+                                                               style="font-size: 0.9em;">
+                                                    </div>
+                                                </div>
+                                                <div class="row g-3 mt-2">
+                                                    <div class="col-md-3">
+                                                        <label class="form-label fw-bold">Credito Mese Precedente € <small class="text-muted">(auto)</small></label>
+                                                        <input type="number" class="form-control bg-light" step="0.01" 
+                                                               value="@item.FebbraioCreditoMesePrecedente" 
+                                                               placeholder="0,00"
+                                                               data-field="FebbraioCreditoMesePrecedente">
+                                                    </div>
+                                                    <div class="col-md-3">
+                                                        <label class="form-label fw-bold">Importo Credito €</label>
+                                                        <input type="number" class="form-control" step="0.01" 
+                                                               value="@item.FebbraioImportoCredito" 
+                                                               placeholder="0,00"
+                                                               data-field="FebbraioImportoCredito">
+                                                    </div>
+                                                    <div class="col-md-3">
+                                                        <label class="form-label fw-bold">Importo Debito €</label>
+                                                        <input type="number" class="form-control" step="0.01" min="0"
+                                                               value="@(item.FebbraioImportoDebito != null ? Math.Abs(item.FebbraioImportoDebito.Value) : (decimal?)null)" 
+                                                               placeholder="0,00"
+                                                               data-field="FebbraioImportoDebito">
+                                                    </div>
+                                                    <div class="col-md-3">
+                                                        <label class="form-label fw-bold">F24 Consegnato</label>
+                                                        <select class="form-select" data-field="FebbraioF24Consegnato">
+                                                            <option value="">--</option>
+                                                            <option value="consegnato" selected="@(item.FebbraioF24Consegnato == "consegnato")">Consegnato</option>
+                                                            <option value="entratel" selected="@(item.FebbraioF24Consegnato == "entratel")">Entratel</option>
+                                                        </select>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- MARZO -->
+                                    <div class="accordion-item">
+                                        <h2 class="accordion-header">
+                                            <button class="accordion-button collapsed mese-header" type="button" 
+                                                    data-bs-toggle="collapse" data-bs-target="#mar-@item.IdContabilitaInternaMensile"
+                                                    data-mese="3" data-cliente-id="@item.IdContabilitaInternaMensile"
+                                                    data-liq-iva="@item.MarzoLiqIvaImporto">
+                                                <i class="fas fa-calendar-alt me-2"></i>
+                                                <strong>MARZO</strong>
+                                                <span class="ms-auto me-3 progress-badge" id="progress-mar-@item.IdContabilitaInternaMensile">
+                                                    <span class="badge bg-light text-dark">0/8</span>
+                                                </span>
+                                            </button>
+                                        </h2>
+                                        <div id="mar-@item.IdContabilitaInternaMensile" class="accordion-collapse collapse" 
+                                             data-bs-parent="#accordion-mesi-@item.IdContabilitaInternaMensile">
+                                            <div class="accordion-body bg-light">
+                                                <div class="row g-3">
+                                                    <div class="col-md-3">
+                                                        <label class="form-label fw-bold">Ultima FT Vendita</label>
+                                                        <input type="text" class="form-control" 
+                                                               value="@item.MarzoUltimaFtVendita" 
+                                                               placeholder="N° Fattura..."
+                                                               data-field="MarzoUltimaFtVendita">
+                                                    </div>
+                                                    <div class="col-md-3">
+                                                        <label class="form-label fw-bold">Data FT</label>
+                                                        <input type="date" class="form-control" 
+                                                               value="@(item.MarzoDataFt?.ToString("yyyy-MM-dd"))"
+                                                               data-field="MarzoDataFt">
+                                                    </div>
+                                                    <div class="col-md-3">
+                                                        <label class="form-label fw-bold">Liq. IVA Importo € <small class="text-muted">(calcolato)</small></label>
+                                                        <input type="number" class="form-control bg-light" step="0.01" 
+                                                               value="@item.MarzoLiqIvaImporto" 
+                                                               placeholder="0,00"
+                                                               data-field="MarzoLiqIvaImporto">
+                                                    </div>
+                                                    <div class="col-md-3">
+                                                        <label class="form-label fw-bold">Debito/Credito <small class="text-muted">(automatico)</small></label>
+                                                        <input type="text" class="form-control bg-light fw-bold text-center" 
+                                                               data-field="MarzoDebitoCredito" 
+                                                               value="@item.MarzoDebitoCredito" 
+                                                               readonly 
+                                                               style="font-size: 0.9em;">
+                                                    </div>
+                                                </div>
+                                                <div class="row g-3 mt-2">
+                                                    <div class="col-md-3">
+                                                        <label class="form-label fw-bold">Credito Mese Precedente € <small class="text-muted">(auto)</small></label>
+                                                        <input type="number" class="form-control bg-light" step="0.01" 
+                                                               value="@item.MarzoCreditoMesePrecedente" 
+                                                               placeholder="0,00"
+                                                               data-field="MarzoCreditoMesePrecedente">
+                                                    </div>
+                                                    <div class="col-md-3">
+                                                        <label class="form-label fw-bold">Importo Credito €</label>
+                                                        <input type="number" class="form-control" step="0.01" 
+                                                               value="@item.MarzoImportoCredito" 
+                                                               placeholder="0,00"
+                                                               data-field="MarzoImportoCredito">
+                                                    </div>
+                                                    <div class="col-md-3">
+                                                        <label class="form-label fw-bold">Importo Debito €</label>
+                                                        <input type="number" class="form-control" step="0.01" min="0"
+                                                               value="@(item.MarzoImportoDebito != null ? Math.Abs(item.MarzoImportoDebito.Value) : (decimal?)null)" 
+                                                               placeholder="0,00"
+                                                               data-field="MarzoImportoDebito">
+                                                    </div>
+                                                    <div class="col-md-3">
+                                                        <label class="form-label fw-bold">F24 Consegnato</label>
+                                                        <select class="form-select" data-field="MarzoF24Consegnato">
+                                                            <option value="">--</option>
+                                                            <option value="consegnato" selected="@(item.MarzoF24Consegnato == "consegnato")">Consegnato</option>
+                                                            <option value="entratel" selected="@(item.MarzoF24Consegnato == "entratel")">Entratel</option>
+                                                        </select>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- APRILE -->
+                                    <div class="accordion-item">
+                                        <h2 class="accordion-header">
+                                            <button class="accordion-button collapsed mese-header" type="button" 
+                                                    data-bs-toggle="collapse" data-bs-target="#apr-@item.IdContabilitaInternaMensile"
+                                                    data-mese="4" data-cliente-id="@item.IdContabilitaInternaMensile"
+                                                    data-liq-iva="@item.AprileLiqIvaImporto">
+                                                <i class="fas fa-calendar-alt me-2"></i>
+                                                <strong>APRILE</strong>
+                                                <span class="ms-auto me-3 progress-badge" id="progress-apr-@item.IdContabilitaInternaMensile">
+                                                    <span class="badge bg-light text-dark">0/8</span>
+                                                </span>
+                                            </button>
+                                        </h2>
+                                        <div id="apr-@item.IdContabilitaInternaMensile" class="accordion-collapse collapse" 
+                                             data-bs-parent="#accordion-mesi-@item.IdContabilitaInternaMensile">
+                                            <div class="accordion-body bg-light">
+                                                <div class="row g-3">
+                                                    <div class="col-md-3">
+                                                        <label class="form-label fw-bold">Ultima FT Vendita</label>
+                                                        <input type="text" class="form-control" 
+                                                               value="@item.AprileUltimaFtVendita" 
+                                                               placeholder="N° Fattura..."
+                                                               data-field="AprileUltimaFtVendita">
+                                                    </div>
+                                                    <div class="col-md-3">
+                                                        <label class="form-label fw-bold">Data FT</label>
+                                                        <input type="date" class="form-control" 
+                                                               value="@(item.AprileDataFt?.ToString("yyyy-MM-dd"))"
+                                                               data-field="AprileDataFt">
+                                                    </div>
+                                                    <div class="col-md-3">
+                                                        <label class="form-label fw-bold">Liq. IVA Importo € <small class="text-muted">(calcolato)</small></label>
+                                                        <input type="number" class="form-control bg-light" step="0.01" 
+                                                               value="@item.AprileLiqIvaImporto" 
+                                                               placeholder="0,00"
+                                                               data-field="AprileLiqIvaImporto">
+                                                    </div>
+                                                    <div class="col-md-3">
+                                                        <label class="form-label fw-bold">Debito/Credito <small class="text-muted">(automatico)</small></label>
+                                                        <input type="text" class="form-control bg-light fw-bold text-center" 
+                                                               data-field="AprileDebitoCredito" 
+                                                               value="@item.AprileDebitoCredito" 
+                                                               readonly 
+                                                               style="font-size: 0.9em;">
+                                                    </div>
+                                                </div>
+                                                <div class="row g-3 mt-2">
+                                                    <div class="col-md-3">
+                                                        <label class="form-label fw-bold">Credito Mese Precedente € <small class="text-muted">(auto)</small></label>
+                                                        <input type="number" class="form-control bg-light" step="0.01" 
+                                                               value="@item.AprileCreditoMesePrecedente" 
+                                                               placeholder="0,00"
+                                                               data-field="AprileCreditoMesePrecedente">
+                                                    </div>
+                                                    <div class="col-md-3">
+                                                        <label class="form-label fw-bold">Importo Credito €</label>
+                                                        <input type="number" class="form-control" step="0.01" 
+                                                               value="@item.AprileImportoCredito" 
+                                                               placeholder="0,00"
+                                                               data-field="AprileImportoCredito">
+                                                    </div>
+                                                    <div class="col-md-3">
+                                                        <label class="form-label fw-bold">Importo Debito €</label>
+                                                        <input type="number" class="form-control" step="0.01" min="0"
+                                                               value="@(item.AprileImportoDebito != null ? Math.Abs(item.AprileImportoDebito.Value) : (decimal?)null)" 
+                                                               placeholder="0,00"
+                                                               data-field="AprileImportoDebito">
+                                                    </div>
+                                                    <div class="col-md-3">
+                                                        <label class="form-label fw-bold">F24 Consegnato</label>
+                                                        <select class="form-select" data-field="AprileF24Consegnato">
+                                                            <option value="">--</option>
+                                                            <option value="consegnato" selected="@(item.AprileF24Consegnato == "consegnato")">Consegnato</option>
+                                                            <option value="entratel" selected="@(item.AprileF24Consegnato == "entratel")">Entratel</option>
+                                                        </select>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- DICEMBRE (con Acconto IVA) -->
+                                    <div class="accordion-item">
+                                        <h2 class="accordion-header">
+                                            <button class="accordion-button collapsed mese-header" type="button" 
+                                                    data-bs-toggle="collapse" data-bs-target="#dic-@item.IdContabilitaInternaMensile"
+                                                    data-mese="12" data-cliente-id="@item.IdContabilitaInternaMensile"
+                                                    data-liq-iva="@item.DicembreLiqIvaImporto">
+                                                <i class="fas fa-calendar-alt me-2"></i>
+                                                <strong>DICEMBRE</strong>
+                                                <span class="ms-auto me-3 progress-badge" id="progress-dic-@item.IdContabilitaInternaMensile">
+                                                    <span class="badge bg-light text-dark">0/9</span>
+                                                </span>
+                                            </button>
+                                        </h2>
+                                        <div id="dic-@item.IdContabilitaInternaMensile" class="accordion-collapse collapse" 
+                                             data-bs-parent="#accordion-mesi-@item.IdContabilitaInternaMensile">
+                                            <div class="accordion-body bg-light">
+                                                <div class="row g-3">
+                                                    <div class="col-md-3">
+                                                        <label class="form-label fw-bold">Ultima FT Vendita</label>
+                                                        <input type="text" class="form-control" 
+                                                               value="@item.DicembreUltimaFtVendita" 
+                                                               placeholder="N° Fattura..."
+                                                               data-field="DicembreUltimaFtVendita">
+                                                    </div>
+                                                    <div class="col-md-3">
+                                                        <label class="form-label fw-bold">Data FT</label>
+                                                        <input type="date" class="form-control" 
+                                                               value="@(item.DicembreDataFt?.ToString("yyyy-MM-dd"))"
+                                                               data-field="DicembreDataFt">
+                                                    </div>
+                                                    <div class="col-md-3">
+                                                        <label class="form-label fw-bold">Liq. IVA Importo € <small class="text-muted">(calcolato)</small></label>
+                                                        <input type="number" class="form-control bg-light" step="0.01" 
+                                                               value="@item.DicembreLiqIvaImporto" 
+                                                               placeholder="0,00"
+                                                               data-field="DicembreLiqIvaImporto">
+                                                    </div>
+                                                    <div class="col-md-3">
+                                                        <label class="form-label fw-bold">Debito/Credito <small class="text-muted">(automatico)</small></label>
+                                                        <input type="text" class="form-control bg-light fw-bold text-center" 
+                                                               data-field="DicembreDebitoCredito" 
+                                                               value="@item.DicembreDebitoCredito" 
+                                                               readonly 
+                                                               style="font-size: 0.9em;">
+                                                    </div>
+                                                </div>
+                                                <div class="row g-3 mt-2">
+                                                    <div class="col-md-3">
+                                                        <label class="form-label fw-bold">Credito Mese Precedente € <small class="text-muted">(auto)</small></label>
+                                                        <input type="number" class="form-control bg-light" step="0.01" 
+                                                               value="@item.DicembreCreditoMesePrecedente" 
+                                                               placeholder="0,00"
+                                                               data-field="DicembreCreditoMesePrecedente">
+                                                    </div>
+                                                    <div class="col-md-2">
+                                                        <label class="form-label fw-bold">Importo Credito €</label>
+                                                        <input type="number" class="form-control" step="0.01" 
+                                                               value="@item.DicembreImportoCredito" 
+                                                               placeholder="0,00"
+                                                               data-field="DicembreImportoCredito">
+                                                    </div>
+                                                    <div class="col-md-2">
+                                                        <label class="form-label fw-bold">Importo Debito €</label>
+                                                        <input type="number" class="form-control" step="0.01" min="0"
+                                                               value="@(item.DicembreImportoDebito != null ? Math.Abs(item.DicembreImportoDebito.Value) : (decimal?)null)" 
+                                                               placeholder="0,00"
+                                                               data-field="DicembreImportoDebito">
+                                                    </div>
+                                                    <div class="col-md-2">
+                                                        <label class="form-label fw-bold">F24 Consegnato</label>
+                                                        <select class="form-select" data-field="DicembreF24Consegnato">
+                                                            <option value="">--</option>
+                                                            <option value="consegnato" selected="@(item.DicembreF24Consegnato == "consegnato")">Consegnato</option>
+                                                            <option value="entratel" selected="@(item.DicembreF24Consegnato == "entratel")">Entratel</option>
+                                                        </select>
+                                                    </div>
+                                                    <div class="col-md-3">
+                                                        <label class="form-label fw-bold">Acconto IVA €</label>
+                                                        <input type="number" class="form-control" step="0.01" 
+                                                               value="@item.DicembreAccontoIva" 
+                                                               placeholder="0,00"
+                                                               data-field="DicembreAccontoIva">
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    index++;
+                }
+            </div>
+        }
+        else
+        {
+            <div class="alert alert-info text-center">
+                <i class="fas fa-info-circle me-2"></i>
+                Nessun cliente ha la contabilità interna mensile attivata per l'anno @ViewBag.AnnoSelezionato.
+                <br>
+                <small class="text-muted">Attiva la contabilità interna mensile nell'anagrafica clienti per vedere le attività qui.</small>
+            </div>
+        }
+    </div>
+</div>
+
+<!-- Modal per conferma eliminazione di tutto l'anno -->
+<div class="modal fade" id="deleteAllModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header bg-danger text-white">
+                <h5 class="modal-title">Conferma Eliminazione</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <p>Sei sicuro di voler eliminare <strong>TUTTE</strong> le attività Contabilità Interna Mensili per l'anno <span id="annoToDelete"></span>?</p>
+                <div class="alert alert-warning">
+                    <i class="fas fa-exclamation-triangle me-2"></i>
+                    Questa operazione non può essere annullata!
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annulla</button>
+                <button type="button" class="btn btn-danger" onclick="deleteAllForYear()">
+                    <i class="fas fa-trash me-1"></i>Elimina Tutto
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        let currentAnnoToDelete;
+
+        $(document).ready(function() {
+            // Calcola i progressi iniziali
+            $('.contabilita-client-card').each(function() {
+                var clientId = $(this).data('client-id');
+                updateProgress(clientId);
+                updateMeseColors(clientId);
+            });
+
+            // Event listener per i campi
+            $(document).on('input change', '.contabilita-client-card input, .contabilita-client-card select', function() {
+                var clientCard = $(this).closest('.contabilita-client-card');
+                var clientId = clientCard.data('client-id');
+                updateProgress(clientId);
+                
+                // Se il campo modificato è Liq IVA, aggiorna i colori dei mesi
+                if ($(this).data('field') && $(this).data('field').includes('LiqIvaImporto')) {
+                    updateMeseColors(clientId);
+                }
+            });
+
+            // Filtri
+            $('#filtroNomeCliente').on('input', function() {
+                filterClients();
+            });
+
+            $('#filtroMese, #filtroF24, #filtroDebitoCredito').on('change', function() {
+                filterClients();
+            });
+        });
+
+        function updateProgress(clientId) {
+            var clientCard = $(`.contabilita-client-card[data-cliente-id="${clientId}"]`);
+            
+            // Conta i campi compilati per ogni mese
+            var progressByMonth = {};
+            var mesi = ['Gennaio', 'Febbraio', 'Marzo', 'Aprile', 'Dicembre']; // Per ora solo i mesi implementati nella UI
+            
+            mesi.forEach(function(mese) {
+                progressByMonth[mese.toLowerCase()] = countFilledFields(clientCard, mese);
+            });
+            
+            // Aggiorna badge dei mesi
+            Object.keys(progressByMonth).forEach(function(mese) {
+                var count = progressByMonth[mese];
+                var badge = $(`#progress-${mese.substr(0,3)}-${clientId} .badge`);
+                
+                // Dicembre ha 9 campi, gli altri 8
+                var maxFields = (mese === 'dicembre') ? 9 : 8;
+                badge.text(`${count}/${maxFields}`);
+                
+                // Colora il badge in base al progresso
+                badge.removeClass('bg-light bg-success bg-warning bg-danger text-dark text-white');
+                if (count === maxFields) {
+                    badge.addClass('bg-success text-white');
+                } else if (count >= Math.floor(maxFields * 0.6)) {
+                    badge.addClass('bg-warning text-dark');
+                } else if (count > 0) {
+                    badge.addClass('bg-info text-white');
+                } else {
+                    badge.addClass('bg-light text-dark');
+                }
+            });
+            
+            // Aggiorna progresso totale
+            var totalFilled = Object.values(progressByMonth).reduce((a, b) => a + b, 0);
+            var totalFields = 97; // 8 campi × 11 mesi + 9 campi × 1 mese (dicembre)
+            var progressText = $(`#progress-${clientId} .progress-text`);
+            progressText.text(`${totalFilled}/${totalFields}`);
+        }
+
+        function countFilledFields(clientCard, mese) {
+            var count = 0;
+            clientCard.find(`input[data-field*="${mese}"], select[data-field*="${mese}"]`).each(function() {
+                var value = $(this).val();
+                if (value && value.trim() !== '') {
+                    count++;
+                }
+            });
+            return count;
+        }
+
+        function updateMeseColors(clientId) {
+            // Implementa la logica per aggiornare i colori degli accordion dei mesi
+            // basandoti sui valori di Liq IVA Importo (simile ai trimestri)
+        }
+
+        // Salvataggio modifiche
+        $('#btnSalvaTutto').click(function() {
+            var contabilitaData = [];
+            
+            $('.contabilita-client-card').each(function() {
+                var clientCard = $(this);
+                var clienteId = clientCard.data('cliente-id');
+                
+                // Debug: verifica il campo codice
+                var codiceField = clientCard.find('[data-field="CodiceContabilita"]');
+                var codiceValue = codiceField.val();
+                console.log(`Cliente ${clienteId}: Campo codice trovato: ${codiceField.length}, Valore: "${codiceValue}"`);
+                
+                var clientData = {
+                    IdContabilitaInternaMensile: clienteId,
+                    
+                    // CODICE CONTABILITA
+                    CodiceContabilita: codiceValue || null,
+                    
+                    // GENNAIO
+                    GennaioUltimaFtVendita: clientCard.find('[data-field="GennaioUltimaFtVendita"]').val() || null,
+                    GennaioDataFt: clientCard.find('[data-field="GennaioDataFt"]').val() || null,
+                    GennaioLiqIvaImporto: parseFloat(clientCard.find('[data-field="GennaioLiqIvaImporto"]').val()) || null,
+                    GennaioDebitoCredito: clientCard.find('[data-field="GennaioDebitoCredito"]').val() || null,
+                    GennaioF24Consegnato: clientCard.find('[data-field="GennaioF24Consegnato"]').val() || null,
+                    GennaioCreditoAnnoPrecedente: parseFloat(clientCard.find('[data-field="GennaioCreditoAnnoPrecedente"]').val()) || null,
+                    GennaioImportoCredito: parseFloat(clientCard.find('[data-field="GennaioImportoCredito"]').val()) || null,
+                    GennaioImportoDebito: parseFloat(clientCard.find('[data-field="GennaioImportoDebito"]').val()) || null,
+
+                    // FEBBRAIO
+                    FebbraioUltimaFtVendita: clientCard.find('[data-field="FebbraioUltimaFtVendita"]').val() || null,
+                    FebbraioDataFt: clientCard.find('[data-field="FebbraioDataFt"]').val() || null,
+                    FebbraioLiqIvaImporto: parseFloat(clientCard.find('[data-field="FebbraioLiqIvaImporto"]').val()) || null,
+                    FebbraioDebitoCredito: clientCard.find('[data-field="FebbraioDebitoCredito"]').val() || null,
+                    FebbraioF24Consegnato: clientCard.find('[data-field="FebbraioF24Consegnato"]').val() || null,
+                    FebbraioCreditoMesePrecedente: parseFloat(clientCard.find('[data-field="FebbraioCreditoMesePrecedente"]').val()) || null,
+                    FebbraioImportoCredito: parseFloat(clientCard.find('[data-field="FebbraioImportoCredito"]').val()) || null,
+                    FebbraioImportoDebito: parseFloat(clientCard.find('[data-field="FebbraioImportoDebito"]').val()) || null,
+
+                    // MARZO
+                    MarzoUltimaFtVendita: clientCard.find('[data-field="MarzoUltimaFtVendita"]').val() || null,
+                    MarzoDataFt: clientCard.find('[data-field="MarzoDataFt"]').val() || null,
+                    MarzoLiqIvaImporto: parseFloat(clientCard.find('[data-field="MarzoLiqIvaImporto"]').val()) || null,
+                    MarzoDebitoCredito: clientCard.find('[data-field="MarzoDebitoCredito"]').val() || null,
+                    MarzoF24Consegnato: clientCard.find('[data-field="MarzoF24Consegnato"]').val() || null,
+                    MarzoCreditoMesePrecedente: parseFloat(clientCard.find('[data-field="MarzoCreditoMesePrecedente"]').val()) || null,
+                    MarzoImportoCredito: parseFloat(clientCard.find('[data-field="MarzoImportoCredito"]').val()) || null,
+                    MarzoImportoDebito: parseFloat(clientCard.find('[data-field="MarzoImportoDebito"]').val()) || null,
+
+                    // APRILE
+                    AprileUltimaFtVendita: clientCard.find('[data-field="AprileUltimaFtVendita"]').val() || null,
+                    AprileDataFt: clientCard.find('[data-field="AprileDataFt"]').val() || null,
+                    AprileLiqIvaImporto: parseFloat(clientCard.find('[data-field="AprileLiqIvaImporto"]').val()) || null,
+                    AprileDebitoCredito: clientCard.find('[data-field="AprileDebitoCredito"]').val() || null,
+                    AprileF24Consegnato: clientCard.find('[data-field="AprileF24Consegnato"]').val() || null,
+                    AprileCreditoMesePrecedente: parseFloat(clientCard.find('[data-field="AprileCreditoMesePrecedente"]').val()) || null,
+                    AprileImportoCredito: parseFloat(clientCard.find('[data-field="AprileImportoCredito"]').val()) || null,
+                    AprileImportoDebito: parseFloat(clientCard.find('[data-field="AprileImportoDebito"]').val()) || null,
+
+                    // TODO: Aggiungere altri mesi quando saranno implementati nella UI (Maggio-Novembre)
+
+                    // DICEMBRE (con Acconto IVA)
+                    DicembreUltimaFtVendita: clientCard.find('[data-field="DicembreUltimaFtVendita"]').val() || null,
+                    DicembreDataFt: clientCard.find('[data-field="DicembreDataFt"]').val() || null,
+                    DicembreLiqIvaImporto: parseFloat(clientCard.find('[data-field="DicembreLiqIvaImporto"]').val()) || null,
+                    DicembreDebitoCredito: clientCard.find('[data-field="DicembreDebitoCredito"]').val() || null,
+                    DicembreF24Consegnato: clientCard.find('[data-field="DicembreF24Consegnato"]').val() || null,
+                    DicembreAccontoIva: parseFloat(clientCard.find('[data-field="DicembreAccontoIva"]').val()) || null,
+                    DicembreCreditoMesePrecedente: parseFloat(clientCard.find('[data-field="DicembreCreditoMesePrecedente"]').val()) || null,
+                    DicembreImportoCredito: parseFloat(clientCard.find('[data-field="DicembreImportoCredito"]').val()) || null,
+                    DicembreImportoDebito: parseFloat(clientCard.find('[data-field="DicembreImportoDebito"]').val()) || null
+                };
+                
+                contabilitaData.push(clientData);
+            });
+
+            // Preparazione dei dati per il model binding corretto
+            var formData = new FormData();
+            
+            // Aggiungi antiforgery token (temporaneamente disabilitato per debug)
+            // var token = $('input[name="__RequestVerificationToken"]').val();
+            // console.log(`Token antiforgery trovato: ${token ? 'SI' : 'NO'}, Valore: ${token}`);
+            // formData.append('__RequestVerificationToken', token);
+            
+            // Aggiungi ogni contabilità con indici appropriati per il model binding
+            for (var i = 0; i < contabilitaData.length; i++) {
+                var item = contabilitaData[i];
+                
+                formData.append(`contabilita[${i}].IdContabilitaInternaMensile`, item.IdContabilitaInternaMensile || '');
+                formData.append(`contabilita[${i}].CodiceContabilita`, item.CodiceContabilita || '');
+                
+                // GENNAIO
+                formData.append(`contabilita[${i}].GennaioUltimaFtVendita`, item.GennaioUltimaFtVendita || '');
+                formData.append(`contabilita[${i}].GennaioDataFt`, item.GennaioDataFt || '');
+                formData.append(`contabilita[${i}].GennaioLiqIvaImporto`, item.GennaioLiqIvaImporto || '');
+                formData.append(`contabilita[${i}].GennaioDebitoCredito`, item.GennaioDebitoCredito || '');
+                formData.append(`contabilita[${i}].GennaioF24Consegnato`, item.GennaioF24Consegnato || '');
+                formData.append(`contabilita[${i}].GennaioCreditoAnnoPrecedente`, item.GennaioCreditoAnnoPrecedente || '');
+                formData.append(`contabilita[${i}].GennaioImportoCredito`, item.GennaioImportoCredito || '');
+                formData.append(`contabilita[${i}].GennaioImportoDebito`, item.GennaioImportoDebito || '');
+                
+                // FEBBRAIO
+                formData.append(`contabilita[${i}].FebbraioUltimaFtVendita`, item.FebbraioUltimaFtVendita || '');
+                formData.append(`contabilita[${i}].FebbraioDataFt`, item.FebbraioDataFt || '');
+                formData.append(`contabilita[${i}].FebbraioLiqIvaImporto`, item.FebbraioLiqIvaImporto || '');
+                formData.append(`contabilita[${i}].FebbraioDebitoCredito`, item.FebbraioDebitoCredito || '');
+                formData.append(`contabilita[${i}].FebbraioF24Consegnato`, item.FebbraioF24Consegnato || '');
+                formData.append(`contabilita[${i}].FebbraioCreditoMesePrecedente`, item.FebbraioCreditoMesePrecedente || '');
+                formData.append(`contabilita[${i}].FebbraioImportoCredito`, item.FebbraioImportoCredito || '');
+                formData.append(`contabilita[${i}].FebbraioImportoDebito`, item.FebbraioImportoDebito || '');
+                
+                // MARZO
+                formData.append(`contabilita[${i}].MarzoUltimaFtVendita`, item.MarzoUltimaFtVendita || '');
+                formData.append(`contabilita[${i}].MarzoDataFt`, item.MarzoDataFt || '');
+                formData.append(`contabilita[${i}].MarzoLiqIvaImporto`, item.MarzoLiqIvaImporto || '');
+                formData.append(`contabilita[${i}].MarzoDebitoCredito`, item.MarzoDebitoCredito || '');
+                formData.append(`contabilita[${i}].MarzoF24Consegnato`, item.MarzoF24Consegnato || '');
+                formData.append(`contabilita[${i}].MarzoCreditoMesePrecedente`, item.MarzoCreditoMesePrecedente || '');
+                formData.append(`contabilita[${i}].MarzoImportoCredito`, item.MarzoImportoCredito || '');
+                formData.append(`contabilita[${i}].MarzoImportoDebito`, item.MarzoImportoDebito || '');
+                
+                // APRILE
+                formData.append(`contabilita[${i}].AprileUltimaFtVendita`, item.AprileUltimaFtVendita || '');
+                formData.append(`contabilita[${i}].AprileDataFt`, item.AprileDataFt || '');
+                formData.append(`contabilita[${i}].AprileLiqIvaImporto`, item.AprileLiqIvaImporto || '');
+                formData.append(`contabilita[${i}].AprileDebitoCredito`, item.AprileDebitoCredito || '');
+                formData.append(`contabilita[${i}].AprileF24Consegnato`, item.AprileF24Consegnato || '');
+                formData.append(`contabilita[${i}].AprileCreditoMesePrecedente`, item.AprileCreditoMesePrecedente || '');
+                formData.append(`contabilita[${i}].AprileImportoCredito`, item.AprileImportoCredito || '');
+                formData.append(`contabilita[${i}].AprileImportoDebito`, item.AprileImportoDebito || '');
+                
+                // DICEMBRE
+                formData.append(`contabilita[${i}].DicembreUltimaFtVendita`, item.DicembreUltimaFtVendita || '');
+                formData.append(`contabilita[${i}].DicembreDataFt`, item.DicembreDataFt || '');
+                formData.append(`contabilita[${i}].DicembreLiqIvaImporto`, item.DicembreLiqIvaImporto || '');
+                formData.append(`contabilita[${i}].DicembreDebitoCredito`, item.DicembreDebitoCredito || '');
+                formData.append(`contabilita[${i}].DicembreF24Consegnato`, item.DicembreF24Consegnato || '');
+                formData.append(`contabilita[${i}].DicembreAccontoIva`, item.DicembreAccontoIva || '');
+                formData.append(`contabilita[${i}].DicembreCreditoMesePrecedente`, item.DicembreCreditoMesePrecedente || '');
+                formData.append(`contabilita[${i}].DicembreImportoCredito`, item.DicembreImportoCredito || '');
+                formData.append(`contabilita[${i}].DicembreImportoDebito`, item.DicembreImportoDebito || '');
+            }
+            
+            // Debug: mostra cosa viene inviato
+            console.log(`Invio ${contabilitaData.length} record al server`);
+            for (let pair of formData.entries()) {
+                if (pair[0].includes('CodiceContabilita')) {
+                    console.log(`DEBUG FormData: ${pair[0]} = ${pair[1]}`);
+                }
+            }
+            
+            $.ajax({
+                url: '@Url.Action("BulkUpdate")',
+                type: 'POST',
+                data: formData,
+                processData: false,
+                contentType: false,
+                success: function(response) {
+                    if (response.success) {
+                        showSuccessMessage(response.message);
+                    } else {
+                        showErrorMessage(response.message);
+                    }
+                },
+                error: function() {
+                    showErrorMessage('Errore durante il salvataggio');
+                }
+            });
+        });
+
+        function showDeleteAllModal() {
+            currentAnnoToDelete = '@ViewBag.AnnoSelezionato';
+            $('#annoToDelete').text(currentAnnoToDelete);
+            $('#deleteAllModal').modal('show');
+        }
+
+        function deleteAllForYear() {
+            $.post('@Url.Action("DeleteAllForYear")', { anno: currentAnnoToDelete })
+                .done(function(response) {
+                    if (response.success) {
+                        showSuccessMessage(response.message);
+                        setTimeout(() => location.reload(), 1500);
+                    } else {
+                        showErrorMessage(response.message);
+                    }
+                })
+                .fail(() => showErrorMessage('Errore durante l\'eliminazione'));
+            
+            $('#deleteAllModal').modal('hide');
+        }
+
+        function showSuccessMessage(message) {
+            // Implementa la visualizzazione dei messaggi di successo
+        }
+
+        function showErrorMessage(message) {
+            // Implementa la visualizzazione dei messaggi di errore
+        }
+
+        function filterClients() {
+            var nomeFilter = $('#filtroNomeCliente').val().toLowerCase();
+            var meseFilter = $('#filtroMese').val();
+            var f24Filter = $('#filtroF24').val();
+            var debitoFilter = $('#filtroDebitoCredito').val();
+
+            $('.contabilita-client-card').each(function() {
+                var card = $(this);
+                var nomeCliente = card.find('.fw-bold').first().text().toLowerCase();
+                var showCard = true;
+
+                // Filtro nome cliente
+                if (nomeFilter && !nomeCliente.includes(nomeFilter)) {
+                    showCard = false;
+                }
+
+                // Filtro mese (controlla se ha dati nel mese selezionato)
+                if (meseFilter && showCard) {
+                    var hasMeseData = false;
+                    var meseNames = ['gennaio', 'febbraio', 'marzo', 'aprile', 'maggio', 'giugno',
+                                   'luglio', 'agosto', 'settembre', 'ottobre', 'novembre', 'dicembre'];
+                    var meseName = meseNames[parseInt(meseFilter) - 1];
+                    
+                    // Controlla se il mese ha dati compilati
+                    card.find(`[data-field*="${meseName.charAt(0).toUpperCase() + meseName.slice(1)}"]`).each(function() {
+                        if ($(this).val() && $(this).val().trim() !== '') {
+                            hasMeseData = true;
+                            return false; // break
+                        }
+                    });
+                    
+                    if (!hasMeseData) {
+                        showCard = false;
+                    }
+                }
+
+                // Filtro F24 (simile al trimestrale ma per tutti i mesi)
+                if (f24Filter && showCard) {
+                    var hasF24Match = false;
+                    card.find('[data-field*="F24Consegnato"]').each(function() {
+                        var value = $(this).val();
+                        if (f24Filter === 'consegnato_entratel' && (value === 'consegnato' || value === 'entratel')) {
+                            hasF24Match = true;
+                        } else if (f24Filter === 'non_consegnato_entratel' && (!value || value === '')) {
+                            hasF24Match = true;
+                        } else if (value === f24Filter) {
+                            hasF24Match = true;
+                        }
+                    });
+                    
+                    if (!hasF24Match) {
+                        showCard = false;
+                    }
+                }
+
+                // Filtro debito/credito
+                if (debitoFilter && showCard) {
+                    var hasDebitoMatch = false;
+                    card.find('[data-field*="DebitoCredito"]').each(function() {
+                        var value = $(this).val();
+                        if ((debitoFilter === 'debito' && value === 'debito') || 
+                            (debitoFilter === 'credito' && value === 'credito')) {
+                            hasDebitoMatch = true;
+                        }
+                    });
+                    
+                    if (!hasDebitoMatch) {
+                        showCard = false;
+                    }
+                }
+
+                // Mostra/nascondi la card
+                if (showCard) {
+                    card.show();
+                } else {
+                    card.hide();
+                }
+            });
+        }
+
+        // Funzione per salvare un singolo cliente
+        function salvaCliente(clientId) {
+            var clientCard = $(`.contabilita-client-card[data-cliente-id="${clientId}"]`);
+            
+            // Raccoglie tutti i dati del cliente
+            var clientData = {
+                IdContabilitaInternaMensile: clientId,
+                CodiceContabilita: clientCard.find('[data-field="CodiceContabilita"]').val() || null,
+                
+                // GENNAIO
+                GennaioUltimaFtVendita: clientCard.find('[data-field="GennaioUltimaFtVendita"]').val() || null,
+                GennaioDataFt: clientCard.find('[data-field="GennaioDataFt"]').val() || null,
+                GennaioLiqIvaImporto: parseFloat(clientCard.find('[data-field="GennaioLiqIvaImporto"]').val()) || null,
+                GennaioDebitoCredito: clientCard.find('[data-field="GennaioDebitoCredito"]').val() || null,
+                GennaioF24Consegnato: clientCard.find('[data-field="GennaioF24Consegnato"]').val() || null,
+                GennaioCreditoAnnoPrecedente: parseFloat(clientCard.find('[data-field="GennaioCreditoAnnoPrecedente"]').val()) || null,
+                GennaioImportoCredito: parseFloat(clientCard.find('[data-field="GennaioImportoCredito"]').val()) || null,
+                GennaioImportoDebito: parseFloat(clientCard.find('[data-field="GennaioImportoDebito"]').val()) || null,
+                
+                // FEBBRAIO
+                FebbraioUltimaFtVendita: clientCard.find('[data-field="FebbraioUltimaFtVendita"]').val() || null,
+                FebbraioDataFt: clientCard.find('[data-field="FebbraioDataFt"]').val() || null,
+                FebbraioLiqIvaImporto: parseFloat(clientCard.find('[data-field="FebbraioLiqIvaImporto"]').val()) || null,
+                FebbraioDebitoCredito: clientCard.find('[data-field="FebbraioDebitoCredito"]').val() || null,
+                FebbraioF24Consegnato: clientCard.find('[data-field="FebbraioF24Consegnato"]').val() || null,
+                FebbraioCreditoMesePrecedente: parseFloat(clientCard.find('[data-field="FebbraioCreditoMesePrecedente"]').val()) || null,
+                FebbraioImportoCredito: parseFloat(clientCard.find('[data-field="FebbraioImportoCredito"]').val()) || null,
+                FebbraioImportoDebito: parseFloat(clientCard.find('[data-field="FebbraioImportoDebito"]').val()) || null,
+                
+                // MARZO
+                MarzoUltimaFtVendita: clientCard.find('[data-field="MarzoUltimaFtVendita"]').val() || null,
+                MarzoDataFt: clientCard.find('[data-field="MarzoDataFt"]').val() || null,
+                MarzoLiqIvaImporto: parseFloat(clientCard.find('[data-field="MarzoLiqIvaImporto"]').val()) || null,
+                MarzoDebitoCredito: clientCard.find('[data-field="MarzoDebitoCredito"]').val() || null,
+                MarzoF24Consegnato: clientCard.find('[data-field="MarzoF24Consegnato"]').val() || null,
+                MarzoCreditoMesePrecedente: parseFloat(clientCard.find('[data-field="MarzoCreditoMesePrecedente"]').val()) || null,
+                MarzoImportoCredito: parseFloat(clientCard.find('[data-field="MarzoImportoCredito"]').val()) || null,
+                MarzoImportoDebito: parseFloat(clientCard.find('[data-field="MarzoImportoDebito"]').val()) || null,
+                
+                // APRILE
+                AprileUltimaFtVendita: clientCard.find('[data-field="AprileUltimaFtVendita"]').val() || null,
+                AprileDataFt: clientCard.find('[data-field="AprileDataFt"]').val() || null,
+                AprileLiqIvaImporto: parseFloat(clientCard.find('[data-field="AprileLiqIvaImporto"]').val()) || null,
+                AprileDebitoCredito: clientCard.find('[data-field="AprileDebitoCredito"]').val() || null,
+                AprileF24Consegnato: clientCard.find('[data-field="AprileF24Consegnato"]').val() || null,
+                AprileCreditoMesePrecedente: parseFloat(clientCard.find('[data-field="AprileCreditoMesePrecedente"]').val()) || null,
+                AprileImportoCredito: parseFloat(clientCard.find('[data-field="AprileImportoCredito"]').val()) || null,
+                AprileImportoDebito: parseFloat(clientCard.find('[data-field="AprileImportoDebito"]').val()) || null,
+                
+                // DICEMBRE
+                DicembreUltimaFtVendita: clientCard.find('[data-field="DicembreUltimaFtVendita"]').val() || null,
+                DicembreDataFt: clientCard.find('[data-field="DicembreDataFt"]').val() || null,
+                DicembreLiqIvaImporto: parseFloat(clientCard.find('[data-field="DicembreLiqIvaImporto"]').val()) || null,
+                DicembreDebitoCredito: clientCard.find('[data-field="DicembreDebitoCredito"]').val() || null,
+                DicembreF24Consegnato: clientCard.find('[data-field="DicembreF24Consegnato"]').val() || null,
+                DicembreAccontoIva: parseFloat(clientCard.find('[data-field="DicembreAccontoIva"]').val()) || null,
+                DicembreCreditoMesePrecedente: parseFloat(clientCard.find('[data-field="DicembreCreditoMesePrecedente"]').val()) || null,
+                DicembreImportoCredito: parseFloat(clientCard.find('[data-field="DicembreImportoCredito"]').val()) || null,
+                DicembreImportoDebito: parseFloat(clientCard.find('[data-field="DicembreImportoDebito"]').val()) || null
+            };
+            
+            console.log(`Salvataggio singolo cliente ${clientId}, Codice: '${clientData.CodiceContabilita}'`);
+            
+            // Usa la stessa logica del BulkUpdate ma con un solo cliente
+            $.ajax({
+                url: '@Url.Action("BulkUpdate")',
+                type: 'POST',
+                data: {
+                    contabilita: [clientData], // Array con un solo elemento
+                    annoSelezionato: '@ViewBag.AnnoSelezionato',
+                    __RequestVerificationToken: $('input[name="__RequestVerificationToken"]').val()
+                },
+                success: function(response) {
+                    // Feedback visivo sul pulsante
+                    var btn = clientCard.find('button[onclick*="salvaCliente(' + clientId + ')"]');
+                    var originalText = btn.html();
+                    btn.html('<i class="fas fa-check me-1"></i>Salvato!').removeClass('btn-success').addClass('btn-outline-success');
+                    
+                    setTimeout(function() {
+                        btn.html(originalText).removeClass('btn-outline-success').addClass('btn-success');
+                    }, 2000);
+                    
+                    console.log('Cliente salvato con successo');
+                },
+                error: function(xhr, status, error) {
+                    console.error('Errore salvataggio cliente:', error);
+                    alert('❌ Errore durante il salvataggio del cliente');
+                }
+            });
+        }
+    </script>
+}
