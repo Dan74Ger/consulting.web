@@ -392,6 +392,168 @@
             </div>
         </div>
     </div>
+
+    <!-- Contabilità Interne -->
+    <div class="row">
+        <div class="col-12">
+            <div class="card shadow-sm">
+                <div class="card-header bg-info text-white">
+                    <h5 class="mb-0"><i class="fas fa-calculator me-2"></i>Contabilità Interne</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row text-center">
+                        <div class="col-lg-3 col-md-6 mb-3">
+                            <div class="stat-summary bg-primary text-white">
+                                <h4>@Model.ContabilitaInterne.SoloTrimestrale</h4>
+                                <p class="mb-0">Solo Trimestrale</p>
+                                <small class="opacity-75">Gestione contabilità ogni 3 mesi</small>
+                            </div>
+                        </div>
+                        <div class="col-lg-3 col-md-6 mb-3">
+                            <div class="stat-summary bg-success text-white">
+                                <h4>@Model.ContabilitaInterne.SoloMensile</h4>
+                                <p class="mb-0">Solo Mensile</p>
+                                <small class="opacity-75">Gestione contabilità mensile</small>
+                            </div>
+                        </div>
+                        <div class="col-lg-3 col-md-6 mb-3">
+                            <div class="stat-summary bg-warning text-dark">
+                                <h4>@Model.ContabilitaInterne.Entrambe</h4>
+                                <p class="mb-0">Entrambe</p>
+                                <small class="opacity-75">Trimestrale + Mensile</small>
+                            </div>
+                        </div>
+                        <div class="col-lg-3 col-md-6 mb-3">
+                            <div class="stat-summary bg-secondary text-white">
+                                <h4>@Model.ContabilitaInterne.Esterni</h4>
+                                <p class="mb-0">Esterni</p>
+                                <small class="opacity-75">Nessuna contabilità interna</small>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Grafico a torta percentuali -->
+                    <hr class="my-4">
+                    <div class="row">
+                        <div class="col-md-8">
+                            <h6 class="fw-bold mb-3">Distribuzione Contabilità Interne</h6>
+                            @{
+                                int totaleContabilita = Model.ContabilitaInterne.SoloTrimestrale + Model.ContabilitaInterne.SoloMensile + Model.ContabilitaInterne.Entrambe + Model.ContabilitaInterne.Esterni;
+                                var percTrimestrale = totaleContabilita > 0 ? (Model.ContabilitaInterne.SoloTrimestrale * 100.0 / totaleContabilita) : 0;
+                                var percMensile = totaleContabilita > 0 ? (Model.ContabilitaInterne.SoloMensile * 100.0 / totaleContabilita) : 0;
+                                var percEntrambe = totaleContabilita > 0 ? (Model.ContabilitaInterne.Entrambe * 100.0 / totaleContabilita) : 0;
+                                var percEsterni = totaleContabilita > 0 ? (Model.ContabilitaInterne.Esterni * 100.0 / totaleContabilita) : 0;
+                            }
+                            <div class="table-responsive">
+                                <table class="table table-striped mb-0">
+                                    <thead class="table-light">
+                                        <tr>
+                                            <th>Tipologia</th>
+                                            <th class="text-center">Clienti</th>
+                                            <th class="text-center">Percentuale</th>
+                                            <th width="200">Distribuzione</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td>
+                                                <span class="badge bg-primary me-2"></span>
+                                                <strong>Solo Trimestrale</strong>
+                                            </td>
+                                            <td class="text-center">
+                                                <span class="badge bg-primary">@Model.ContabilitaInterne.SoloTrimestrale</span>
+                                            </td>
+                                            <td class="text-center">
+                                                <strong>@percTrimestrale.ToString("F1")%</strong>
+                                            </td>
+                                            <td>
+                                                <div class="progress" style="height: 20px;">
+                                                    <div class="progress-bar bg-primary" role="progressbar" style="width: @percTrimestrale%"></div>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td>
+                                                <span class="badge bg-success me-2"></span>
+                                                <strong>Solo Mensile</strong>
+                                            </td>
+                                            <td class="text-center">
+                                                <span class="badge bg-success">@Model.ContabilitaInterne.SoloMensile</span>
+                                            </td>
+                                            <td class="text-center">
+                                                <strong>@percMensile.ToString("F1")%</strong>
+                                            </td>
+                                            <td>
+                                                <div class="progress" style="height: 20px;">
+                                                    <div class="progress-bar bg-success" role="progressbar" style="width: @percMensile%"></div>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td>
+                                                <span class="badge bg-warning me-2"></span>
+                                                <strong>Entrambe</strong>
+                                            </td>
+                                            <td class="text-center">
+                                                <span class="badge bg-warning text-dark">@Model.ContabilitaInterne.Entrambe</span>
+                                            </td>
+                                            <td class="text-center">
+                                                <strong>@percEntrambe.ToString("F1")%</strong>
+                                            </td>
+                                            <td>
+                                                <div class="progress" style="height: 20px;">
+                                                    <div class="progress-bar bg-warning" role="progressbar" style="width: @percEntrambe%"></div>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td>
+                                                <span class="badge bg-secondary me-2"></span>
+                                                <strong>Esterni</strong>
+                                            </td>
+                                            <td class="text-center">
+                                                <span class="badge bg-secondary">@Model.ContabilitaInterne.Esterni</span>
+                                            </td>
+                                            <td class="text-center">
+                                                <strong>@percEsterni.ToString("F1")%</strong>
+                                            </td>
+                                            <td>
+                                                <div class="progress" style="height: 20px;">
+                                                    <div class="progress-bar bg-secondary" role="progressbar" style="width: @percEsterni%"></div>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <h6 class="fw-bold mb-3">Collegamenti Diretti</h6>
+                            <div class="d-grid gap-2">
+                                <a href="/ContabilitaInternaTrim" class="btn btn-primary btn-sm">
+                                    <i class="fas fa-calculator me-1"></i>Gestione Trimestrale
+                                </a>
+                                <a href="/ContabilitaInternaMens" class="btn btn-success btn-sm">
+                                    <i class="fas fa-calendar me-1"></i>Gestione Mensile
+                                </a>
+                                <a href="/GestioneAttivita" class="btn btn-info btn-sm">
+                                    <i class="fas fa-tasks me-1"></i>Gestione Attività
+                                </a>
+                            </div>
+                            
+                            <div class="mt-4 p-3 bg-light rounded">
+                                <h6 class="fw-bold text-muted mb-2">Riepilogo</h6>
+                                <small class="text-muted">
+                                    <i class="fas fa-info-circle me-1"></i>
+                                    I clienti possono avere contabilità trimestrale, mensile, entrambe o essere completamente esterni per la gestione contabile.
+                                </small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
 
 @section Styles {

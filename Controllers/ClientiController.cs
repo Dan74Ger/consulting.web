@@ -98,6 +98,15 @@ namespace ConsultingGroup.Controllers
                     TitolareEffettivo = await _context.Clienti.CountAsync(c => c.Attivo && c.TitolareEffettivo)
                 },
 
+                // Contabilità Interne
+                ContabilitaInterne = new
+                {
+                    SoloTrimestrale = await _context.Clienti.CountAsync(c => c.Attivo && c.ContabilitaInternaTrimestrale && !c.ContabilitaInternaMensile),
+                    SoloMensile = await _context.Clienti.CountAsync(c => c.Attivo && !c.ContabilitaInternaTrimestrale && c.ContabilitaInternaMensile),
+                    Entrambe = await _context.Clienti.CountAsync(c => c.Attivo && c.ContabilitaInternaTrimestrale && c.ContabilitaInternaMensile),
+                    Esterni = await _context.Clienti.CountAsync(c => c.Attivo && !c.ContabilitaInternaTrimestrale && !c.ContabilitaInternaMensile)
+                },
+
                 // Statistiche generali
                 StatisticheGenerali = new
                 {
