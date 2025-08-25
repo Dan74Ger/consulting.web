@@ -65,8 +65,6 @@ namespace ConsultingGroup.Controllers
                 AnniFiscaliCessati = allAnniFiscali.Count(a => !a.Attivo),
                 AnnoFiscaleCorrente = allAnniFiscali.FirstOrDefault(a => a.AnnoCorrente)?.Anno.ToString() ?? "N/A",
                 
-
-                
                 // Statistiche reali Clienti
                 ClientiAttivi = allClienti.Count(c => c.Attivo),
                 ClientiCessati = allClienti.Count(c => !c.Attivo),

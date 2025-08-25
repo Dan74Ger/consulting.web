@@ -29,11 +29,11 @@ namespace ConsultingGroup.ViewModels
         [Display(Name = "Tipologia INPS")]
         public int? IdTipologiaInps { get; set; }
 
-        [Display(Name = "Contabilità")]
-        public bool Contabilita { get; set; } = false; // false=Esterno, true=Interno
+        [Display(Name = "Contabilità Interna Trimestrale")]
+        public bool ContabilitaInternaTrimestrale { get; set; } = false; // false=Esterno, true=Trimestrale
 
-        [Display(Name = "Periodo Contabilità")]
-        public bool PeriodoContabilita { get; set; } = false; // false=Trimestrale, true=Mensile
+        [Display(Name = "Contabilità Interna Mensile")]
+        public bool ContabilitaInternaMensile { get; set; } = false; // false=Non mensile, true=Mensile
 
         [Display(Name = "Tasso per IVA Trimestrale")]
         public decimal? TassoIvaTrimestrale { get; set; } = 0.01m; // Default: 1%

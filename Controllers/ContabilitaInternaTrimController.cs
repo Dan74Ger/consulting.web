@@ -63,7 +63,7 @@ namespace ConsultingGroup.Controllers
             // Popolamento automatico per NUOVI clienti con contabilità INTERNA
             // IMPORTANTE: Solo clienti con Contabilita = true (interno)
             var clientiSenzaContabilita = await _context.Clienti
-                .Where(c => c.Contabilita && // Solo contabilità interna
+                .Where(c => c.ContabilitaInternaTrimestrale && // Solo contabilità interna trimestrale
                            c.Attivo && // Solo clienti attivi
                            !_context.ContabilitaInternaTrimestrale.Any(ct => ct.IdCliente == c.IdCliente && ct.IdAnno == annoFiscale.IdAnno))
                 .ToListAsync();

@@ -263,8 +263,8 @@ namespace ConsultingGroup.Controllers
                     MailCliente = viewModel.MailCliente,
                     IdRegimeContabile = viewModel.IdRegimeContabile,
                     IdTipologiaInps = viewModel.IdTipologiaInps,
-                    Contabilita = viewModel.Contabilita,
-                    PeriodoContabilita = viewModel.PeriodoContabilita,
+                    ContabilitaInternaTrimestrale = viewModel.ContabilitaInternaTrimestrale,
+                    ContabilitaInternaMensile = viewModel.ContabilitaInternaMensile,
                     TassoIvaTrimestrale = viewModel.TassoIvaTrimestrale,
                     
                     // Attività Redditi
@@ -454,6 +454,19 @@ namespace ConsultingGroup.Controllers
                             if (count > 0) checkboxRimosse.Add(("MOD TR IVA", "attivita_mod_tr_iva", count));
                         }
                         
+                        // CONTROLLI PER CONTABILITÀ INTERNA
+                        if (cliente.ContabilitaInternaTrimestrale && !viewModel.ContabilitaInternaTrimestrale)
+                        {
+                            var count = await _context.ContabilitaInternaTrimestrale.CountAsync(ct => ct.IdCliente == cliente.IdCliente && ct.IdAnno == annoCorrente.IdAnno);
+                            if (count > 0) checkboxRimosse.Add(("CONTABILITÀ TRIMESTRALE", "contabilita_interna_trimestrale", count));
+                        }
+                        // TODO: Quando sarà implementata la contabilità mensile, aggiungere:
+                        // if (cliente.ContabilitaInternaMensile && !viewModel.ContabilitaInternaMensile)
+                        // {
+                        //     var count = await _context.ContabilitaInternaMensile.CountAsync(cm => cm.IdCliente == cliente.IdCliente && cm.IdAnno == annoCorrente.IdAnno);
+                        //     if (count > 0) checkboxRimosse.Add(("CONTABILITÀ MENSILE", "contabilita_interna_mensile", count));
+                        // }
+                        
                         // Controlli per attività contabili
                         // TODO: Quando saranno create le tabelle per le attività contabili, aggiungere i controlli per:
                         // - INAIL (AttivitaInail)
@@ -540,8 +553,8 @@ namespace ConsultingGroup.Controllers
                     cliente.MailCliente = viewModel.MailCliente;
                     cliente.IdRegimeContabile = viewModel.IdRegimeContabile;
                     cliente.IdTipologiaInps = viewModel.IdTipologiaInps;
-                    cliente.Contabilita = viewModel.Contabilita;
-                    cliente.PeriodoContabilita = viewModel.PeriodoContabilita;
+                    cliente.ContabilitaInternaTrimestrale = viewModel.ContabilitaInternaTrimestrale;
+                    cliente.ContabilitaInternaMensile = viewModel.ContabilitaInternaMensile;
                     cliente.TassoIvaTrimestrale = viewModel.TassoIvaTrimestrale;
                     
                     // Attività Redditi
@@ -975,8 +988,8 @@ namespace ConsultingGroup.Controllers
                 MailCliente = cliente.MailCliente,
                 IdRegimeContabile = cliente.IdRegimeContabile,
                 IdTipologiaInps = cliente.IdTipologiaInps,
-                Contabilita = cliente.Contabilita,
-                PeriodoContabilita = cliente.PeriodoContabilita,
+                ContabilitaInternaTrimestrale = cliente.ContabilitaInternaTrimestrale,
+                ContabilitaInternaMensile = cliente.ContabilitaInternaMensile,
                 TassoIvaTrimestrale = cliente.TassoIvaTrimestrale,
                 
                 // Attività Redditi
@@ -2176,6 +2189,19 @@ namespace ConsultingGroup.Controllers
                             .Where(a => a.IdCliente == idCliente && a.IdAnno == idAnno)
                             .ToListAsync();
                         _context.AttivitaTriva.RemoveRange(attivitaTriva);
+                        break;
+
+                    case "contabilita_interna_trimestrale":
+                        var contabilitaTrimestrale = await _context.ContabilitaInternaTrimestrale
+                            .Where(ct => ct.IdCliente == idCliente && ct.IdAnno == idAnno)
+                            .ToListAsync();
+                        _context.ContabilitaInternaTrimestrale.RemoveRange(contabilitaTrimestrale);
+                        Console.WriteLine($"🗑️ Rimosse {contabilitaTrimestrale.Count} contabilità trimestrali per cliente {idCliente}");
+                        break;
+
+                    case "contabilita_interna_mensile":
+                        // TODO: Implementare quando sarà creata la tabella ContabilitaInternaMensile
+                        Console.WriteLine($"NOTA: Rimozione contabilità mensile per cliente {idCliente} - non ancora implementata");
                         break;
 
                     // TODO: Aggiungere case per attività contabili quando saranno create le tabelle:

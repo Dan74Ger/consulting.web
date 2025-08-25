@@ -170,31 +170,31 @@
                     <div class="row">
                         <div class="col-md-6 mb-3">
                             <label class="form-label text-muted fw-bold">
-                                <i class="fas fa-calculator me-1"></i>Gestione Contabilità
+                                <i class="fas fa-calculator me-1"></i>Contabilità Interna Trimestrale
                             </label>
                             <div class="form-control-plaintext">
-                                @if (Model.Contabilita)
+                                @if (Model.ContabilitaInternaTrimestrale)
                                 {
-                                    <span class="badge bg-success">Interna</span>
+                                    <span class="badge bg-success"><i class="fas fa-check me-1"></i>Attiva</span>
                                 }
                                 else
                                 {
-                                    <span class="badge bg-secondary">Esterna</span>
+                                    <span class="badge bg-secondary"><i class="fas fa-times me-1"></i>Non Attiva</span>
                                 }
                             </div>
                         </div>
                         <div class="col-md-6 mb-3">
                             <label class="form-label text-muted fw-bold">
-                                <i class="fas fa-calendar me-1"></i>Periodicità
+                                <i class="fas fa-calendar me-1"></i>Contabilità Interna Mensile
                             </label>
                             <div class="form-control-plaintext">
-                                @if (Model.PeriodoContabilita)
+                                @if (Model.ContabilitaInternaMensile)
                                 {
-                                    <span class="badge bg-primary">Mensile</span>
+                                    <span class="badge bg-primary"><i class="fas fa-check me-1"></i>Attiva</span>
                                 }
                                 else
                                 {
-                                    <span class="badge bg-info">Trimestrale</span>
+                                    <span class="badge bg-info"><i class="fas fa-times me-1"></i>Non Attiva</span>
                                 }
                             </div>
                         </div>

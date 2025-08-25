@@ -295,20 +295,15 @@
                                     <i class="fas fa-calculator me-1"></i>Gestione Contabilità
                                 </label>
                                 <div class="form-check">
-                                    <input asp-for="Contabilita" class="form-check-input" type="checkbox">
-                                    <label asp-for="Contabilita" class="form-check-label">
-                                        Contabilità Interna (se deselezionato: Esterna)
+                                    <input asp-for="ContabilitaInternaTrimestrale" class="form-check-input" type="checkbox">
+                                    <label asp-for="ContabilitaInternaTrimestrale" class="form-check-label">
+                                        Contabilità Interna Trimestrale
                                     </label>
                                 </div>
-                            </div>
-                            <div class="col-md-6 mb-3">
-                                <label class="form-label fw-bold">
-                                    <i class="fas fa-calendar me-1"></i>Periodicità
-                                </label>
-                                <div class="form-check">
-                                    <input asp-for="PeriodoContabilita" class="form-check-input" type="checkbox">
-                                    <label asp-for="PeriodoContabilita" class="form-check-label">
-                                        Periodo Mensile (se deselezionato: Trimestrale)
+                                <div class="form-check mt-2">
+                                    <input asp-for="ContabilitaInternaMensile" class="form-check-input" type="checkbox">
+                                    <label asp-for="ContabilitaInternaMensile" class="form-check-label">
+                                        Contabilità Interna Mensile
                                     </label>
                                 </div>
                             </div>

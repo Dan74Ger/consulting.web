@@ -724,8 +724,8 @@ namespace ConsultingGroup.Services
                         IdProfessionista = professionista?.IdProfessionista,
                         IdRegimeContabile = regimeContabile?.IdRegimeContabile,
                         IdTipologiaInps = tipologiaInps?.IdTipologiaInps,
-                        Contabilita = true, // Interno
-                        PeriodoContabilita = true, // Mensile
+                        ContabilitaInternaTrimestrale = true, // Interno Trimestrale
+                        ContabilitaInternaMensile = true, // Interno Mensile
                         
                         // Attività Redditi
                         Mod730 = true,
@@ -756,8 +756,8 @@ namespace ConsultingGroup.Services
                         CodiceAteco = "70.22.09",
                         IdProfessionista = professionista?.IdProfessionista,
                         IdRegimeContabile = regimeContabile?.IdRegimeContabile,
-                        Contabilita = false, // Esterno
-                        PeriodoContabilita = false, // Trimestrale
+                        ContabilitaInternaTrimestrale = false, // Non Trimestrale (Esterno)
+                        ContabilitaInternaMensile = false, // Non Mensile
                         
                         // Solo alcune attività
                         Mod740 = true,
@@ -778,8 +778,8 @@ namespace ConsultingGroup.Services
                         MailCliente = "commercio@verde.it",
                         CodiceAteco = "47.11.10",
                         IdTipologiaInps = tipologiaInps?.IdTipologiaInps,
-                        Contabilita = true, // Interno
-                        PeriodoContabilita = false, // Trimestrale
+                        ContabilitaInternaTrimestrale = true, // Interno Trimestrale
+                        ContabilitaInternaMensile = false, // Non Mensile
                         
                         // Molte attività
                         Mod730 = true,
@@ -829,8 +829,8 @@ namespace ConsultingGroup.Services
                         NomeCliente = "Gialli Transport SPA",
                         MailCliente = "trasporti@gialli.it",
                         CodiceAteco = "49.41.00",
-                        Contabilita = true, // Interno
-                        PeriodoContabilita = true, // Mensile
+                        ContabilitaInternaTrimestrale = true, // Interno Trimestrale
+                        ContabilitaInternaMensile = true, // Interno Mensile
                         
                         // Cliente cessato
                         Attivo = false,

@@ -38,13 +38,13 @@ namespace ConsultingGroup.Models
         [Display(Name = "Tipologia INPS")]
         public int? IdTipologiaInps { get; set; }
 
-        [Column("contabilita")]
-        [Display(Name = "Contabilità")]
-        public bool Contabilita { get; set; } = false; // false=Esterno, true=Interno
+        [Column("contabilita_interna_trimestrale")]
+        [Display(Name = "Contabilità Interna Trimestrale")]
+        public bool ContabilitaInternaTrimestrale { get; set; } = false; // false=Esterno, true=Trimestrale
 
-        [Column("periodo_contabilita")]
-        [Display(Name = "Periodo Contabilità")]
-        public bool PeriodoContabilita { get; set; } = false; // false=Trimestrale, true=Mensile
+        [Column("contabilita_interna_mensile")]
+        [Display(Name = "Contabilità Interna Mensile")]
+        public bool ContabilitaInternaMensile { get; set; } = false; // false=Non mensile, true=Mensile
 
         [Column("tasso_iva_trimestrale")]
         [Display(Name = "Tasso per IVA Trimestrale")]
